@@ -11,11 +11,11 @@
 
 ## 设计
 
-#### 用例图
-<img alt="用例图" src="#">
+> #### 用例图
+> <img alt="用例图" src="docs/use-case-diagram-v0.2.jpeg" width="30%">
 
-#### UI图
-<img alt="UI图" src="#">
+> #### UI图
+> <img alt="UI图" src="docs/UI-design.png" width="30%">
 
 #### ER图
 <img alt="ER图" src="#">
