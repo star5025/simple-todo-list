@@ -3,9 +3,8 @@ package org.star5025.backend.controller.testcontroller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.star5025.backend.dto.UserDTO;
 import org.star5025.backend.entity.User;
 import org.star5025.backend.service.UserService;
 
@@ -13,8 +12,9 @@ import java.util.List;
 
 @Api(tags = "用户相关接口")
 @RestController
-@RequestMapping("/admin/user")
+@RequestMapping("/api/user")
 public class UserController {
+
     @Autowired
     private UserService userService;
 
@@ -26,5 +26,17 @@ public class UserController {
     @GetMapping("/all")
     public List<User> getAllUserTest(){
         return userService.getAllUserTest();
+    }
+
+    /**
+     * 用户注册
+     * @param userDTO
+     */
+    @ApiOperation("用户注册")
+    @PostMapping("/register")
+    public String register(@RequestBody UserDTO userDTO){
+        System.out.println(userDTO);
+        userService.register(userDTO);
+        return "success";
     }
 }

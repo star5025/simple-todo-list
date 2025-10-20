@@ -4,6 +4,8 @@ create table user
         primary key,
     user_name     varchar(255) not null,
     user_password varchar(255) not null,
-    starred_task  varchar(255) null comment '星标代办（逻辑外键或否）'
+    constraint user_name
+        unique (user_name)
 );
 
+INSERT INTO simple_todo_list.user (user_id, user_name, user_password) VALUES (1, 'admin', '123456');

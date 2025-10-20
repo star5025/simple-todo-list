@@ -1,7 +1,9 @@
 package org.star5025.backend.service.impl;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.star5025.backend.dto.UserDTO;
 import org.star5025.backend.entity.User;
 import org.star5025.backend.mapper.UserMapper;
 import org.star5025.backend.service.UserService;
@@ -20,5 +22,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> getAllUserTest() {
         return userMapper.getAll();
+    }
+
+    /**
+     * 用户注册
+     * @param userDTO
+     */
+    @Override
+    public void register(UserDTO userDTO) {
+        User user = new User();
+        BeanUtils.copyProperties(userDTO,user);
+        userMapper.register(user);
     }
 }
