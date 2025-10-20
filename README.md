@@ -17,8 +17,8 @@
 > #### UI图
 > <img alt="UI图" src="docs/UI-design.png" width="30%">
 
-#### ER图
-<img alt="ER图" src="#">
+> #### ER图
+> <img alt="ER图" src="docs/er_graph.png" width = "100%">
 
 #### 流程图
 <img alt="流程图" src="#">
