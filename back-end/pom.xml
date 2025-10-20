@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.6</version>
+        <version>2.7.18</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>org.star5025</groupId>
@@ -40,6 +40,51 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- 数据库驱动依赖 -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.33</version> <!-- 与MySQL服务器版本匹配 -->
+            <scope>runtime</scope>
+        </dependency>
+
+        <!--lombok 可简化代码，实现getter&setter方法-->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.24</version> <!-- 版本号可根据最新稳定版调整 -->
+            <optional>true</optional>
+        </dependency>
+
+        <!--mybatis-->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>3.5.5</version> <!-- 版本号：推荐使用最新稳定版，可到Maven中央仓库查询 -->
+        </dependency>
+
+        <!--整合openApi和swagger，便于接口文档调试-->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-spring-boot-starter</artifactId>
+            <version>3.0.2</version>  <!--需要指定版本-->
+        </dependency>
+
+        <!-- druid依赖，保证到时候能读取+换application-???.yml-->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid-spring-boot-starter</artifactId>
+            <version>1.2.18</version> <!-- 稳定版本，与 Spring Boot 2.7.x 兼容 -->
+        </dependency>
+
+        <!--允许使用swagger2.0版本注解 -->
+<!--        <dependency>-->
+<!--            <groupId>io.swagger</groupId>-->
+<!--            <artifactId>swagger-annotations</artifactId>-->
+<!--            <version>1.5.22</version>-->
+<!--        </dependency>-->
+
     </dependencies>
 
     <build>

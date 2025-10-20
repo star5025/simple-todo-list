@@ -1,0 +1,17 @@
+server:
+  port: 8088
+
+spring:
+  profiles:
+    active: dev
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+  datasource:
+    druid:
+      driver-class-name: ${stdl.datasource.driver-class-name}
+      url: jdbc:mysql://${stdl.datasource.host}:${stdl.datasource.port}/${stdl.datasource.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+      username: ${stdl.datasource.username}
+      password: ${stdl.datasource.password}
