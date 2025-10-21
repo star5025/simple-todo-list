@@ -1,4 +1,4 @@
-package org.star5025.backend.controller.testcontroller;
+package org.star5025.backend.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

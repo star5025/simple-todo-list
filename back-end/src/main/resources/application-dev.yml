@@ -5,4 +5,4 @@ stdl:
     port: 3306
     database: simple_todo_list
     username: root
-    password: 123456
+    password: 12345678

@@ -1,0 +1,20 @@
+package org.star5025.backend.service;
+
+import org.star5025.backend.dto.TaskDTO;
+import org.star5025.backend.entity.Task;
+
+import java.util.List;
+
+public interface TaskService {
+    /**
+     * 查询所有任务，测试用
+     * @return
+     */
+    List<Task> getAllTaskTest();
+
+    /**
+     * 新增任务
+     * @param taskDTO
+     */
+    void createTask(TaskDTO taskDTO);
+}
