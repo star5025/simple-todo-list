@@ -2,6 +2,7 @@ package org.star5025.backend.controller.testcontroller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.star5025.backend.dto.UserDTO;
@@ -10,6 +11,7 @@ import org.star5025.backend.service.UserService;
 
 import java.util.List;
 
+@Slf4j
 @Api(tags = "用户相关接口")
 @RestController
 @RequestMapping("/api/user")
@@ -35,7 +37,7 @@ public class UserController {
     @ApiOperation("用户注册")
     @PostMapping("/register")
     public String register(@RequestBody UserDTO userDTO){
-        System.out.println(userDTO);
+        log.info("用户注册：{}",userDTO);
         userService.register(userDTO);
         return "success";
     }

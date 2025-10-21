@@ -78,6 +78,13 @@
             <version>1.2.18</version> <!-- 稳定版本，与 Spring Boot 2.7.x 兼容 -->
         </dependency>
 
+        <!-- 能使用log.info()等操作 -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.36</version> <!-- 版本可根据需要更新，如 2.0.x 最新版 -->
+        </dependency>
+
         <!--允许使用swagger2.0版本注解 -->
 <!--        <dependency>-->
 <!--            <groupId>io.swagger</groupId>-->
