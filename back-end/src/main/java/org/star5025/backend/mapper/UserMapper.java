@@ -17,6 +17,10 @@ public interface UserMapper {
     @Select("select * from user")
     List<User> getAll();
 
+    /**
+     * 用户注册
+     * @param user
+     */
     @Insert("insert into user (user_name, user_password) values (#{userName}, #{userPassword})")
     void register(User user);
 

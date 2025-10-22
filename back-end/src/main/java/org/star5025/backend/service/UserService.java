@@ -10,7 +10,7 @@ public interface UserService {
      * 查询所有用户，测试用
      * @return
      */
-    public List<User> getAllUserTest();
+    List<User> getAllUserTest();
 
     /**
      * 用户注册
