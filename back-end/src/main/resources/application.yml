@@ -15,3 +15,10 @@ spring:
       url: jdbc:mysql://${stdl.datasource.host}:${stdl.datasource.port}/${stdl.datasource.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
       username: ${stdl.datasource.username}
       password: ${stdl.datasource.password}
+
+stdl:
+  jwt:
+    secret-key : oneStar
+    ttl : 86400000
+    token-name : token
+    #TODO 到时候可以把ttl改的稍微短一点，现在方便测试token有效期为1天

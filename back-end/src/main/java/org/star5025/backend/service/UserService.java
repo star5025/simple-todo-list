@@ -17,4 +17,11 @@ public interface UserService {
      * @param userDTO
      */
     void register(UserDTO userDTO);
+
+    /**
+     * 用户登录
+     * @param userDTO
+     * @return
+     */
+    User login(UserDTO userDTO);
 }

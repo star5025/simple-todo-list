@@ -34,4 +34,26 @@ public class UserServiceImpl implements UserService {
         BeanUtils.copyProperties(userDTO,user);
         userMapper.register(user);
     }
+
+    /**
+     * 用户登录
+     * @param userDTO
+     * @return
+     */
+    @Override
+    public User login(UserDTO userDTO) {
+        String userName = userDTO.getUserName();
+        String userPassword = userDTO.getUserPassword();
+        // 根据员工用户名查找
+        User user = userMapper.getByUserName(userName);
+        if(user==null){
+            throw new RuntimeException("User not found");
+        }
+
+        if (!userPassword.equals(user.getUserPassword())) {
+            throw new RuntimeException("Password not match");
+        }
+        return user;
+    }
+
 }
