@@ -99,6 +99,15 @@
             <version>0.9.1</version>
         </dependency>
 
+        <!-- TODO 做到分页查询的时候记得去安装此依赖，可大大减少代码量，估计CSDN有的抄 -->
+        <!-- 不可单独使用该依赖，需要些配置类或者配置文件！！！ -->
+        <!-- 帮助分页查询用的 -->
+<!--        <dependency>-->
+<!--            <groupId>com.github.pagehelper</groupId>-->
+<!--            <artifactId>pagehelper-spring-boot-starter</artifactId>-->
+<!--            <version>1.3.0</version>-->
+<!--        </dependency>-->
+
     </dependencies>
 
     <build>
