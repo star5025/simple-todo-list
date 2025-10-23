@@ -56,4 +56,16 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+
+    /**
+     * 根据用户Id查找用户
+     * @param userId
+     * @return
+     */
+    @Override
+    public User getUserById(Long userId) {
+        return userMapper.getByUserId(userId);
+    }
+
+
 }

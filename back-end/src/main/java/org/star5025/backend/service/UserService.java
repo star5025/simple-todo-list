@@ -24,4 +24,11 @@ public interface UserService {
      * @return
      */
     User login(UserDTO userDTO);
+
+    /**
+     * 根据用户Id查找用户
+     * @param userId
+     * @return
+     */
+    User getUserById(Long userId);
 }

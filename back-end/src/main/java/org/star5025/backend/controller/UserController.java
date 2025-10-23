@@ -96,4 +96,16 @@ public class UserController {
         //用户登出是在前端的localhost直接把token什么的给删掉，所以后端实际上没有服务类代码，直接返回成功信息即可
         return Result.success();
     }
+
+    /**
+     * 根据用户Id查找用户
+     * @param userId
+     * @return
+     */
+    @ApiOperation("根据用户Id查找用户")
+    @GetMapping("/{userId}")
+    public Result<User> getUserById(@PathVariable Long userId){
+        User user = userService.getUserById(userId);
+        return Result.success(user);
+    }
 }
