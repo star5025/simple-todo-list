@@ -85,4 +85,15 @@ public class UserController {
         //不出意外的话是不会执行到这的
         return Result.error("出错了");
     }
+
+    /**
+     * 用户登出
+     * @return
+     */
+    @PostMapping("/logout")
+    @ApiOperation("用户登出")
+    public Result logout(){
+        //用户登出是在前端的localhost直接把token什么的给删掉，所以后端实际上没有服务类代码，直接返回成功信息即可
+        return Result.success();
+    }
 }
