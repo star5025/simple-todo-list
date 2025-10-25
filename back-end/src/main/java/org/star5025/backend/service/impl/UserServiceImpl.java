@@ -56,7 +56,6 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
-
     /**
      * 根据用户Id查找用户
      * @param userId
@@ -75,6 +74,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateUser(User user) {
         userMapper.update(user);
+    }
+
+    /**
+     * 删除/注销用户
+     * @param user
+     * @return
+     */
+    @Override
+    public void deleteUser(User user) {
+        userMapper.delete(user);
     }
 
 

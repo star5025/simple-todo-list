@@ -119,8 +119,21 @@ public class UserController {
     @ApiOperation("修改用户信息")
     @PutMapping
     public Result updateUser(@RequestBody User user){
-        log.info("正在修改Id为{}的用户",user.getUserId());
+        log.info("修改Id为{}的用户",user.getUserId());
         userService.updateUser(user);
+        return Result.success();
+    }
+
+    /**
+     * 删除/注销用户
+     * @param user
+     * @return
+     */
+    @ApiOperation("删除用户")
+    @DeleteMapping
+    public Result deleteUser(User user){
+        log.info("删除Id为{}的用户",user.getUserId());
+        userService.deleteUser(user);
         return Result.success();
     }
 }

@@ -38,4 +38,11 @@ public interface UserService {
      * @return
      */
     void updateUser(User user);
+
+    /**
+     * 删除/注销用户
+     * @param user
+     * @return
+     */
+    void deleteUser(User user);
 }

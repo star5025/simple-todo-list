@@ -1,9 +1,6 @@
 package org.star5025.backend.mapper;
 
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 import org.star5025.backend.entity.User;
 
 import java.util.List;
@@ -48,4 +45,12 @@ public interface UserMapper {
      */
     @Update("update user set user_name = #{userName}, user_password = #{userPassword} where user_id = #{userId}")
     void update(User user);
+
+    /**
+     * 删除/注销用户
+     * @param user
+     * @return
+     */
+    @Delete("delete from user where user_id = #{userId}")
+    void delete(User user);
 }
