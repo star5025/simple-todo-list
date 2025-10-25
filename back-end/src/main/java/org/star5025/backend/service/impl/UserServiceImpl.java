@@ -67,5 +67,15 @@ public class UserServiceImpl implements UserService {
         return userMapper.getByUserId(userId);
     }
 
+    /**
+     * 修改用户信息
+     * @param user
+     * @return
+     */
+    @Override
+    public void updateUser(User user) {
+        userMapper.update(user);
+    }
+
 
 }

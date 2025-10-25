@@ -59,6 +59,8 @@ public class UserController {
     @ApiOperation("用户登录")
     @PostMapping("/login")
     public Result<UserVO> login(@RequestBody UserDTO userDTO){
+        //登录时前端并不知道UserId，所以传进来的是UserDTO。
+        //登录后UserId被返回给前端，所以知道UserId，后续传进来的是User
         log.info("用户登录：用户名：{}",userDTO.getUserName());
 //        userService.login(userDTO);
 //        return "success";
@@ -107,5 +109,18 @@ public class UserController {
     public Result<User> getUserById(@PathVariable Long userId){
         User user = userService.getUserById(userId);
         return Result.success(user);
+    }
+
+    /**
+     * 修改用户信息
+     * @param user
+     * @return
+     */
+    @ApiOperation("修改用户信息")
+    @PutMapping
+    public Result updateUser(@RequestBody User user){
+        log.info("正在修改Id为{}的用户",user.getUserId());
+        userService.updateUser(user);
+        return Result.success();
     }
 }

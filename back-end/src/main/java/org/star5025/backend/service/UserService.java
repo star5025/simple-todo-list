@@ -31,4 +31,11 @@ public interface UserService {
      * @return
      */
     User getUserById(Long userId);
+
+    /**
+     * 修改用户信息
+     * @param user
+     * @return
+     */
+    void updateUser(User user);
 }
