@@ -22,3 +22,9 @@ stdl:
     ttl : 86400000
     token-name : token
     #TODO 到时候可以把ttl改的稍微短一点，现在方便测试token有效期为1天
+
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+  support-methods-arguments: true
+
