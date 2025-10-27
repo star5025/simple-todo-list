@@ -7,5 +7,3 @@ create table user
     constraint user_name
         unique (user_name)
 );
-
-INSERT INTO simple_todo_list.user (user_id, user_name, user_password) VALUES (1, 'admin', '123456');
