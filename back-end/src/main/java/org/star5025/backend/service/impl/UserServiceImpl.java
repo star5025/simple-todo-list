@@ -5,9 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.star5025.backend.dto.UserDTO;
 import org.star5025.backend.entity.User;
+import org.star5025.backend.exception.UserLoginException;
 import org.star5025.backend.mapper.UserMapper;
 import org.star5025.backend.service.UserService;
 
+import javax.security.auth.login.LoginException;
 import java.util.List;
 
 @Service
@@ -47,11 +49,11 @@ public class UserServiceImpl implements UserService {
         // 根据员工用户名查找
         User user = userMapper.getByUserName(userName);
         if(user==null){
-            throw new RuntimeException("User not found");
+            throw new UserLoginException("User not found");
         }
 
         if (!userPassword.equals(user.getUserPassword())) {
-            throw new RuntimeException("Password not match");
+            throw new UserLoginException("Password not match");
         }
         return user;
     }
