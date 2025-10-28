@@ -1,5 +1,6 @@
 package org.star5025.backend.mapper;
 
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -20,6 +21,14 @@ public interface TaskMapper {
      * 新增任务
      * @param task
      */
-    @Insert("insert into task (task_name, status, created_time, start_time, remind_time, due_time, user_id) values (#{taskName},#{status},#{createdTime},#{startTime},#{remindTime},#{dueTime},#{userId})")
+    @Insert("insert into task (task_name, status, created_time, start_time, remind_time, due_time, user_id)" +
+            "values (#{taskName},#{status},#{createdTime},#{startTime},#{remindTime},#{dueTime},#{userId})")
     void createTask(Task task);
+
+    /**
+     * 删除task表中的单个任务
+     * @param taskId
+     */
+    @Delete("delete from task where task_id = #{taskId}")
+    void deleteTask(Long taskId);
 }

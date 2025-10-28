@@ -17,4 +17,10 @@ public interface TaskService {
      * @param taskDTO
      */
     void createTask(TaskDTO taskDTO);
+
+    /**
+     * 删除单个任务
+     * @param taskId
+     */
+    void deleteTask(Long taskId);
 }
