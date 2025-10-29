@@ -6,7 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.star5025.backend.dto.TaskDTO;
+import org.star5025.backend.dto.TaskPageQueryDTO;
 import org.star5025.backend.entity.Task;
+import org.star5025.backend.result.PageResult;
 import org.star5025.backend.result.Result;
 import org.star5025.backend.service.TaskService;
 
@@ -47,5 +49,20 @@ public class TaskController {
     public Result deleteTask(@PathVariable Long taskId) {
         taskService.deleteTask(taskId);
         return Result.success();
+    }
+
+
+    /**
+     * 根据用户Id进行分页查询
+     * @param taskPageQueryDTO
+     * @return
+     */
+    @GetMapping("/pageQuery")
+    @ApiOperation("根据用户Id分页查询")
+    public Result<PageResult> pageQuery(TaskPageQueryDTO taskPageQueryDTO) {
+        log.info("进行分页查询，查询的用户Id为：{}",taskPageQueryDTO.getUserId());
+        PageResult page = taskService.pageQuery(taskPageQueryDTO);
+        return Result.success(page);
+
     }
 }

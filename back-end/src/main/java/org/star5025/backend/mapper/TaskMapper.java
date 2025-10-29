@@ -1,10 +1,13 @@
 package org.star5025.backend.mapper;
 
+import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.star5025.backend.entity.Task;
+import org.star5025.backend.vo.TaskVO;
+
 import java.util.List;
 
 @Mapper
@@ -31,4 +34,12 @@ public interface TaskMapper {
      */
     @Delete("delete from task where task_id = #{taskId}")
     void deleteTask(Long taskId);
+
+    /**
+     * 根据用户Id分页查询任务
+     * @param userId
+     * @return
+     */
+    @Select("select task_id, task_name, due_time, status from task where user_id = #{userId}")
+    Page<Task> pageQuery(Long userId);
 }
