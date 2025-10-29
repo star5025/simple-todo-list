@@ -3,6 +3,7 @@ package org.star5025.backend.service.impl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.star5025.backend.dto.TaskDTO;
 import org.star5025.backend.entity.Task;
 import org.star5025.backend.mapper.TaskMapper;
@@ -34,5 +35,14 @@ public class TaskServiceImpl implements TaskService {
         Task task = new Task();
         BeanUtils.copyProperties(taskDTO, task);
         taskMapper.createTask(task);
+    }
+
+    /**
+     * 删除单个任务
+     * @param taskId
+     */
+    @Override
+    public void deleteTask(Long taskId) {
+        taskMapper.deleteTask(taskId);
     }
 }

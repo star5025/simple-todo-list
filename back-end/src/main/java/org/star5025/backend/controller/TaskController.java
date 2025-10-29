@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.star5025.backend.dto.TaskDTO;
 import org.star5025.backend.entity.Task;
+import org.star5025.backend.result.Result;
 import org.star5025.backend.service.TaskService;
 
 import java.util.List;
@@ -30,10 +31,21 @@ public class TaskController {
      * 新增任务
      * @param taskDTO
      */
-    @ApiOperation("新增任务")
+    @ApiOperation("新增任务接口")
     @PostMapping
-    public String createTask(@RequestBody TaskDTO taskDTO) {
+    public Result createTask(@RequestBody TaskDTO taskDTO) {
         taskService.createTask(taskDTO);
-        return "success";
+        return Result.success();
+    }
+
+    /**
+     * 删除单个任务
+     * @param taskId
+     */
+    @ApiOperation("删除单个任务接口")
+    @DeleteMapping("/{taskId}")
+    public Result deleteTask(@PathVariable Long taskId) {
+        taskService.deleteTask(taskId);
+        return Result.success();
     }
 }
