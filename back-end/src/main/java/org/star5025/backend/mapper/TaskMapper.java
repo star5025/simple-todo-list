@@ -1,10 +1,7 @@
 package org.star5025.backend.mapper;
 
 import com.github.pagehelper.Page;
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 import org.star5025.backend.entity.Task;
 import org.star5025.backend.vo.TaskVO;
 
@@ -38,8 +35,21 @@ public interface TaskMapper {
     /**
      * 根据用户Id分页查询任务
      * @param userId
-     * @return
      */
     @Select("select task_id, task_name, due_time, status from task where user_id = #{userId}")
     Page<Task> pageQuery(Long userId);
+
+    /**
+     * 根据任务Id查询单个任务
+     * @param taskId
+     */
+    @Select("select * from task where task_id = #{taskId}")
+    Task getTaskById(Long taskId);
+
+    /**
+     * 更新任务
+     * @param newTask
+     */
+    @Update("update task set task_name = #{taskName}, status = #{status}, start_time = #{startTime}, remind_time = #{remindTime}, due_time = #{dueTime} WHERE task_id = #{taskId}")
+    void updateTask(Task newTask);
 }

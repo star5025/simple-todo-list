@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.star5025.backend.dto.TaskDTO;
 import org.star5025.backend.dto.TaskPageQueryDTO;
+import org.star5025.backend.dto.TaskPatchDTO;
 import org.star5025.backend.entity.Task;
 import org.star5025.backend.result.PageResult;
 import org.star5025.backend.result.Result;
@@ -51,18 +52,29 @@ public class TaskController {
         return Result.success();
     }
 
+    /**
+     * 更新任务
+     * @param taskId
+     * @param taskPatchDTO
+     */
+    @ApiOperation("更新任务接口")
+    @PatchMapping("/{taskId}")
+    public Result updateTask(@PathVariable Long taskId, @RequestBody TaskPatchDTO taskPatchDTO) {
+        taskService.updateTask(taskId, taskPatchDTO);
+        return Result.success();
+    }
+
 
     /**
      * 根据用户Id进行分页查询
      * @param taskPageQueryDTO
      * @return
      */
+    @ApiOperation("根据用户Id分页查询接口")
     @GetMapping("/pageQuery")
-    @ApiOperation("根据用户Id分页查询")
     public Result<PageResult> pageQuery(TaskPageQueryDTO taskPageQueryDTO) {
         log.info("进行分页查询，查询的用户Id为：{}",taskPageQueryDTO.getUserId());
         PageResult page = taskService.pageQuery(taskPageQueryDTO);
         return Result.success(page);
-
     }
 }

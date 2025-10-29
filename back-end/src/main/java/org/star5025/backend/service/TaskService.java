@@ -2,6 +2,7 @@ package org.star5025.backend.service;
 
 import org.star5025.backend.dto.TaskDTO;
 import org.star5025.backend.dto.TaskPageQueryDTO;
+import org.star5025.backend.dto.TaskPatchDTO;
 import org.star5025.backend.entity.Task;
 import org.star5025.backend.result.PageResult;
 
@@ -32,4 +33,11 @@ public interface TaskService {
      * @return
      */
     PageResult pageQuery(TaskPageQueryDTO taskPageQueryDTO);
+
+    /**
+     * 更新任务
+     * @param taskId
+     * @param taskPatchDTO
+     */
+    void updateTask(Long taskId, TaskPatchDTO taskPatchDTO);
 }

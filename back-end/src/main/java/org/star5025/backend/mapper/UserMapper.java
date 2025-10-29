@@ -13,7 +13,7 @@ public interface UserMapper {
      * @return
      */
     @Select("select * from user")
-    List<User> getAll();
+    List<User> getAllUsers();
 
     /**
      * 用户注册

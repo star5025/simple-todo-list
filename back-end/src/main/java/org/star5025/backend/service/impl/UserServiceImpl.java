@@ -23,7 +23,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public List<User> getAllUserTest() {
-        return userMapper.getAll();
+        return userMapper.getAllUsers();
     }
 
     /**

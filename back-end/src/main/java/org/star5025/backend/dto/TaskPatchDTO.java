@@ -7,21 +7,14 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-public class TaskDTO {
-    private long taskId;
-
+public class TaskPatchDTO {
     private String taskName;
 
     private Boolean status;
-
-    private LocalDateTime createdTime;
 
     private LocalDateTime startTime;
 
     private LocalDateTime remindTime;
 
     private LocalDateTime dueTime;
-
-    private long userId;
 }
-

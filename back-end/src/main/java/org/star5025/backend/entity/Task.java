@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Data
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 public class Task {
@@ -16,7 +16,7 @@ public class Task {
 
     private String taskName;
 
-    private boolean status;
+    private Boolean status;
 
     private LocalDateTime createdTime;
 
