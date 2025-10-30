@@ -24,11 +24,11 @@ public class TaskController {
     @Autowired
     private TaskService taskService;
 
-    @ApiOperation("全部任务查询接口")
-    @GetMapping("/all")
-    public List<Task> getAllTaskTest() {
-        return taskService.getAllTaskTest();
-    }
+//    @ApiOperation("全部任务查询接口")
+//    @GetMapping("/all")
+//    public List<Task> getAllTaskTest() {
+//        return taskService.getAllTaskTest();
+//    }
 
     /**
      * 新增任务
@@ -37,6 +37,7 @@ public class TaskController {
     @ApiOperation("新增任务接口")
     @PostMapping
     public Result createTask(@RequestBody TaskDTO taskDTO) {
+        log.info("新增任务：当前用户：{}。 任务名：{}", taskDTO.getUserId(), taskDTO.getTaskName());
         taskService.createTask(taskDTO);
         return Result.success();
     }
@@ -48,6 +49,7 @@ public class TaskController {
     @ApiOperation("删除单个任务接口")
     @DeleteMapping("/{taskId}")
     public Result deleteTask(@PathVariable Long taskId) {
+        log.info("删除任务Id为{}的任务", taskId);
         taskService.deleteTask(taskId);
         return Result.success();
     }
@@ -60,6 +62,7 @@ public class TaskController {
     @ApiOperation("更新任务接口")
     @PatchMapping("/{taskId}")
     public Result updateTask(@PathVariable Long taskId, @RequestBody TaskPatchDTO taskPatchDTO) {
+        log.info("更新任务Id为{}的任务", taskId);
         taskService.updateTask(taskId, taskPatchDTO);
         return Result.success();
     }

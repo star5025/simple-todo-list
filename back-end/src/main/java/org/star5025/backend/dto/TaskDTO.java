@@ -8,13 +8,10 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 public class TaskDTO {
-    private long taskId;
 
     private String taskName;
 
     private Boolean status;
-
-    private LocalDateTime createdTime;
 
     private LocalDateTime startTime;
 
