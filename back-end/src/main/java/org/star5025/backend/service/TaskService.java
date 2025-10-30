@@ -40,4 +40,11 @@ public interface TaskService {
      * @param taskPatchDTO
      */
     void updateTask(Long taskId, TaskPatchDTO taskPatchDTO);
+
+    /**
+     *根据任务Id查询任务
+     * @param taskId
+     * @return
+     */
+    Task getTaskById(Long taskId);
 }

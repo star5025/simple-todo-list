@@ -112,6 +112,17 @@ public class TaskServiceImpl implements TaskService {
     }
 
     /**
+     *根据任务Id查询任务
+     * @param taskId
+     * @return
+     */
+    @Override
+    public Task getTaskById(Long taskId) {
+        Task task = taskMapper.getTaskById(taskId);
+        return task;
+    }
+
+    /**
      * 获取对象中所有为null的属性名 (用于更新任务)
      * @param source 源对象
      * @return 为null的属性名数组

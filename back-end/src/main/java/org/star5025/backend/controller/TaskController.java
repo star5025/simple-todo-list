@@ -77,4 +77,17 @@ public class TaskController {
         PageResult page = taskService.pageQuery(taskPageQueryDTO);
         return Result.success(page);
     }
+
+    /**
+     *根据任务Id查询任务
+     * @param taskId
+     * @return
+     */
+    @GetMapping("/{taskId}")
+    @ApiOperation("根据任务Id查询任务")
+    public Result<Task> getTaskById(@PathVariable Long taskId) {
+        log.info("正在查询Id为{}的任务",taskId);
+        Task task = taskService.getTaskById(taskId);
+        return Result.success(task);
+    }
 }
