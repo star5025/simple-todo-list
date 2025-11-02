@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping
 @CrossOrigin
 public class HelloController {
-    @GetMapping("/hello")
+    @GetMapping("/api/hello")
     public String sayHello() {
 
         return "Hello World";
