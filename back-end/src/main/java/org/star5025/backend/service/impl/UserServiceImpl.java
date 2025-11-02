@@ -8,6 +8,7 @@ import org.star5025.backend.entity.User;
 import org.star5025.backend.exception.UserLoginException;
 import org.star5025.backend.mapper.UserMapper;
 import org.star5025.backend.service.UserService;
+import org.star5025.backend.utils.Md5Util;
 
 import javax.security.auth.login.LoginException;
 import java.util.List;
@@ -34,6 +35,8 @@ public class UserServiceImpl implements UserService {
     public void register(UserDTO userDTO) {
         User user = new User();
         BeanUtils.copyProperties(userDTO,user);
+//      // 对用户密码进行加密后再传入数据库，使用工具类的加密算法
+        user.setUserPassword(Md5Util.getMD5String(user.getUserPassword()));
         userMapper.register(user);
     }
 
@@ -45,11 +48,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public User login(UserDTO userDTO) {
         String userName = userDTO.getUserName();
-        String userPassword = userDTO.getUserPassword();
-        // 根据员工用户名查找
+        // 对用户输入的密码进行加密，以对数据库中已加密的密码进行匹配。使用工具类方法加密。
+        String userPassword = Md5Util.getMD5String(userDTO.getUserPassword());
+        // 根据用户名查找
         User user = userMapper.getByUserName(userName);
         if(user==null){
             throw new UserLoginException("User not found");
+
+            //是否需要跳转到注册？
+
         }
 
         if (!userPassword.equals(user.getUserPassword())) {

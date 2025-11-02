@@ -22,7 +22,7 @@ public interface TaskMapper {
      * @param task
      */
     @Insert("insert into task (task_name, status, created_time, start_time, remind_time, due_time, user_id)" +
-            "values (#{taskName},#{status},#{createdTime},#{startTime},#{remindTime},#{dueTime},#{userId})")
+            "values (#{taskName},#{status},now(),#{startTime},#{remindTime},#{dueTime},#{userId})")
     void createTask(Task task);
 
     /**

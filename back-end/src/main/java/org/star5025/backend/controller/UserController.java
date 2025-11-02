@@ -12,6 +12,7 @@ import org.star5025.backend.properties.JwtProperties;
 import org.star5025.backend.result.Result;
 import org.star5025.backend.service.UserService;
 import org.star5025.backend.utils.JwtUtil;
+import org.star5025.backend.utils.Md5Util;
 import org.star5025.backend.vo.UserVO;
 
 import java.util.HashMap;
