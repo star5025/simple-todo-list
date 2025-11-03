@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.star5025.backend.dto.UserDTO;
 import org.star5025.backend.entity.User;
-import org.star5025.backend.exception.UserLoginException;
+import org.star5025.backend.exception.AuthException;
 import org.star5025.backend.properties.JwtProperties;
 import org.star5025.backend.result.Result;
 import org.star5025.backend.service.UserService;
@@ -49,8 +49,13 @@ public class UserController {
     @PostMapping("/register")
     public Result register(@RequestBody @Valid UserDTO userDTO){
         log.info("用户注册：{}",userDTO);
-        userService.register(userDTO);
-        return Result.success();
+        try{
+            userService.register(userDTO);
+            return Result.success();
+        }catch (AuthException e){
+            e.printStackTrace();
+            return Result.error(e.getMessage());
+        }
     }
 
     /**
@@ -81,7 +86,7 @@ public class UserController {
                     .build();
 
             return Result.success(userVO);
-        } catch (UserLoginException e) {
+        } catch (AuthException e) {
             e.printStackTrace();
             return Result.error(e.getMessage());
         }

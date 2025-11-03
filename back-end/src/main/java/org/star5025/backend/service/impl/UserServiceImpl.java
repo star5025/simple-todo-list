@@ -5,7 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.star5025.backend.dto.UserDTO;
 import org.star5025.backend.entity.User;
-import org.star5025.backend.exception.UserLoginException;
+import org.star5025.backend.enumeration.AuthErrorType;
+import org.star5025.backend.exception.AuthException;
 import org.star5025.backend.mapper.UserMapper;
 import org.star5025.backend.service.UserService;
 import org.star5025.backend.utils.Md5Util;
@@ -53,14 +54,15 @@ public class UserServiceImpl implements UserService {
         // 根据用户名查找
         User user = userMapper.getByUserName(userName);
         if(user==null){
-            throw new UserLoginException("User not found");
+            throw new AuthException(AuthErrorType.USERNAME_NOT_FOUND ,"User not found");
 
             //是否需要跳转到注册？
+            //TODO 好问题，我也不知到要不要跳转到注册
 
         }
 
         if (!userPassword.equals(user.getUserPassword())) {
-            throw new UserLoginException("Password not match");
+            throw new AuthException(AuthErrorType.PASSWORD_INCORRECT ,"Password not match");
         }
         return user;
     }
