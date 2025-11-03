@@ -12,9 +12,9 @@ import org.star5025.backend.properties.JwtProperties;
 import org.star5025.backend.result.Result;
 import org.star5025.backend.service.UserService;
 import org.star5025.backend.utils.JwtUtil;
-import org.star5025.backend.utils.Md5Util;
 import org.star5025.backend.vo.UserVO;
 
+import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,10 +47,10 @@ public class UserController {
      */
     @ApiOperation("用户注册")
     @PostMapping("/register")
-    public String register(@RequestBody UserDTO userDTO){
+    public Result register(@RequestBody @Valid UserDTO userDTO){
         log.info("用户注册：{}",userDTO);
         userService.register(userDTO);
-        return "success";
+        return Result.success();
     }
 
     /**
@@ -60,12 +60,10 @@ public class UserController {
      */
     @ApiOperation("用户登录")
     @PostMapping("/login")
-    public Result<UserVO> login(@RequestBody UserDTO userDTO){
+    public Result<UserVO> login(@RequestBody @Valid UserDTO userDTO){
         //登录时前端并不知道UserId，所以传进来的是UserDTO。
         //登录后UserId被返回给前端，所以知道UserId，后续传进来的是User
         log.info("用户登录：用户名：{}",userDTO.getUserName());
-//        userService.login(userDTO);
-//        return "success";
         try{
             User user = userService.login(userDTO);
             //登录成功后，生成jwt令牌
