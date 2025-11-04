@@ -4,8 +4,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.star5025.backend.dto.UserDTO;
+import org.star5025.backend.dto.ValidationGroup;
 import org.star5025.backend.entity.User;
 import org.star5025.backend.exception.AuthException;
 import org.star5025.backend.properties.JwtProperties;
@@ -47,7 +49,7 @@ public class UserController {
      */
     @ApiOperation("用户注册")
     @PostMapping("/register")
-    public Result register(@RequestBody @Valid UserDTO userDTO){
+    public Result register(@Validated({ValidationGroup.Group1.class, ValidationGroup.Group2.class, ValidationGroup.Group3.class}) @RequestBody @Valid UserDTO userDTO){
         log.info("用户注册：{}",userDTO);
         try{
             userService.register(userDTO);
