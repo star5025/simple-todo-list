@@ -23,7 +23,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(jwtTokenInterceptor)
                 .addPathPatterns("/api/**") // 需要拦截的路径（如所有/api下的接口）
-                .excludePathPatterns("/api/user/login", "/api/user/register"); // 排除登录/注册接口
+                .excludePathPatterns("/api/user/login", "/api/user/register","/api/hello"); // 排除登录/注册接口
     }
 
     /**

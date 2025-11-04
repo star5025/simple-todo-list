@@ -15,9 +15,10 @@ const result = ref('')
 async function testApi() {
   try {
     const res = await fetch('/api/hello') // 注意这里是 /api/hello，不用写完整后端地址
-    const data = await res.json()
-    result.value = JSON.stringify(data)
+    const responseData = await res.json()
+    result.value = responseData.data
   } catch (e) {
+    console.log(e)
     result.value = '请求失败'
   }
 }
