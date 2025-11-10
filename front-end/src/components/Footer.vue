@@ -1,3 +1,4 @@
+<!-- 底栏 -->
 <template>
   <el-footer class="footer">
     <div class="footer-content">
@@ -139,7 +140,7 @@ const goToRepository = () => {
 
 .avatar:hover {
   transform: scale(1.4);
-  box-shadow: 1px 0px 10px 1px rgba(0, 0, 0, 0.3);
+  box-shadow: 0.5px 2px 8px 0px rgba(0, 0, 0, 0.2);
 }
 
 /* 响应式设计 */
