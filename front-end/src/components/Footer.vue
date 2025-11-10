@@ -66,8 +66,7 @@ const goToRepository = () => {
 
 <style scoped>
 .footer {
-  background-color: #f5f5f5;
-  border-top: 1px solid #e4e4e4;
+  background-color: #e2e1e1;
   margin-top: auto;
   width: 100%;
   box-sizing: border-box;
@@ -85,6 +84,7 @@ const goToRepository = () => {
   height: 100%;
   box-sizing: border-box;
   gap: 12px; /* 使用gap控制间距 */
+  border-radius: 8px;
 }
 
 .container {
@@ -98,7 +98,7 @@ const goToRepository = () => {
 
 .version-container {
   order: 1; /* 控制显示顺序 */
-  margin-top: 10px;
+  margin-top: 15px;
   margin-bottom: 5px;
 }
 
@@ -107,7 +107,7 @@ const goToRepository = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 6px;
   flex-wrap: wrap; /* 允许换行 */
 }
 
@@ -119,7 +119,6 @@ const goToRepository = () => {
   cursor: pointer;
   padding: 8px;
   border-radius: 4px;
-  margin-top: 5px;
   margin-bottom: 10px;
 }
 
@@ -142,23 +141,6 @@ const goToRepository = () => {
   transform: scale(1.4);
   box-shadow: 0.5px 2px 8px 0px rgba(0, 0, 0, 0.2);
 }
-
-/* 响应式设计 */
-/* 暂时不写 */
-/* @media (max-width: 480px) {
-  .footer-content {
-    padding: 15px 10px;
-    gap: 10px;
-  }
-  
-  .authors-container {
-    gap: 8px;
-  }
-  
-  .github-container {
-    padding: 6px;
-  }
-} */
 
 /* 确保父容器是flex布局 */
 :global(body) {
