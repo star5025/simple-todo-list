@@ -1,6 +1,5 @@
 package org.star5025.backend.config;
 
-import io.swagger.annotations.Contact;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
