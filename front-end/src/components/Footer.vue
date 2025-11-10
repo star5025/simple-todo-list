@@ -123,7 +123,7 @@ const goToRepository = () => {
   margin-bottom: 10px;
 }
 
-.github-container:hover {
+.github-icon:hover {
   transform: scale(1.4);
   transition: all 0.8s ease;
 }
