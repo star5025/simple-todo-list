@@ -14,14 +14,21 @@
                 <el-text>star5025</el-text>
             </div>
             <div class="button-container">
-                <el-button type="primary" plain>登出</el-button>
+                <el-button type="primary" plain @click="handleLogout">登出</el-button>
             </div>
         </div>
     </el-header>
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
+
+const handleLogout = () => {
+  // 执行登出逻辑，跳转到登录页面
+  router.push('/login')
+}
 </script>
 
 <style scoped>
@@ -29,6 +36,7 @@
     padding: 10px 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     background-color: white;
+    height: 60px; /* 固定header高度 */
 }
 
 .header-container {

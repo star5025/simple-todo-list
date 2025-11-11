@@ -142,13 +142,6 @@ const goToRepository = () => {
   box-shadow: 0.5px 2px 8px 0px rgba(0, 0, 0, 0.2);
 }
 
-/* 确保父容器是flex布局 */
-:global(body) {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
 /* 如果使用Element Plus，确保el-footer样式正确 */
 :global(.el-footer) {
   padding: 0 !important;

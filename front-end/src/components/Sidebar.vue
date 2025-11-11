@@ -53,12 +53,12 @@
     display: flex;
     background-color: rgba(102, 176, 255, 0.228);
     padding: 20px;
-    width: 20vw;
-    height: 100vh;
-    max-width: 300px;
-    min-width: 150px;
+    width: 20vw; /* 使用视口宽度单位 */
+    max-width: 300px; /* 设置最大宽度 */
+    min-width: 200px; /* 设置最小宽度 */
     flex-direction: column;
     justify-content: center;
+    height: calc(100vh - 140px);
 }
 
 .selector-container {
@@ -100,5 +100,32 @@
 .selector-label {
     font-size: 16px;
     font-weight: 500;
+}
+
+/* 响应式设计 - 针对不同屏幕尺寸调整sidebar宽度 */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 30vw;
+        min-width: 150px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar {
+        width: 40vw;
+        min-width: 120px;
+        padding: 10px;
+    }
+    
+    .sidebar-container {
+        gap: 20px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .sidebar {
+        width: 15vw;
+        max-width: 350px;
+    }
 }
 </style>
