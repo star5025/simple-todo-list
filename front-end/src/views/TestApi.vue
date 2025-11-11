@@ -15,7 +15,7 @@ const result = ref('')
 
 async function testApi() {
   try {
-    const res = await request.get('/hello')
+    const res = await request.get('/hello1')
     result.value = res.data 
   } catch (e) {
     console.log(e)

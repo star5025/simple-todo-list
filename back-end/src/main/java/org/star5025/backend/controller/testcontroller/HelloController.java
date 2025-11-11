@@ -11,7 +11,7 @@ import org.star5025.backend.result.Result;
 @RequestMapping
 @CrossOrigin
 public class HelloController {
-    @GetMapping("/api/hello")
+    @GetMapping("/api/hello1")
     public Result<String> sayHello() {
         String hello = "hello world";
         return Result.success(hello);
