@@ -9,14 +9,14 @@
 
 <script setup>
 import { ref } from 'vue'
+import request from '@/utils/request'
 
 const result = ref('')
 
 async function testApi() {
   try {
-    const res = await fetch('/api/hello') // 注意这里是 /api/hello，不用写完整后端地址
-    const responseData = await res.json()
-    result.value = responseData.data
+    const res = await request.get('/hello')
+    result.value = res.data 
   } catch (e) {
     console.log(e)
     result.value = '请求失败'
