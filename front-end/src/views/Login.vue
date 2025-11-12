@@ -82,7 +82,7 @@ const handleLogin = async () => {
   if (loginResult.value) { // 只有登录成功才执行后续操作
     router.push('/home')
   } else {
-    loginForm.userPassword = ''
+    loginForm.value.userPassword = ''
   }
 
 }
