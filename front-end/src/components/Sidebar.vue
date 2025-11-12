@@ -1,64 +1,81 @@
 <template>
     <el-aside class="sidebar">
-        <div class="sidebar-container">
-            <div class="button-container">
-                <el-button class="add-button" type="primary">新增待办</el-button>
-            </div>
-            <div class="selector-container">
-                <div class="selector">
-                <el-text class="selector-label">
-                    筛选待办
-                </el-text>
-                <el-select>
-                    <!-- 这里涉及vue逻辑，以后完善 -->
-                </el-select>
-            </div>
-            </div>
-            <div class="board-container">
-                <el-card class="upcoming-tasks">
-                    <template #header>
-                        <div class="upcoming-tasks-header">
-                            临近待办
-                        </div>
-                    </template>
-                    <!-- 这里需要写获取临近待办的逻辑 -->
-                    <p v-for="o in 4" :key="o" class="text item">{{ 'List item ' + o }}</p>
-                </el-card>
-            </div>
-            <div class="board-container">
-                <el-card class="starred-tasks">
-                    <template #header>
-                        <div class="starred-tasks-header">
-                            星标待办
-                        </div>
-                    </template>
-                    <!-- 这里需要写获取星标待办的逻辑 -->
-                    <p v-for="o in 4" :key="o" class="text item">{{ 'List item ' + o }}</p>
-                </el-card>
+        <div class="sidebar-scroll-container">
+            <div class="sidebar-container">
+                <div class="button-container">
+                    <el-button class="add-button" type="primary" @click="handleAddTodo">
+                      新增待办
+                    </el-button>
+                </div>
+                <div class="selector-container">
+                    <div class="selector">
+                    <el-text class="selector-label">
+                        筛选待办
+                    </el-text>
+                    <el-select>
+                        <!-- 这里涉及vue逻辑，以后完善 -->
+                    </el-select>
+                </div>
+                </div>
+                <div class="board-container">
+                    <el-card class="upcoming-tasks">
+                        <template #header>
+                            <div class="upcoming-tasks-header">
+                                临近待办
+                            </div>
+                        </template>
+                        <!-- 这里需要写获取临近待办的逻辑 -->
+                        <p v-for="o in 4" :key="o" class="text item">{{ 'List item ' + o }}</p>
+                    </el-card>
+                </div>
+                <div class="board-container">
+                    <el-card class="starred-tasks">
+                        <template #header>
+                            <div class="starred-tasks-header">
+                                星标待办
+                            </div>
+                        </template>
+                        <!-- 这里需要写获取星标待办的逻辑 -->
+                        <p v-for="o in 4" :key="o" class="text item">{{ 'List item ' + o }}</p>
+                    </el-card>
+                </div>
             </div>
         </div>
     </el-aside>
 </template>
 
 <script setup>
+const emit = defineEmits(['add-todo'])
 
+const handleAddTodo = () => {
+  emit('add-todo')
+}
 </script>
 
 <style scoped>
 .sidebar {
-    margin-top: 5px;
-    margin-bottom: 5px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     display: flex;
     background-color: rgba(102, 176, 255, 0.228);
     padding: 20px;
-    width: 20vw; /* 使用视口宽度单位 */
-    max-width: 300px; /* 设置最大宽度 */
-    min-width: 200px; /* 设置最小宽度 */
-    flex-direction: column;
-    justify-content: center;
-    height: calc(100vh - 140px);
+    width: 20vw;
+    max-width: 300px;
+    min-width: 200px;
+    /* 侧边栏占满容器高度 */
+    height: 100%;
+}
+
+.sidebar-scroll-container {
+    width: 100%;
+    /* 允许侧边栏内容滚动 */
+    overflow-y: auto;
+    /* 隐藏滚动条但仍可滚动 */
+    scrollbar-width: none; /* Firefox */
+}
+
+.sidebar-scroll-container::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
 }
 
 .selector-container {
@@ -78,7 +95,10 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 40px;
+    /* 使用flex布局让内容自适应 */
+    gap: 20px;
+    /* 确保内容占满容器高度 */
+    min-height: 100%;
 }
 
 .board-container:hover {
@@ -118,7 +138,7 @@
     }
     
     .sidebar-container {
-        gap: 20px;
+        gap: 15px;
     }
 }
 

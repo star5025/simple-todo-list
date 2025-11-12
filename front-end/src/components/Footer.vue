@@ -70,7 +70,9 @@ const goToRepository = () => {
   margin-top: auto;
   width: 100%;
   box-sizing: border-box;
-  min-height: 120px; /* 确保有足够高度 */
+  /* 固定footer高度为120px */
+  height: 120px;
+  min-height: 120px;
   padding: 0; /* 移除内边距，在内部控制 */
 }
 

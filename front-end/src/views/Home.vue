@@ -11,30 +11,51 @@
       </el-card>
     </div>
 
-    <!-- 常规主页内容 -->
-    <el-card class="home-card">
-      <template #header>
-        <div class="card-header">
-          <el-text type="primary">
-            Simple Todo List
-          </el-text>
-        </div>
-      </template>
-      <div class="content">
-        <h1>欢迎来到 Simple Todo List</h1>
-        <p>这是一个简单的待办事项管理应用</p>
-      </div>
-    </el-card>
+    <!-- 主要内容区域 -->
+    <div class="main-content">
+      <AddTodo 
+        v-if="showAddTodo" 
+        @todo-added="handleTodoAdded" 
+        @cancel="handleCancelAdd"
+      />
+      <TodoList v-else />
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted} from 'vue'
+import { ref, onMounted } from 'vue'
+import AddTodo from '@/components/AddTodo.vue'
+import TodoList from '@/components/TodoList.vue'
+
+const props = defineProps({
+  showAddTodo: {
+    type: Boolean,
+    default: false
+  }
+})
+
+const emit = defineEmits(['todoAdded', 'closeAddTodo'])
 
 const showWelcomeCard = ref(true)
 
 const hideWelcomeCard = () => {
   showWelcomeCard.value = false
+}
+
+// 处理新增待办事项事件
+const handleTodoAdded = (todo) => {
+  // 这里可以处理新增的待办事项，例如更新待办列表
+  console.log('新增待办事项:', todo)
+  // 通知父组件刷新待办列表
+  emit('todoAdded', todo)
+  // 关闭添加表单
+  emit('closeAddTodo')
+}
+
+// 处理取消添加待办事项
+const handleCancelAdd = () => {
+  emit('closeAddTodo')
 }
 
 // 页面加载时默认显示欢迎卡片
@@ -46,25 +67,19 @@ onMounted(() => {
 
 <style scoped>
 .home-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   height: 100%;
-  min-height: 400px;
   position: relative;
+  padding: 20px;
+  box-sizing: border-box;
+  /* 取消内部滚动条 */
+  overflow-y: visible;
 }
 
-.home-card {
-  width: 100%;
-  max-width: 400px;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease-in-out;
-}
-
-.home-card:hover {
-  transform: scale(1.02);
-  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.2);
+.main-content {
+  max-width: 800px;
+  margin: 0 auto;
+  /* 确保内容区域占满可用空间 */
+  min-height: 100%;
 }
 
 /* 弹出卡片的遮罩层 */
@@ -95,12 +110,6 @@ onMounted(() => {
 .welcome-card:hover {
   transform: scale(1.02);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-}
-
-.card-header {
-  text-align: center;
-  font-size: 20px;
-  font-weight: bold;
 }
 
 .content {
@@ -137,6 +146,17 @@ onMounted(() => {
   to {
     transform: translateY(0);
     opacity: 1;
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .home-container {
+    padding: 10px;
+  }
+  
+  .main-content {
+    width: 100%;
   }
 }
 </style>

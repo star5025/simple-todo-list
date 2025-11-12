@@ -50,7 +50,8 @@ async function login() {
     const res = await request.post('/user/login', loginForm.value)
     // 注意：现在业务逻辑错误不会进入catch块，而是正常返回
     if (res.code === 1) {
-      localStorage.setItem('token', res.token)
+      // 修复：正确访问token字段
+      localStorage.setItem('token', res.data?.token || res.token)
       // 同时存储用户名
       localStorage.setItem('userName', loginForm.value.userName)
       return true // 登录成功返回true

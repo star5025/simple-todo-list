@@ -14,6 +14,7 @@ service.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token')
         if (token) {
+            // 根据测试结果，后端期望的是token头部而不是Authorization
             config.headers.token = token
         }
         return config

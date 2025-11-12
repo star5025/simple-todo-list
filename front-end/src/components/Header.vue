@@ -48,7 +48,9 @@ const handleLogout = () => {
     padding: 10px 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     background-color: white;
-    height: 60px; /* 固定header高度 */
+    /* 固定header高度为60px */
+    height: 60px;
+    min-height: 60px;
 }
 
 .header-container {
