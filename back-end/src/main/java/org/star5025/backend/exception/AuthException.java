@@ -18,7 +18,8 @@ public class AuthException extends RuntimeException {
     }
 
     public AuthException(AuthErrorType authErrorType, String detail) {
-        super(authErrorType.getMessage() + "*原因: " + detail);
+//        super(authErrorType.getMessage() + "*原因: " + detail);
+        super(authErrorType.getMessage());
         this.authErrorType = authErrorType;
         this.detail = detail;
     }
