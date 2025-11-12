@@ -66,35 +66,21 @@ public class TaskServiceImpl implements TaskService {
      */
     @Override
     public PageResult pageQuery(TaskPageQueryDTO taskPageQueryDTO) {
-        PageHelper.startPage(taskPageQueryDTO.getPage(), taskPageQueryDTO.getPageSize());
+        return pageQuery(taskPageQueryDTO.getPage(), taskPageQueryDTO.getPageSize(), taskPageQueryDTO.getUserId());
+    }
+    
+    /**
+     * 根据用户id分页查询任务
+     * @param page 页码
+     * @param pageSize 每页大小
+     * @param userId 用户ID
+     */
+    public PageResult pageQuery(int page, int pageSize, Long userId) {
+        PageHelper.startPage(page, pageSize);
 
-        Page<Task> taskPage = taskMapper.pageQuery(taskPageQueryDTO.getUserId());
+        Page<Task> taskPage = taskMapper.pageQuery(userId);
 
-        // 2. 将Task转换为TaskVO，同时计算timeLeft
-        List<TaskVO> taskVOList = taskPage.getResult().stream().map(task -> {
-            // 2.1 获取数据库中的dueTime
-            LocalDateTime dueTime = task.getDueTime();
-            // 2.2 获取当前本地时间
-            LocalDateTime now = LocalDateTime.now();
-            // 2.3 计算天数差（ ChronoUnit.DAYS.between(到期时间, 结束时间) ）
-            long daysLeft = ChronoUnit.DAYS.between( now,dueTime);
-
-            if (daysLeft < 0) {
-                daysLeft = -1;
-                //如果任务已经过期了则写成-1，提示前端这个任务已经到期
-            }
-
-            // 2.5 封装到TaskVO
-            return TaskVO.builder()
-                    .taskId(task.getTaskId())
-                    .taskName(task.getTaskName())
-                    .timeLeft(String.valueOf(daysLeft)) // 转换为String类型（因为VO中timeLeft是String）
-                    .status(task.getStatus())
-                    .build();
-        }).collect(Collectors.toList());
-
-        // 3. 构建分页结果返回
-        return new PageResult(taskPage.getTotal(), taskVOList);
+        return new PageResult(taskPage.getTotal(), taskPage.getResult());
     }
 
     /**

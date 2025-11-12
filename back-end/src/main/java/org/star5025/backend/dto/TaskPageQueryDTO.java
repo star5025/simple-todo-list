@@ -10,4 +10,9 @@ public class TaskPageQueryDTO {
 
     private Long userId;
 
+    public TaskPageQueryDTO(int page, int pageSize, Long userId) {
+        this.page = page;
+        this.pageSize = pageSize;
+        this.userId = userId;
+    }
 }

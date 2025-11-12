@@ -35,7 +35,7 @@ public interface TaskMapper {
      * 根据用户Id分页查询任务
      * @param userId
      */
-    @Select("select task_id, task_name, due_time, status from task where user_id = #{userId}")
+    @Select("select task_id as taskId, task_name as taskName, due_time as dueTime, status, start_time as startTime, remind_time as remindTime, created_time as createdTime from task where user_id = #{userId} order by created_time desc")
     Page<Task> pageQuery(Long userId);
 
     /**

@@ -33,6 +33,15 @@ public interface TaskService {
      * @return
      */
     PageResult pageQuery(TaskPageQueryDTO taskPageQueryDTO);
+    
+    /**
+     * 根据用户Id进行分页查询
+     * @param page 页码
+     * @param pageSize 每页大小
+     * @param userId 用户ID
+     * @return
+     */
+    PageResult pageQuery(int page, int pageSize, Long userId);
 
     /**
      * 更新任务

@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Task {
-    private long taskId;
+    private Long taskId;
 
     private String taskName;
 
@@ -26,5 +26,5 @@ public class Task {
 
     private LocalDateTime dueTime;
 
-    private long userId;
+    private Long userId;
 }
