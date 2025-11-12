@@ -36,11 +36,11 @@ service.interceptors.response.use(
             ElMessage.error(res.msg || '登录已过期，请重新登录')
             localStorage.removeItem('token')
             if (router) router.replace('/login')
-            return Promise.reject(res)
+            return Promise.reject(new Error(res.msg || '登录已过期，请重新登录'))
         }
         else {
-            ElMessage.error(res.msg || '操作失败')
-            return Promise.reject(res)
+            // 对于其他业务错误码，返回完整的响应数据，而不是reject
+            return res
         }
     },
     // 第二部分：HTTP 非 200 响应（处理 HTTP 状态码 401/404/500 等）

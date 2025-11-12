@@ -48,23 +48,32 @@ const router = useRouter()
 async function login() {
   try {
     const res = await request.post('/user/login', loginForm.value)
-    // 校验后端响应格式（避免无data字段报错）
-    if (!res?.data) throw new Error('登录响应异常')
-    console.log(res)
-    if (res.data.code === 1) {
-      localStorage.setItem('token', res.data.token)
-      // ElMessage.success('登录成功！') // 成功提示
+    // 注意：现在业务逻辑错误不会进入catch块，而是正常返回
+    if (res.code === 1) {
+      localStorage.setItem('token', res.token)
+      // 同时存储用户名
+      localStorage.setItem('userName', loginForm.value.userName)
       return true // 登录成功返回true
-    } else if (res.data.code === 0) {
-      // 用后端返回的msg提示，没有则用默认文案
-      ElMessage.error(res.data.msg || '登录失败：用户名或密码错误')
+    } else if (res.code === 0) {
+      // 只显示后端返回的错误信息，如果没有则显示默认信息
+      if (res.msg) {
+        ElMessage.error(res.msg)
+      } else {
+        ElMessage.error('登录失败：用户名或密码错误')
+      }
       return false // 登录失败返回false
     } else {
-      ElMessage.error(res.data.msg || '未知，这又是什么鬼错误啊啊啊啊啊啊')
+      // 只显示后端返回的错误信息，如果没有则显示默认信息
+      if (res.msg) {
+        ElMessage.error(res.msg)
+      } else {
+        ElMessage.error('未知错误')
+      }
       return false
     }
   } catch (e) {
     console.error('登录失败：', e)
+    ElMessage.error('网络连接失败，请检查网络')
     return false // 异常时也返回false
   }
 }
@@ -72,19 +81,16 @@ async function login() {
 const loginResult = ref(null)
 
 const handleLogin = async () => {
-
   loginResult.value = await login()
   // 调用login()，根据返回的状态决定是否跳转
   console.log(loginResult.value)
 
-  // console.log('登录信息:', loginForm.value)
-
   if (loginResult.value) { // 只有登录成功才执行后续操作
+    ElMessage.success('登录成功！')
     router.push('/home')
   } else {
-    loginForm.userPassword = ''
+    loginForm.value.userPassword = ''
   }
-
 }
 
 

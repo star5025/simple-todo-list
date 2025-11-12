@@ -29,21 +29,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted} from 'vue'
 
 const showWelcomeCard = ref(true)
-
-// 根据当前时间计算问候语
-const greeting = computed(() => {
-  const hour = new Date().getHours()
-  if (hour < 12) {
-    return '早上好！'
-  } else if (hour < 18) {
-    return '中午好！'
-  } else {
-    return '晚上好！'
-  }
-})
 
 const hideWelcomeCard = () => {
   showWelcomeCard.value = false

@@ -31,5 +31,3 @@ app.component('ElContainer', ElContainer)
 app.component('ElMain', ElMain)
 
 app.mount('#app')
-
-// axios.defaults.baseURL = '/api' // 设置axios的基础URL为代理路径

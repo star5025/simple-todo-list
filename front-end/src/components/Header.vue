@@ -6,12 +6,10 @@
                 <el-text type="primary" size="large">Simple Todo List</el-text>
             </div>
             <div class="avatar-container">
-                <!-- 这里需要写获取用户头像并展示的逻辑 -->
-                <el-avatar>star5025</el-avatar>
+                <el-avatar>{{ displayedUserName.charAt(0).toUpperCase() }}</el-avatar>
             </div>
             <div class="username-container">
-                <!-- 这里需要写获取用户名并展示的逻辑 -->
-                <el-text>star5025</el-text>
+                <el-text>{{ displayedUserName }}</el-text>
             </div>
             <div class="button-container">
                 <el-button type="primary" plain @click="handleLogout">登出</el-button>
@@ -21,12 +19,26 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+const displayedUserName = ref('')
+
+// 从localStorage获取用户名
+const getUserName = () => {
+  return localStorage.getItem('userName') || '未知用户'
+}
+
+// 初始化显示的用户名
+onMounted(() => {
+  displayedUserName.value = getUserName()
+})
 
 const handleLogout = () => {
-  // 执行登出逻辑，跳转到登录页面
+  // 执行登出逻辑，清除localStorage中的token和userName
+  localStorage.removeItem('token')
+  localStorage.removeItem('userName')
   router.push('/login')
 }
 </script>
