@@ -2,9 +2,13 @@
     <el-aside class="sidebar">
         <div class="sidebar-scroll-container">
             <div class="sidebar-container">
-                <div class="button-container">
-                    <el-button class="add-button" type="primary" @click="handleAddTodo">
-                      新增待办
+                <div class="add-todo-button-container">
+                    <el-button 
+                        type="primary" 
+                        @click="handleAddTodo"
+                        style="width: 100%"
+                    >
+                        新增待办
                     </el-button>
                 </div>
                 <div class="selector-container">
@@ -45,10 +49,12 @@
 </template>
 
 <script setup>
+// 侧边栏组件 - 移除了新增待办功能
+
 const emit = defineEmits(['add-todo'])
 
 const handleAddTodo = () => {
-  emit('add-todo')
+    emit('add-todo')
 }
 </script>
 
@@ -76,6 +82,11 @@ const handleAddTodo = () => {
 
 .sidebar-scroll-container::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Opera */
+}
+
+.add-todo-button-container {
+    width: 100%;
+    padding: 10px 0;
 }
 
 .selector-container {

@@ -21,6 +21,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { clearUserInfoCache } from '@/utils/user'
 
 const router = useRouter()
 const displayedUserName = ref('')
@@ -39,6 +40,9 @@ const handleLogout = () => {
   // 执行登出逻辑，清除localStorage中的token和userName
   localStorage.removeItem('token')
   localStorage.removeItem('userName')
+  localStorage.removeItem('userId')
+  // 清除用户信息缓存
+  clearUserInfoCache()
   router.push('/login')
 }
 </script>

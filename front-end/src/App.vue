@@ -1,40 +1,12 @@
 <script setup>
-import { useRoute } from 'vue-router'
-import { ref } from 'vue'
 import Footer from './components/Footer.vue'
-import Header from './components/Header.vue';
-import Sidebar from './components/Sidebar.vue';
-
-const route = useRoute()
-const showAddTodo = ref(false)
-
-const handleAddTodo = () => {
-  showAddTodo.value = true
-}
-
-const handleTodoAdded = () => {
-  showAddTodo.value = false
-}
-
-const handleCloseAddTodo = () => {
-  showAddTodo.value = false
-}
 </script>
 
 <template>
   <el-container class="app-container" direction="vertical">
-    <Header v-if="route.name !== 'Login' && route.name !== 'Register'" />
     <el-container class="main-container">
-      <Sidebar 
-        v-if="route.name !== 'Login' && route.name !== 'Register'" 
-        @add-todo="handleAddTodo"
-      />
       <el-main class="content-main">
-        <router-view 
-          :show-add-todo="showAddTodo" 
-          @todo-added="handleTodoAdded"
-          @close-add-todo="handleCloseAddTodo"
-        />
+        <router-view />
       </el-main>
     </el-container>
     <Footer />

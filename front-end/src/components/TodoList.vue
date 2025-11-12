@@ -1,205 +1,270 @@
-<!-- 展示待办列表(首页默认展示) -->
 <template>
   <div class="todo-list-container">
-    <div v-if="groupedTodos.length === 0" class="empty-todos">
-      <el-empty description="暂无待办事项" />
-    </div>
-    
-    <div v-else>
-      <div v-for="group in groupedTodos" :key="group.date" class="date-group">
-        <div class="date-header">
-          <el-text class="date-text">{{ group.date }}</el-text>
-          <el-text class="count-text">({{ group.todos.length }} 项)</el-text>
+    <el-card class="todo-list-card">
+      <template #header>
+        <div class="card-header">
+          <span>我的待办</span>
         </div>
-        
-        <el-card 
-          v-for="todo in group.todos" 
-          :key="todo.id" 
-          class="todo-item"
-          :class="{ 'overdue': isOverdue(todo.deadline) }"
-        >
-          <div class="todo-content">
-            <div class="todo-info">
-              <div class="todo-name">{{ todo.name }}</div>
-              <div class="todo-description" v-if="todo.description">
-                {{ todo.description }}
-              </div>
-            </div>
-            <div class="todo-deadline">
-              <el-tag :type="getDeadlineTagType(todo.deadline)">
-                {{ formatDeadline(todo.deadline) }}
-              </el-tag>
-            </div>
-          </div>
-        </el-card>
+      </template>
+      
+      <div v-if="loading" class="loading-container">
+        <el-skeleton :rows="5" animated />
       </div>
-    </div>
+      
+      <div v-else-if="todos.length === 0" class="empty-container">
+        <el-empty description="暂无待办事项" />
+      </div>
+      
+      <div v-else>
+        <div 
+          v-for="todo in todos" 
+          :key="todo.taskId" 
+          class="todo-item"
+          :class="{ 'completed': todo.status }"
+        >
+          <div class="todo-info">
+            <el-checkbox 
+              v-model="todo.status" 
+              @change="updateTodoStatus(todo)"
+              class="todo-checkbox"
+            />
+            <span 
+              class="todo-name" 
+              :class="{ 'completed-text': todo.status }"
+            >
+              {{ todo.taskName }}
+            </span>
+          </div>
+          
+          <div class="todo-meta">
+            <el-tag 
+              :type="getCountdownTagType(todo)" 
+              size="small"
+              class="countdown-tag"
+            >
+              {{ getCountdownText(todo) }}
+            </el-tag>
+          </div>
+        </div>
+      </div>
+      
+      <div v-if="total > 0" class="pagination-container">
+        <el-pagination
+          v-model:current-page="currentPage"
+          v-model:page-size="pageSize"
+          :page-sizes="[10, 20, 50]"
+          :total="total"
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
+    </el-card>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { format } from 'date-fns'
-import { zhCN } from 'date-fns/locale'
+import { ref, onMounted } from 'vue'
+import request from '@/utils/request'
+import { ElMessage } from 'element-plus'
 
-// 模拟待办事项数据
-const todos = ref([
-  {
-    id: 1,
-    name: '完成项目文档',
-    description: '编写并提交项目最终文档',
-    deadline: '2025-11-15 18:00',
-    completed: false
-  },
-  {
-    id: 2,
-    name: '团队会议',
-    description: '与团队成员讨论项目进度',
-    deadline: '2025-11-13 14:00',
-    completed: false
-  },
-  {
-    id: 3,
-    name: '学习Vue 3',
-    description: '学习Vue 3 Composition API',
-    deadline: '2025-11-20 20:00',
-    completed: false
-  },
-  {
-    id: 4,
-    name: '购买生活用品',
-    description: '',
-    deadline: '2025-11-12 19:00',
-    completed: false
-  }
-])
+// 数据相关
+const todos = ref([])
+const loading = ref(false)
+const currentPage = ref(1)
+const pageSize = ref(10)
+const total = ref(0)
 
-// 按日期分组待办事项
-const groupedTodos = computed(() => {
-  const groups = {}
-  
-  todos.value.forEach(todo => {
-    const date = format(new Date(todo.deadline), 'yyyy年MM月dd日')
-    if (!groups[date]) {
-      groups[date] = []
+// 获取待办列表
+const fetchTodos = async () => {
+  loading.value = true
+  try {
+    const response = await request.get('/task/pageQuery', {
+      page: currentPage.value,
+      pageSize: pageSize.value
+    })
+    
+    if (response.code === 1) {
+      todos.value = response.data.records
+      total.value = response.data.total
+    } else {
+      ElMessage.error(response.msg || '获取待办列表失败')
     }
-    groups[date].push(todo)
-  })
+  } catch (error) {
+    ElMessage.error('获取待办列表失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+// 更新待办状态
+const updateTodoStatus = async (todo) => {
+  try {
+    const response = await request.patch(`/task/${todo.taskId}`, {
+      status: todo.status
+    })
+    
+    if (response.code === 1) {
+      ElMessage.success(todo.status ? '已完成待办' : '已标记为未完成')
+    } else {
+      // 恢复状态
+      todo.status = !todo.status
+      ElMessage.error(response.msg || '更新状态失败')
+    }
+  } catch (error) {
+    // 恢复状态
+    todo.status = !todo.status
+    ElMessage.error('更新状态失败')
+  }
+}
+
+// 计算倒计时文本
+const getCountdownText = (todo) => {
+  if (!todo.dueTime) return '无截止时间'
   
-  // 转换为数组并按日期排序
-  return Object.entries(groups)
-    .map(([date, todos]) => ({
-      date,
-      todos: todos.sort((a, b) => new Date(a.deadline) - new Date(b.deadline))
-    }))
-    .sort((a, b) => new Date(a.todos[0].deadline) - new Date(b.todos[0].deadline))
+  const now = new Date()
+  const dueDate = new Date(todo.dueTime)
+  const diffTime = dueDate - now
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  
+  if (diffTime < 0) {
+    return `已过期 ${Math.abs(diffDays)} 天`
+  } else if (diffDays === 0) {
+    return '今天到期'
+  } else if (diffDays === 1) {
+    return '明天到期'
+  } else {
+    return `${diffDays} 天后到期`
+  }
+}
+
+// 获取倒计时标签类型
+const getCountdownTagType = (todo) => {
+  if (!todo.dueTime) return ''
+  
+  const now = new Date()
+  const dueDate = new Date(todo.dueTime)
+  const diffTime = dueDate - now
+  
+  if (diffTime < 0) {
+    return 'danger' // 已过期，红色
+  } else if (diffTime < 1000 * 60 * 60 * 24) {
+    return 'warning' // 一天内到期，橙色
+  } else {
+    return 'success' // 正常，绿色
+  }
+}
+
+// 分页相关方法
+const handleSizeChange = (val) => {
+  pageSize.value = val
+  currentPage.value = 1
+  fetchTodos()
+}
+
+const handleCurrentChange = (val) => {
+  currentPage.value = val
+  fetchTodos()
+}
+
+// 暴露方法给父组件
+defineExpose({
+  fetchTodos
 })
 
-// 格式化截止时间显示
-const formatDeadline = (deadline) => {
-  const date = new Date(deadline)
-  return format(date, 'MM-dd HH:mm')
-}
-
-// 获取截止时间标签类型
-const getDeadlineTagType = (deadline) => {
-  if (isOverdue(deadline)) {
-    return 'danger' // 过期红色
-  } else if (isDueSoon(deadline)) {
-    return 'warning' // 即将到期橙色
-  } else {
-    return 'success' // 正常绿色
-  }
-}
-
-// 检查是否过期
-const isOverdue = (deadline) => {
-  return new Date(deadline) < new Date()
-}
-
-// 检查是否即将到期（24小时内）
-const isDueSoon = (deadline) => {
-  const now = new Date()
-  const dueDate = new Date(deadline)
-  const diffInHours = (dueDate - now) / (1000 * 60 * 60)
-  return diffInHours > 0 && diffInHours <= 24
-}
+// 组件挂载时获取数据
+onMounted(() => {
+  fetchTodos()
+})
 </script>
 
 <style scoped>
 .todo-list-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   width: 100%;
 }
 
-.empty-todos {
-  text-align: center;
-  padding: 40px 0;
-}
-
-.date-group {
-  margin-bottom: 30px;
-}
-
-.date-header {
+.todo-list-card {
+  flex: 1;
   display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #ebeef5;
-}
-
-.date-text {
-  font-size: 18px;
-  font-weight: bold;
-  color: #303133;
-}
-
-.count-text {
-  margin-left: 10px;
-  font-size: 14px;
-  color: #909399;
 }
 
 .todo-item {
-  margin-bottom: 15px;
-  border-radius: 8px;
-  transition: all 0.3s ease-in-out;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 10px;
+  border-bottom: 1px solid #eee;
+  transition: all 0.3s ease;
 }
 
 .todo-item:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
+  background-color: #f5f7fa;
+  transform: scale(1.01);
 }
 
-.todo-item.overdue {
-  border-left: 4px solid #f56c6c;
-}
-
-.todo-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+.todo-item:last-child {
+  border-bottom: none;
 }
 
 .todo-info {
+  display: flex;
+  align-items: center;
   flex: 1;
+}
+
+.todo-checkbox {
+  margin-right: 12px;
 }
 
 .todo-name {
   font-size: 16px;
-  font-weight: 500;
   color: #303133;
-  margin-bottom: 5px;
 }
 
-.todo-description {
-  font-size: 14px;
-  color: #606266;
-  line-height: 1.5;
+.completed-text {
+  text-decoration: line-through;
+  color: #909399 !important;
 }
 
-.todo-deadline {
-  margin-left: 20px;
-  flex-shrink: 0;
+.todo-meta {
+  display: flex;
+  align-items: center;
+}
+
+.countdown-tag {
+  margin-left: 10px;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px 0;
+  margin-top: auto;
+}
+
+.loading-container,
+.empty-container {
+  padding: 20px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.empty-container {
+  width: 100%;
 }
 </style>

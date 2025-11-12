@@ -37,6 +37,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import request from '@/utils/request'
 import { ElMessage } from 'element-plus'
+import { clearUserInfoCache } from '@/utils/user'
 
 const loginForm = ref({
   userName: '',
@@ -46,14 +47,25 @@ const loginForm = ref({
 const router = useRouter()
 
 async function login() {
+  // 登录前清除旧的用户信息缓存
+  clearUserInfoCache()
+  
+  // 清除localStorage中的旧用户信息
+  localStorage.removeItem('userId')
+  localStorage.removeItem('userName')
+  
   try {
     const res = await request.post('/user/login', loginForm.value)
     // 注意：现在业务逻辑错误不会进入catch块，而是正常返回
     if (res.code === 1) {
-      // 修复：正确访问token字段
+      // 存储token
       localStorage.setItem('token', res.data?.token || res.token)
-      // 同时存储用户名
+      // 存储用户名
       localStorage.setItem('userName', loginForm.value.userName)
+      // 存储用户ID（如果后端返回了）
+      if (res.data?.userId !== undefined && res.data?.userId !== null) {
+        localStorage.setItem('userId', res.data.userId)
+      }
       return true // 登录成功返回true
     } else if (res.code === 0) {
       // 只显示后端返回的错误信息，如果没有则显示默认信息
@@ -84,7 +96,6 @@ const loginResult = ref(null)
 const handleLogin = async () => {
   loginResult.value = await login()
   // 调用login()，根据返回的状态决定是否跳转
-  console.log(loginResult.value)
 
   if (loginResult.value) { // 只有登录成功才执行后续操作
     ElMessage.success('登录成功！')

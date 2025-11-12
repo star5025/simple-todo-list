@@ -36,6 +36,8 @@ service.interceptors.response.use(
             // 业务 code=401（HTTP 状态码 200，但后端提示 Token 过期）
             ElMessage.error(res.msg || '登录已过期，请重新登录')
             localStorage.removeItem('token')
+            localStorage.removeItem('userId')
+            localStorage.removeItem('userName')
             if (router) router.replace('/login')
             return Promise.reject(new Error(res.msg || '登录已过期，请重新登录'))
         }
@@ -55,6 +57,8 @@ service.interceptors.response.use(
                 case 401: // 处理 HTTP 401（后端直接返回 401 状态码）
                     errMsg = '登录已过期，请重新登录'
                     localStorage.removeItem('token') // 清除无效 Token
+                    localStorage.removeItem('userId')
+                    localStorage.removeItem('userName')
                     if (router) router.replace('/login') // 跳转登录页
                     break
                 case 404:
@@ -73,7 +77,6 @@ service.interceptors.response.use(
         return Promise.reject(error)
     }
 )
-//应该对了吧
 
 export default {
     get(url, params = {}) {

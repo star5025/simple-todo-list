@@ -1,4 +1,3 @@
-<!-- 新增待办 -->
 <template>
   <div class="add-todo-container">
     <el-card class="add-todo-card">
@@ -80,11 +79,11 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import request from '@/utils/request'
 
-const emit = defineEmits(['todoAdded', 'cancel'])
+const emit = defineEmits(['todoAdded'])
 
 const todoFormRef = ref()
 const submitting = ref(false)
@@ -92,24 +91,19 @@ const submitting = ref(false)
 const todoForm = reactive({
   taskName: '',
   startTime: '',
-  dueTime: '',
-  remindTime: ''
+  remindTime: '',
+  dueTime: ''
 })
 
 const rules = {
   taskName: [
     { required: true, message: '请输入待办事项名称', trigger: 'blur' },
     { min: 1, max: 50, message: '长度在 1 到 50 个字符', trigger: 'blur' }
-  ],
-  startTime: [
-    { required: true, message: '请选择开始时间', trigger: 'change' }
-  ],
-  dueTime: [
-    { required: true, message: '请选择截止时间', trigger: 'change' }
-  ],
-  remindTime: [
-    { required: true, message: '请选择提醒时间', trigger: 'change' }
   ]
+}
+
+const resetForm = () => {
+  todoFormRef.value?.resetFields()
 }
 
 const handleSubmit = async () => {
@@ -128,7 +122,7 @@ const handleSubmit = async () => {
           startTime: todoForm.startTime ? new Date(todoForm.startTime).toISOString() : null,
           remindTime: todoForm.remindTime ? new Date(todoForm.remindTime).toISOString() : null,
           dueTime: todoForm.dueTime ? new Date(todoForm.dueTime).toISOString() : null
-          // userId会由后端自动填充
+          // userId会由后端自动填充，基于JWT token解析
         }
         
         const res = await request.post('/task/', requestData)
@@ -136,9 +130,9 @@ const handleSubmit = async () => {
         if (res.code === 1) {
           ElMessage.success('待办事项添加成功！')
           // 重置表单
-          todoFormRef.value.resetFields()
+          resetForm()
           // 触发事件通知父组件更新待办列表
-          emit('todoAdded', { ...todoForm })
+          emit('todoAdded')
         } else {
           // 只显示后端返回的错误信息，如果没有则显示默认信息
           if (res.msg) {
@@ -149,24 +143,22 @@ const handleSubmit = async () => {
         }
       } catch (error) {
         console.error('添加待办事项失败：', error)
-        // 检查是否是认证错误
-        if (error.response && error.response.status === 401) {
-          ElMessage.error('登录已过期，请重新登录')
-        } else {
-          ElMessage.error('网络连接失败，请检查网络')
-        }
+        ElMessage.error('网络连接失败，请检查网络')
       } finally {
         submitting.value = false
       }
-    } else {
-      ElMessage.error('请填写正确的表单信息')
     }
   })
 }
 
 const handleCancel = () => {
-  emit('cancel')
+  resetForm()
+  emit('todoAdded')
 }
+
+defineExpose({
+  resetForm
+})
 </script>
 
 <style scoped>
