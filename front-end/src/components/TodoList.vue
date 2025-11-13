@@ -31,9 +31,7 @@
             <span 
               class="todo-name" 
               :class="{ 'completed-text': todo.status }"
-            >
-              {{ todo.taskName }}
-            </span>
+              >{{ todo.taskName }}</span>
           </div>
           
           <div class="todo-meta">
@@ -180,19 +178,12 @@ onMounted(() => {
 
 <style scoped>
 .todo-list-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
   width: 100%;
 }
 
 .todo-list-card {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  overflow: hidden;
 }
 
 .card-header {
@@ -252,7 +243,6 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   padding: 20px 0;
-  margin-top: auto;
 }
 
 .loading-container,

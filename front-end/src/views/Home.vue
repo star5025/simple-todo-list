@@ -13,8 +13,6 @@
         </div>
       </el-main>
     </el-container>
-    
-    <Footer />
   </el-container>
 </template>
 
@@ -22,7 +20,6 @@
 import { ref } from 'vue'
 import Header from '@/components/Header.vue'
 import Sidebar from '@/components/Sidebar.vue'
-import Footer from '@/components/Footer.vue'
 import AddTodo from '@/components/AddTodo.vue'
 import TodoList from '@/components/TodoList.vue'
 
@@ -50,7 +47,7 @@ defineExpose({
 
 <style scoped>
 .home-container {
-  height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
 }
