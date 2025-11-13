@@ -40,9 +40,13 @@ public class TaskController {
     public Result createTask(@RequestBody TaskDTO taskDTO) {
         // 从线程上下文中获取当前用户ID，而不是依赖前端传递
         Long userId = BaseContext.getCurrentId();
+
         log.info("新增任务：当前用户id：{} 任务名：{}", userId, taskDTO.getTaskName());
+
         taskDTO.setUserId(userId); // 设置当前用户ID
+
         taskService.createTask(taskDTO);
+
         return Result.success();
     }
 
@@ -67,7 +71,9 @@ public class TaskController {
     @PatchMapping("/{taskId}")
     public Result updateTask(@PathVariable Long taskId, @RequestBody TaskPatchDTO taskPatchDTO) {
         log.info("更新任务Id为{}的任务", taskId);
+
         taskService.updateTask(taskId, taskPatchDTO);
+
         return Result.success();
     }
 

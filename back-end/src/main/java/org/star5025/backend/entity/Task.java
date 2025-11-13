@@ -18,6 +18,8 @@ public class Task {
 
     private Boolean status;
 
+    private String description;
+
     private LocalDateTime createdTime;
 
     private LocalDateTime startTime;

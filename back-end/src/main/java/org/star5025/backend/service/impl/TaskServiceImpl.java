@@ -46,8 +46,11 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public void createTask(TaskDTO taskDTO) {
         Task task = new Task();
+
         BeanUtils.copyProperties(taskDTO, task);
+
         task.setCreatedTime(LocalDateTime.now());
+
         taskMapper.createTask(task);
     }
 

@@ -13,6 +13,8 @@ public class TaskVO {
 
     private String taskName;
 
+    private String description;
+
     //这个是剩余时间
     private String timeLeft;
 

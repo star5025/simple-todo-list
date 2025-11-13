@@ -12,6 +12,8 @@ public class TaskPatchDTO {
 
     private Boolean status;
 
+    private String description;
+
     private LocalDateTime startTime;
 
     private LocalDateTime remindTime;

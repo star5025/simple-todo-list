@@ -20,8 +20,8 @@ public interface TaskMapper {
      * 新增任务
      * @param task
      */
-    @Insert("insert into task (task_name, status, created_time, start_time, remind_time, due_time, user_id)" +
-            "values (#{taskName},#{status},now(),#{startTime},#{remindTime},#{dueTime},#{userId})")
+    @Insert("insert into task (task_name, status, description, created_time, start_time, remind_time, due_time, user_id)" +
+            "values (#{taskName},#{status},#{description},now(),#{startTime},#{remindTime},#{dueTime},#{userId})")
     void createTask(Task task);
 
     /**
@@ -35,7 +35,7 @@ public interface TaskMapper {
      * 根据用户Id分页查询任务
      * @param userId
      */
-    @Select("select task_id as taskId, task_name as taskName, due_time as dueTime, status, start_time as startTime, remind_time as remindTime, created_time as createdTime from task where user_id = #{userId} order by created_time desc")
+    @Select("select task_id as taskId, task_name as taskName, description as description, due_time as dueTime, status, start_time as startTime, remind_time as remindTime, created_time as createdTime from task where user_id = #{userId} order by created_time desc")
     Page<Task> pageQuery(Long userId);
 
     /**
@@ -49,6 +49,6 @@ public interface TaskMapper {
      * 更新任务
      * @param newTask
      */
-    @Update("update task set task_name = #{taskName}, status = #{status}, start_time = #{startTime}, remind_time = #{remindTime}, due_time = #{dueTime} WHERE task_id = #{taskId}")
+    @Update("update task set task_name = #{taskName}, status = #{status}, description = #{description}, start_time = #{startTime}, remind_time = #{remindTime}, due_time = #{dueTime} WHERE task_id = #{taskId}")
     void updateTask(Task newTask);
 }

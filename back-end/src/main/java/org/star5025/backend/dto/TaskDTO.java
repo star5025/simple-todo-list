@@ -19,6 +19,8 @@ public class TaskDTO {
 
     private LocalDateTime dueTime;
 
+    private String description;
+
     private long userId;
 }
 
