@@ -19,7 +19,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { clearUserInfoCache } from '@/utils/user'
 
@@ -34,7 +34,15 @@ const getUserName = () => {
 // 初始化显示的用户名
 onMounted(() => {
   displayedUserName.value = getUserName()
+  
+  // 监听用户名更新事件
+  window.addEventListener('usernameUpdated', handleUsernameUpdate)
 })
+
+// 处理用户名更新事件
+const handleUsernameUpdate = (event) => {
+  displayedUserName.value = event.detail
+}
 
 const handleLogout = () => {
   // 执行登出逻辑，清除localStorage中的token和userName
@@ -45,6 +53,11 @@ const handleLogout = () => {
   clearUserInfoCache()
   router.push('/login')
 }
+
+// 组件销毁时移除事件监听器
+onUnmounted(() => {
+  window.removeEventListener('usernameUpdated', handleUsernameUpdate)
+})
 </script>
 
 <style scoped>

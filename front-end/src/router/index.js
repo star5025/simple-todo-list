@@ -5,6 +5,7 @@ import Home from '@/views/Home.vue'
 import TodoList from '@/components/TodoList.vue'
 import TodoDetail from '@/components/TodoDetail.vue'
 import AddTodo from '@/components/AddTodo.vue'
+import UserInfo from '@/components/UserInfo.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -44,6 +45,11 @@ const router = createRouter({
           path: 'add',
           name: 'AddTodo',
           component: AddTodo
+        },
+        {
+          path: 'userinfo',
+          name: 'UserInfo',
+          component: UserInfo
         }
       ]
     }

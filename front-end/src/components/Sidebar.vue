@@ -12,6 +12,16 @@
         </button>
       </div>
       
+      <!-- 个人信息按钮 -->
+      <div class="user-info-section">
+        <button 
+          class="custom-button custom-button--primary custom-button--large"
+          @click="handleUserInfo"
+        >
+          个人信息
+        </button>
+      </div>
+      
       <!-- 筛选区域 -->
       <el-card class="filter-card" shadow="never">
         <template #header>
@@ -36,8 +46,8 @@
               >
                 截止时间
                 <el-icon v-if="timeFilter.field === 'dueTime'">
-                  <ArrowUp v-if="timeFilter.order === 'asc'" />
-                  <ArrowDown v-else />
+                  <ArrowUp v-if="timeFilter.order === 'asc' && timeFilter.field === 'dueTime'" />
+                  <ArrowDown v-else-if="timeFilter.order === 'desc' && timeFilter.field === 'dueTime'" />
                 </el-icon>
               </button>
               
@@ -51,8 +61,8 @@
               >
                 创建时间
                 <el-icon v-if="timeFilter.field === 'createdTime'">
-                  <ArrowUp v-if="timeFilter.order === 'asc'" />
-                  <ArrowDown v-else />
+                  <ArrowUp v-if="timeFilter.order === 'asc' && timeFilter.field === 'createdTime'" />
+                  <ArrowDown v-else-if="timeFilter.order === 'desc' && timeFilter.field === 'createdTime'" />
                 </el-icon>
               </button>
               
@@ -66,8 +76,8 @@
               >
                 开始时间
                 <el-icon v-if="timeFilter.field === 'startTime'">
-                  <ArrowUp v-if="timeFilter.order === 'asc'" />
-                  <ArrowDown v-else />
+                  <ArrowUp v-if="timeFilter.order === 'asc' && timeFilter.field === 'startTime'" />
+                  <ArrowDown v-else-if="timeFilter.order === 'desc' && timeFilter.field === 'startTime'" />
                 </el-icon>
               </button>
             </div>
@@ -147,11 +157,22 @@ const handleAddTodo = () => {
   router.push('/home/add')
 }
 
+const handleUserInfo = () => {
+  router.push('/home/userinfo')
+}
+
 // 设置时间筛选条件
 const setTimeFilter = (field) => {
   if (timeFilter.value.field === field) {
-    // 如果点击的是当前激活的字段，则切换排序方向
-    timeFilter.value.order = timeFilter.value.order === 'asc' ? 'desc' : 'asc'
+    // 如果点击的是当前激活的字段
+    if (timeFilter.value.order === 'asc') {
+      // 第二次点击：切换为降序
+      timeFilter.value.order = 'desc'
+    } else {
+      // 第三次点击：取消选中状态
+      timeFilter.value.field = null
+      timeFilter.value.order = null
+    }
   } else {
     // 如果点击的是新的字段，则设置为该字段并默认升序
     timeFilter.value.field = field
@@ -180,15 +201,18 @@ const applyFilters = () => {
   }
   
   // 根据时间字段和排序方向构造orderBy参数
-  const fieldMap = {
-    'dueTime': 'dueTime',
-    'createdTime': 'createdTime',
-    'startTime': 'startTime'
+  if (timeFilter.value.field && timeFilter.value.order) {
+    const fieldMap = {
+      'dueTime': 'dueTime',
+      'createdTime': 'createdTime',
+      'startTime': 'startTime'
+    }
+    
+    const fieldName = fieldMap[timeFilter.value.field] || 'createdTime'
+    const orderSuffix = timeFilter.value.order === 'desc' ? 'Desc' : ''
+    params.orderBy = fieldName + orderSuffix
   }
-  
-  const fieldName = fieldMap[timeFilter.value.field] || 'createdTime'
-  const orderSuffix = timeFilter.value.order === 'desc' ? 'Desc' : ''
-  params.orderBy = fieldName + orderSuffix
+  // 如果timeFilter.field或timeFilter.order为null，则不设置orderBy参数
   
   // 调用更新筛选条件的方法
   if (updateFilter) {
@@ -221,6 +245,10 @@ applyFilters()
 }
 
 .add-todo-section {
+  padding: 10px 0;
+}
+
+.user-info-section {
   padding: 10px 0;
 }
 
