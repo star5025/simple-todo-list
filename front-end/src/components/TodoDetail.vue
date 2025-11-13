@@ -7,10 +7,23 @@
             <el-icon><ArrowLeft /></el-icon>
             返回
           </el-button>
-          <div class="header-title">待办详情</div>
+          <div class="header-title">{{ isEditing ? '编辑待办' : '待办详情' }}</div>
           <div class="header-actions">
-            <el-button @click="editTodo" type="primary" link>
+            <el-button 
+              v-if="!isEditing" 
+              @click="startEdit" 
+              type="primary" 
+              link
+            >
               编辑
+            </el-button>
+            <el-button 
+              v-else 
+              @click="saveEdit" 
+              type="primary" 
+              link
+            >
+              保存
             </el-button>
           </div>
         </div>
@@ -38,11 +51,24 @@
             </el-tag>
           </div>
           
-          <h2 class="todo-title">{{ todo.taskName }}</h2>
+          <h2 v-if="!isEditing" class="todo-title">{{ todo.taskName }}</h2>
+          <el-input 
+            v-else
+            v-model="editForm.taskName" 
+            class="todo-title-input"
+            placeholder="请输入待办事项名称"
+          />
           
-          <div v-if="todo.description" class="todo-description">
+          <div v-if="todo.description || isEditing" class="todo-description">
             <h3>描述</h3>
-            <p>{{ todo.description }}</p>
+            <p v-if="!isEditing">{{ todo.description }}</p>
+            <el-input 
+              v-else
+              v-model="editForm.description" 
+              type="textarea" 
+              :rows="3"
+              placeholder="请输入待办事项描述"
+            />
           </div>
         </div>
         
@@ -54,20 +80,47 @@
             <div class="time-value">{{ formatTime(todo.createdTime) }}</div>
           </div>
           
-          <div class="time-item" v-if="todo.startTime">
+          <div class="time-item">
             <div class="time-label">开始时间</div>
-            <div class="time-value">{{ formatTime(todo.startTime) }}</div>
+            <div v-if="!isEditing" class="time-value">{{ todo.startTime ? formatTime(todo.startTime) : '未设置' }}</div>
+            <el-date-picker 
+              v-else
+              v-model="editForm.startTime"
+              type="datetime"
+              placeholder="请选择开始时间"
+              format="YYYY-MM-DD HH:mm"
+              value-format="YYYY-MM-DD HH:mm"
+              style="margin-left: 20px; flex: 1;"
+            />
           </div>
           
-          <div class="time-item" v-if="todo.dueTime">
+          <div class="time-item">
             <div class="time-label">截止时间</div>
-            <div class="time-value">{{ formatTime(todo.dueTime) }}</div>
-            <div class="time-remaining">{{ getCountdownText(todo) }}</div>
+            <div v-if="!isEditing" class="time-value">{{ todo.dueTime ? formatTime(todo.dueTime) : '未设置' }}</div>
+            <div v-if="!isEditing && todo.dueTime" class="time-remaining">{{ getCountdownText(todo) }}</div>
+            <el-date-picker 
+              v-else
+              v-model="editForm.dueTime"
+              type="datetime"
+              placeholder="请选择截止时间"
+              format="YYYY-MM-DD HH:mm"
+              value-format="YYYY-MM-DD HH:mm"
+              style="margin-left: 20px; flex: 1;"
+            />
           </div>
           
-          <div class="time-item" v-if="todo.remindTime">
+          <div class="time-item">
             <div class="time-label">提醒时间</div>
-            <div class="time-value">{{ formatTime(todo.remindTime) }}</div>
+            <div v-if="!isEditing" class="time-value">{{ todo.remindTime ? formatTime(todo.remindTime) : '未设置' }}</div>
+            <el-date-picker 
+              v-else
+              v-model="editForm.remindTime"
+              type="datetime"
+              placeholder="请选择提醒时间"
+              format="YYYY-MM-DD HH:mm"
+              value-format="YYYY-MM-DD HH:mm"
+              style="margin-left: 20px; flex: 1;"
+            />
           </div>
         </div>
       </div>
@@ -80,7 +133,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import request from '@/utils/request'
@@ -91,6 +144,17 @@ const router = useRouter()
 
 const todo = ref(null)
 const loading = ref(false)
+const isEditing = ref(false)
+
+// 编辑表单
+const editForm = reactive({
+  taskName: '',
+  description: '',
+  status: false,
+  startTime: '',
+  dueTime: '',
+  remindTime: ''
+})
 
 // 获取待办详情
 const fetchTodoDetail = async () => {
@@ -105,6 +169,8 @@ const fetchTodoDetail = async () => {
     const response = await request.get(`/task/${taskId}`)
     if (response.code === 1) {
       todo.value = response.data
+      // 初始化编辑表单
+      initEditForm()
     } else {
       ElMessage.error(response.msg || '获取待办详情失败')
     }
@@ -112,6 +178,18 @@ const fetchTodoDetail = async () => {
     ElMessage.error('获取待办详情失败')
   } finally {
     loading.value = false
+  }
+}
+
+// 初始化编辑表单
+const initEditForm = () => {
+  if (todo.value) {
+    editForm.taskName = todo.value.taskName
+    editForm.description = todo.value.description || ''
+    editForm.status = todo.value.status
+    editForm.startTime = todo.value.startTime || ''
+    editForm.dueTime = todo.value.dueTime || ''
+    editForm.remindTime = todo.value.remindTime || ''
   }
 }
 
@@ -143,12 +221,64 @@ const getCountdownText = (todo) => {
 
 // 返回上一页
 const goBack = () => {
-  router.push('/home')
+  router.push('/home/list')
 }
 
-// 编辑待办
-const editTodo = () => {
-  ElMessage.info('编辑功能待实现')
+// 开始编辑
+const startEdit = () => {
+  isEditing.value = true
+  initEditForm()
+}
+
+// 保存编辑
+const saveEdit = async () => {
+  const taskId = route.params.id
+  if (!taskId) {
+    ElMessage.error('参数错误')
+    return
+  }
+  
+  try {
+    // 构造请求数据，只包含有值的字段
+    const requestData = {}
+    
+    if (editForm.taskName !== todo.value.taskName) {
+      requestData.taskName = editForm.taskName
+    }
+    
+    if (editForm.description !== (todo.value.description || '')) {
+      requestData.description = editForm.description
+    }
+    
+    if (editForm.status !== todo.value.status) {
+      requestData.status = editForm.status
+    }
+    
+    if (editForm.startTime !== (todo.value.startTime || '')) {
+      requestData.startTime = editForm.startTime ? new Date(editForm.startTime).toISOString() : null
+    }
+    
+    if (editForm.dueTime !== (todo.value.dueTime || '')) {
+      requestData.dueTime = editForm.dueTime ? new Date(editForm.dueTime).toISOString() : null
+    }
+    
+    if (editForm.remindTime !== (todo.value.remindTime || '')) {
+      requestData.remindTime = editForm.remindTime ? new Date(editForm.remindTime).toISOString() : null
+    }
+    
+    const response = await request.patch(`/task/${taskId}`, requestData)
+    
+    if (response.code === 1) {
+      ElMessage.success('更新成功')
+      isEditing.value = false
+      // 重新获取待办详情
+      fetchTodoDetail()
+    } else {
+      ElMessage.error(response.msg || '更新失败')
+    }
+  } catch (error) {
+    ElMessage.error('更新失败')
+  }
 }
 
 // 组件挂载时获取数据
@@ -194,6 +324,11 @@ onMounted(() => {
   font-size: 24px;
   margin-bottom: 20px;
   color: #303133;
+}
+
+.todo-title-input {
+  font-size: 24px;
+  margin-bottom: 20px;
 }
 
 .todo-description h3 {

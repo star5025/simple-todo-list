@@ -90,5 +90,8 @@ export default {
     },
     delete(url, params = {}) {
         return service({ url, method: 'delete', params })
+    },
+    patch(url, data = {}) {
+        return service({ url, method: 'patch', data })
     }
 }
