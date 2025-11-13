@@ -1,10 +1,10 @@
 -- 用户数据
-INSERT INTO user (user_name, user_password) VALUES
-                                                ('zhangsan', '123456'),
-                                                ('lisi', 'mypass@2023'),
-                                                ('wangwu', 'securePwd!456'),
-                                                ('xiaohong', 'hong2023!'),
-                                                ('zhaoliu', 'liu#789pass');
+INSERT INTO user (user_name, user_password, create_time) VALUES
+                                                ('zhangsan', '123456', NOW()),
+                                                ('lisi', 'mypass@2023', NOW()),
+                                                ('wangwu', 'securePwd!456', NOW()),
+                                                ('xiaohong', 'hong2023!', NOW()),
+                                                ('zhaoliu', 'liu#789pass', NOW());
 
 -- 任务数据
 INSERT INTO task (task_name, status, created_time, start_time, due_time, remind_time, user_id) VALUES

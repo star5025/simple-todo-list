@@ -19,7 +19,7 @@ public interface UserMapper {
      * 用户注册
      * @param user
      */
-    @Insert("insert into user (user_name, user_password) values (#{userName}, #{userPassword})")
+    @Insert("insert into user (user_name, user_password, create_time, task_count) values (#{userName}, #{userPassword}, #{createTime}, #{taskCount})")
     void register(User user);
 
     /**
@@ -53,4 +53,12 @@ public interface UserMapper {
      */
     @Delete("delete from user where user_id = #{userId}")
     void delete(User user);
+    
+    /**
+     * 增加用户任务计数
+     * @param userId
+     * @param count
+     */
+    @Update("update user set task_count = task_count + #{count} where user_id = #{userId}")
+    void incrementTaskCount(@Param("userId") Long userId, @Param("count") int count);
 }

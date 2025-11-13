@@ -45,4 +45,11 @@ public interface UserService {
      * @return
      */
     void deleteUser(User user);
+    
+    /**
+     * 增加用户任务计数
+     * @param userId
+     * @param count
+     */
+    void incrementTaskCount(Long userId, int count);
 }

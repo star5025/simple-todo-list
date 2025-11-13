@@ -114,6 +114,7 @@ public class UserController {
     @GetMapping("/{userId}")
     public Result<User> getUserById(@PathVariable Long userId){
         User user = userService.getUserById(userId);
+        log.info("根据Id查找用户：{}",user);
         return Result.success(user);
     }
 

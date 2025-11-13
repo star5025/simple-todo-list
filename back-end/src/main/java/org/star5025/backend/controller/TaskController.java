@@ -13,6 +13,7 @@ import org.star5025.backend.entity.Task;
 import org.star5025.backend.result.PageResult;
 import org.star5025.backend.result.Result;
 import org.star5025.backend.service.TaskService;
+import org.star5025.backend.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,6 +26,9 @@ public class TaskController {
 
     @Autowired
     private TaskService taskService;
+    
+    @Autowired
+    private UserService userService;
 
 //    @ApiOperation("全部任务查询接口")
 //    @GetMapping("/all")
@@ -60,6 +64,8 @@ public class TaskController {
     public Result deleteTask(@PathVariable Long taskId) {
         log.info("删除任务Id为{}的任务", taskId);
         taskService.deleteTask(taskId);
+        // 减少用户任务计数
+        userService.incrementTaskCount(BaseContext.getCurrentId(), -1);
         return Result.success();
     }
 

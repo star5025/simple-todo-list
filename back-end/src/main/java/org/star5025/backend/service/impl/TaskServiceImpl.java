@@ -15,6 +15,7 @@ import org.star5025.backend.entity.Task;
 import org.star5025.backend.mapper.TaskMapper;
 import org.star5025.backend.result.PageResult;
 import org.star5025.backend.service.TaskService;
+import org.star5025.backend.service.UserService;
 import org.star5025.backend.vo.TaskVO;
 
 import java.time.LocalDateTime;
@@ -29,6 +30,9 @@ public class TaskServiceImpl implements TaskService {
 
     @Autowired
     private TaskMapper taskMapper;
+    
+    @Autowired
+    private UserService userService;
 
     /**
      * 查询所有任务，测试用
@@ -52,6 +56,9 @@ public class TaskServiceImpl implements TaskService {
         task.setCreatedTime(LocalDateTime.now());
 
         taskMapper.createTask(task);
+        
+        // 增加用户任务计数
+        userService.incrementTaskCount(taskDTO.getUserId(), 1);
     }
 
     /**

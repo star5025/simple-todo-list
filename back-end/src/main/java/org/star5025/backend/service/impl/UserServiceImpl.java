@@ -12,6 +12,7 @@ import org.star5025.backend.service.UserService;
 import org.star5025.backend.utils.Md5Util;
 
 import javax.security.auth.login.LoginException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -36,8 +37,12 @@ public class UserServiceImpl implements UserService {
     public void register(UserDTO userDTO) {
         User user = new User();
         BeanUtils.copyProperties(userDTO,user);
-//      // 对用户密码进行加密后再传入数据库，使用工具类的加密算法
+        // 对用户密码进行加密后再传入数据库，使用工具类的加密算法
         user.setUserPassword(Md5Util.getMD5String(user.getUserPassword()));
+        // 设置创建时间
+        user.setCreateTime(LocalDateTime.now());
+        // 初始化任务计数为0
+        user.setTaskCount(0);
         userMapper.register(user);
     }
 
@@ -96,6 +101,14 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(User user) {
         userMapper.delete(user);
     }
-
-
+    
+    /**
+     * 增加用户任务计数
+     * @param userId
+     * @param count
+     */
+    @Override
+    public void incrementTaskCount(Long userId, int count) {
+        userMapper.incrementTaskCount(userId, count);
+    }
 }
