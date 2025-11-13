@@ -30,20 +30,20 @@
       </div>
       
       <div class="container github-container" @click="goToRepository">
+        <!-- 白色黑底的GitHub图标 -->
         <svg 
-          t="1731251462173" 
-          class="github-icon" 
-          viewBox="0 0 1024 1024" 
-          version="1.1" 
           xmlns="http://www.w3.org/2000/svg" 
-          p-id="1560" 
-          width="28"
-          height="28"
+          width="24" 
+          height="24" 
+          viewBox="0 0 24 24" 
+          fill="#ffffff" 
+          stroke="#000000" 
+          stroke-width="1" 
+          stroke-linecap="round" 
+          stroke-linejoin="round" 
+          class="github-icon"
         >
-          <path 
-            d="M512 71.68c-242.56 0-438.72 196.16-438.72 438.72 0 194.24 126.08 359.04 301.76 417.92 22.08 4.16 30.08-9.6 30.08-21.12 0-10.56-0.32-38.4-0.32-73.28-122.88 26.56-148.8-52.48-148.8-52.48-20.16-51.2-49.28-64.96-49.28-64.96-40.32-27.52 3.2-26.88 3.2-26.88 44.8 3.2 68.16 46.08 68.16 46.08 39.68 67.84 104 48.32 129.6 36.8 4.16-28.8 15.68-48.32 28.48-59.52-99.2-11.2-203.2-49.6-203.2-220.16 0-48.64 17.28-88 45.76-119.36-4.8-11.2-19.84-56 4.16-116.8 0 0 37.12-11.84 121.6 45.76 35.2-9.92 73.28-14.72 111.04-14.72 37.76 0 75.84 4.8 111.04 14.72 84.48-57.6 121.6-45.76 121.6-45.76 24 60.8 9.28 105.6 4.8 116.8 28.8 31.36 45.76 70.72 45.76 119.36 0 171.04-104.32 209.28-203.52 219.84 16 13.76 30.4 41.28 30.4 83.2 0 60.16-0.32 108.8-0.32 123.52 0 11.84 8 25.6 30.4 21.12 175.36-59.2 301.44-224 301.44-418.24C950.72 267.84 754.56 71.68 512 71.68z" 
-            p-id="1561">
-          </path>
+          <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
         </svg>
       </div>
     </div>
@@ -70,22 +70,21 @@ const goToRepository = () => {
   margin-top: auto;
   width: 100%;
   box-sizing: border-box;
-  /* 固定footer高度为120px */
-  height: 120px;
-  min-height: 120px;
-  padding: 0; /* 移除内边距，在内部控制 */
+  /* 缩小footer高度 */
+  height: 60px;
+  min-height: 60px;
+  padding: 0;
 }
 
 .footer-content {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  flex-direction: row;
+  justify-content: space-between;
   align-items: center;
-  padding: 20px 15px;
+  padding: 10px 20px;
   width: 100%;
   height: 100%;
   box-sizing: border-box;
-  gap: 12px; /* 使用gap控制间距 */
   border-radius: 8px;
 }
 
@@ -93,15 +92,14 @@ const goToRepository = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  max-width: 100%; /* 防止超出 */
+  width: auto;
+  max-width: 100%;
   box-sizing: border-box;
 }
 
 .version-container {
-  order: 1; /* 控制显示顺序 */
-  margin-top: 15px;
-  margin-bottom: 5px;
+  margin: 0;
+  order: 1;
 }
 
 .authors-container {
@@ -110,7 +108,6 @@ const goToRepository = () => {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  flex-wrap: wrap; /* 允许换行 */
 }
 
 .github-container {
@@ -119,28 +116,32 @@ const goToRepository = () => {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  padding: 8px;
+  padding: 4px;
   border-radius: 4px;
-  margin-bottom: 10px;
+  margin: 0;
 }
 
 .github-icon:hover {
-  transform: scale(1.4);
-  transition: all 0.8s ease;
+  transform: scale(1.2);
+  transition: all 0.3s ease;
 }
 
 .github-icon {
   fill: #333;
   display: block;
+  width: 24px;
+  height: 24px;
 }
 
 .avatar {
   cursor: pointer;
-  transition: transform 0.8s ease;
+  transition: transform 0.3s ease;
+  width: 36px;
+  height: 36px;
 }
 
 .avatar:hover {
-  transform: scale(1.4);
+  transform: scale(1.2);
   box-shadow: 0.5px 2px 8px 0px rgba(0, 0, 0, 0.2);
 }
 

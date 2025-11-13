@@ -21,6 +21,16 @@
           />
         </el-form-item>
         
+        <el-form-item label="待办事项描述（可选）" prop="description">
+          <el-input 
+            v-model="todoForm.description" 
+            placeholder="请输入待办事项描述"
+            type="textarea"
+            :rows="3"
+            clearable
+          />
+        </el-form-item>
+        
         <el-form-item label="开始时间" prop="startTime">
           <el-date-picker
             v-model="todoForm.startTime"
@@ -90,6 +100,7 @@ const submitting = ref(false)
 
 const todoForm = reactive({
   taskName: '',
+  description: '',
   startTime: '',
   remindTime: '',
   dueTime: ''
@@ -118,6 +129,7 @@ const handleSubmit = async () => {
         // 构造请求数据，使用正确的日期格式
         const requestData = {
           taskName: todoForm.taskName,
+          description: todoForm.description,
           status: false, // 默认为未完成
           startTime: todoForm.startTime ? new Date(todoForm.startTime).toISOString() : null,
           remindTime: todoForm.remindTime ? new Date(todoForm.remindTime).toISOString() : null,
