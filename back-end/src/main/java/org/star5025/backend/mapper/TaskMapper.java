@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.*;
 import org.star5025.backend.entity.Task;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper
@@ -34,9 +35,29 @@ public interface TaskMapper {
     /**
      * 根据用户Id分页查询任务
      * @param userId
+     * @param status 完成状态，如果为null则不筛选
+     * @param dueTime 截止时间，如果为null则不筛选
+     * @param orderBy 排序字段
      */
-    @Select("select task_id as taskId, task_name as taskName, description as description, due_time as dueTime, status, start_time as startTime, remind_time as remindTime, created_time as createdTime from task where user_id = #{userId} order by created_time desc")
-    Page<Task> pageQuery(Long userId);
+    @Select("<script>" +
+            "select task_id as taskId, task_name as taskName, description as description, due_time as dueTime, status, start_time as startTime, remind_time as remindTime, created_time as createdTime " +
+            "from task " +
+            "where user_id = #{userId} " +
+            "<if test='status != null'> AND status = #{status} </if>" +
+            "<if test='dueTime != null'> AND DATE(due_time) = DATE(#{dueTime}) </if>" +
+            "order by " +
+            "<choose>" +
+            "  <when test='orderBy == \"dueTime\"'>due_time asc,</when>" +
+            "  <when test='orderBy == \"dueTimeDesc\"'>due_time desc,</when>" +
+            "  <when test='orderBy == \"startTime\"'>start_time asc,</when>" +
+            "  <when test='orderBy == \"startTimeDesc\"'>start_time desc,</when>" +
+            "  <when test='orderBy == \"createdTime\"'>created_time asc,</when>" +
+            "  <when test='orderBy == \"createdTimeDesc\"'>created_time desc,</when>" +
+            "  <otherwise>created_time desc,</otherwise>" +
+            "</choose>" +
+            "task_id desc" +
+            "</script>")
+    Page<Task> pageQuery(@Param("userId") Long userId, @Param("status") Boolean status, @Param("dueTime") LocalDateTime dueTime, @Param("orderBy") String orderBy);
 
     /**
      * 根据任务Id查询单个任务

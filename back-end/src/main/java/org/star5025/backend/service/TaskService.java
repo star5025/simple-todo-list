@@ -6,6 +6,7 @@ import org.star5025.backend.dto.TaskPatchDTO;
 import org.star5025.backend.entity.Task;
 import org.star5025.backend.result.PageResult;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface TaskService {
@@ -39,9 +40,12 @@ public interface TaskService {
      * @param page 页码
      * @param pageSize 每页大小
      * @param userId 用户ID
+     * @param status 完成状态
+     * @param dueTime 截止时间
+     * @param orderBy 排序字段
      * @return
      */
-    PageResult pageQuery(int page, int pageSize, Long userId);
+    PageResult pageQuery(int page, int pageSize, Long userId, Boolean status, LocalDateTime dueTime, String orderBy);
 
     /**
      * 更新任务

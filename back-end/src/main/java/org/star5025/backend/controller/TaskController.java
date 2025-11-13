@@ -14,6 +14,7 @@ import org.star5025.backend.result.PageResult;
 import org.star5025.backend.result.Result;
 import org.star5025.backend.service.TaskService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -82,18 +83,24 @@ public class TaskController {
      * 根据用户Id进行分页查询
      * @param page 页码
      * @param pageSize 每页大小
+     * @param status 完成状态
+     * @param dueTime 截止时间
+     * @param orderBy 排序字段
      * @return
      */
     @ApiOperation("根据用户Id分页查询接口")
     @GetMapping("/pageQuery")
     public Result<PageResult> pageQuery(
             @RequestParam(value = "page", required = false) int page,
-            @RequestParam(value = "pageSize", required = false) int pageSize) {
+            @RequestParam(value = "pageSize", required = false) int pageSize,
+            @RequestParam(value = "status", required = false) Boolean status,
+            @RequestParam(value = "dueTime", required = false) LocalDateTime dueTime,
+            @RequestParam(value = "orderBy", required = false) String orderBy) {
         // 从线程上下文中获取当前用户ID
         Long userId = BaseContext.getCurrentId();
-        log.info("收到分页查询请求: page={}, pageSize={}, userId={}", page, pageSize, userId);
+        log.info("收到分页查询请求: page={}, pageSize={}, userId={}, status={}, dueTime={}, orderBy={}", page, pageSize, userId, status, dueTime, orderBy);
         log.info("进行分页查询，查询的用户Id为：{}", userId);
-        TaskPageQueryDTO taskPageQueryDTO = new TaskPageQueryDTO(page, pageSize, userId);
+        TaskPageQueryDTO taskPageQueryDTO = new TaskPageQueryDTO(page, pageSize, userId, status, dueTime, orderBy);
         PageResult pageResult = taskService.pageQuery(taskPageQueryDTO);
         log.info("分页查询结果: 总数={}, 当前页返回数量={}", pageResult.getTotal(), pageResult.getRecords().size());
         return Result.success(pageResult);

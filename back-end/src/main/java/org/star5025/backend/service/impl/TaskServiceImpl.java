@@ -69,7 +69,7 @@ public class TaskServiceImpl implements TaskService {
      */
     @Override
     public PageResult pageQuery(TaskPageQueryDTO taskPageQueryDTO) {
-        return pageQuery(taskPageQueryDTO.getPage(), taskPageQueryDTO.getPageSize(), taskPageQueryDTO.getUserId());
+        return pageQuery(taskPageQueryDTO.getPage(), taskPageQueryDTO.getPageSize(), taskPageQueryDTO.getUserId(), taskPageQueryDTO.getStatus(), taskPageQueryDTO.getDueTime(), taskPageQueryDTO.getOrderBy());
     }
     
     /**
@@ -77,11 +77,14 @@ public class TaskServiceImpl implements TaskService {
      * @param page 页码
      * @param pageSize 每页大小
      * @param userId 用户ID
+     * @param status 完成状态
+     * @param dueTime 截止时间
+     * @param orderBy 排序字段
      */
-    public PageResult pageQuery(int page, int pageSize, Long userId) {
+    public PageResult pageQuery(int page, int pageSize, Long userId, Boolean status, LocalDateTime dueTime, String orderBy) {
         PageHelper.startPage(page, pageSize);
 
-        Page<Task> taskPage = taskMapper.pageQuery(userId);
+        Page<Task> taskPage = taskMapper.pageQuery(userId, status, dueTime, orderBy);
 
         return new PageResult(taskPage.getTotal(), taskPage.getResult());
     }
