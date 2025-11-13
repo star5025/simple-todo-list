@@ -109,22 +109,45 @@ const fetchTodos = async () => {
 
 // 更新待办状态
 const updateTodoStatus = async (todo) => {
+  // 如果待办事项已经完成，则不允许再标记为未完成
+  if (!todo.status) {
+    // 从已完成标记为未完成的情况，直接拒绝
+    ElMessage.warning('已完成的待办事项不能标记为未完成')
+    // 恢复状态
+    todo.status = true
+    return
+  }
+  
+  // 待办事项从未完成标记为完成的情况
   try {
+    await ElMessageBox.confirm(
+      `确定要完成待办事项 "${todo.taskName}" 吗？`,
+      '完成确认',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+    );
+    
+    // 用户确认后执行状态更新
     const response = await request.patch(`/task/${todo.taskId}`, {
       status: todo.status
     })
     
     if (response.code === 1) {
-      ElMessage.success(todo.status ? '已完成待办' : '已标记为未完成')
+      ElMessage.success('已完成待办')
     } else {
       // 恢复状态
-      todo.status = !todo.status
+      todo.status = false
       ElMessage.error(response.msg || '更新状态失败')
     }
   } catch (error) {
-    // 恢复状态
-    todo.status = !todo.status
-    ElMessage.error('更新状态失败')
+    // 用户取消操作或请求失败，恢复状态
+    if (error !== 'cancel' && error !== 'close') {
+      ElMessage.error('更新状态失败')
+    }
+    todo.status = false
   }
 }
 

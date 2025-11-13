@@ -13,35 +13,69 @@
                 </div>
                 <div class="selector-container">
                     <div class="selector">
-                    <el-text class="selector-label">
-                        筛选待办
-                    </el-text>
-                    <el-select>
-                        <!-- 这里涉及vue逻辑，以后完善 -->
-                    </el-select>
-                </div>
-                </div>
-                <div class="board-container">
-                    <el-card class="upcoming-tasks">
-                        <template #header>
-                            <div class="upcoming-tasks-header">
-                                临近待办
+                        <el-text class="selector-label">
+                            筛选待办
+                        </el-text>
+                        <div class="filter-options">
+                            <div class="filter-group">
+                                <el-text class="filter-group-label">时间排序</el-text>
+                                <div class="time-filter-item" v-for="timeFilter in timeFilterOptions" :key="timeFilter.value">
+                                    <el-checkbox 
+                                        v-model="timeFilter.active" 
+                                        @change="updateFilter"
+                                        class="time-filter-checkbox"
+                                    >
+                                        {{ timeFilter.label }}
+                                    </el-checkbox>
+                                    <el-select 
+                                        v-if="timeFilter.active"
+                                        v-model="timeFilter.order"
+                                        placeholder="选择排序方向"
+                                        @change="updateFilter"
+                                        class="time-order-select"
+                                    >
+                                        <el-option
+                                            label="由近到远"
+                                            value="asc"
+                                        />
+                                        <el-option
+                                            label="由远到近"
+                                            value="desc"
+                                        />
+                                    </el-select>
+                                </div>
                             </div>
-                        </template>
-                        <!-- 这里需要写获取临近待办的逻辑 -->
-                        <p v-for="o in 4" :key="o" class="text item">{{ 'List item ' + o }}</p>
-                    </el-card>
-                </div>
-                <div class="board-container">
-                    <el-card class="starred-tasks">
-                        <template #header>
-                            <div class="starred-tasks-header">
-                                星标待办
+                            <div class="filter-group">
+                                <el-text class="filter-group-label">完成状态</el-text>
+                                <div class="filter-buttons">
+                                    <el-button 
+                                        :type="statusFilter === null ? 'primary' : 'default'"
+                                        @click="setStatusFilter(null)"
+                                        size="small"
+                                        class="filter-button"
+                                    >
+                                        全部
+                                    </el-button>
+                                    <el-button 
+                                        :type="statusFilter === false ? 'primary' : 'default'"
+                                        @click="setStatusFilter(false)"
+                                        size="small"
+                                        class="filter-button"
+                                    >
+                                        未完成
+                                    </el-button>
+                                    <el-button 
+                                        :type="statusFilter === true ? 'primary' : 'default'"
+                                        @click="setStatusFilter(true)"
+                                        size="small"
+                                        class="filter-button"
+                                    >
+                                        已完成
+                                    </el-button>
+                                </div>
                             </div>
-                        </template>
-                        <!-- 这里需要写获取星标待办的逻辑 -->
-                        <p v-for="o in 4" :key="o" class="text item">{{ 'List item ' + o }}</p>
-                    </el-card>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -49,12 +83,46 @@
 </template>
 
 <script setup>
+import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
+// 时间筛选选项
+const timeFilterOptions = ref([
+    { label: '截止时间', value: 'dueTime', active: true, order: 'asc' },
+    { label: '创建时间', value: 'createdTime', active: false, order: 'asc' },
+    { label: '开始时间', value: 'startTime', active: false, order: 'asc' }
+])
+
+// 状态筛选
+const statusFilter = ref(null) // null: 全部, false: 未完成, true: 已完成
+
 const handleAddTodo = () => {
     router.push('/home/add')
+}
+
+// 设置状态筛选
+const setStatusFilter = (status) => {
+    statusFilter.value = status
+    // 触发筛选更新
+    updateFilter()
+}
+
+// 更新筛选条件（实际应用中会通过事件传递给父组件或其他组件）
+const updateFilter = () => {
+    // 获取所有激活的时间筛选条件
+    const activeFilters = timeFilterOptions.value
+        .filter(option => option.active)
+        .map(option => ({
+            field: option.value,
+            order: option.order
+        }))
+    
+    console.log('筛选条件更新:', {
+        timeFilters: activeFilters,
+        status: statusFilter.value
+    })
 }
 </script>
 
@@ -98,10 +166,6 @@ const handleAddTodo = () => {
     width: 100%;
 }
 
-.board-container {
-    width: 100%;
-}
-
 .sidebar-container {
     display: flex;
     flex-direction: column;
@@ -110,12 +174,6 @@ const handleAddTodo = () => {
     gap: 20px;
     /* 确保内容占满容器高度 */
     min-height: 100%;
-}
-
-.board-container:hover {
-    scale: 1.02;
-    transition: all 0.5s ease-in-out;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .selector-container:hover {
@@ -131,6 +189,57 @@ const handleAddTodo = () => {
 .selector-label {
     font-size: 16px;
     font-weight: 500;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.filter-options {
+    width: 100%;
+}
+
+.filter-group {
+    margin-bottom: 15px;
+}
+
+.filter-group:last-child {
+    margin-bottom: 0;
+}
+
+.filter-group-label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #666;
+}
+
+.time-filter-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+.time-filter-item:last-child {
+    margin-bottom: 0;
+}
+
+.time-filter-checkbox {
+    margin-right: 0;
+}
+
+.time-order-select {
+    margin-left: 20px;
+}
+
+.filter-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.filter-button {
+    justify-content: center;
+    font-size: 12px;
 }
 
 /* 响应式设计 - 针对不同屏幕尺寸调整sidebar宽度 */
