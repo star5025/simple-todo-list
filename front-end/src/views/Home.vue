@@ -8,7 +8,7 @@
       <el-main class="main-content">
         <!-- 主页内容区域 -->
         <div class="home-content">
-          <AddTodo v-if="showAddTodoForm" />
+          <AddTodo v-if="showAddTodoForm" @todo-added="handleTodoAdded" />
           <TodoList v-else ref="todoListRef" />
         </div>
       </el-main>

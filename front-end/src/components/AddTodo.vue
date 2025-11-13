@@ -143,7 +143,7 @@ const handleSubmit = async () => {
           ElMessage.success('待办事项添加成功！')
           // 重置表单
           resetForm()
-          // 触发事件通知父组件更新待办列表
+          // 触发事件通知父组件更新待办列表并切换回列表视图
           emit('todoAdded')
         } else {
           // 只显示后端返回的错误信息，如果没有则显示默认信息
@@ -165,6 +165,7 @@ const handleSubmit = async () => {
 
 const handleCancel = () => {
   resetForm()
+  // 触发事件通知父组件切换回列表视图
   emit('todoAdded')
 }
 
