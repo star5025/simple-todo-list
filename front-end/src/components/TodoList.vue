@@ -44,6 +44,12 @@
             >
               {{ getCountdownText(todo) }}
             </el-tag>
+            <el-icon 
+              class="delete-icon" 
+              @click.stop="confirmDelete(todo)"
+            >
+              <Delete />
+            </el-icon>
           </div>
         </div>
       </div>
@@ -66,8 +72,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/utils/request'
+import { Delete } from '@element-plus/icons-vue'
 
 const router = useRouter()
 
@@ -175,6 +182,45 @@ const goToDetail = (taskId) => {
   router.push(`/home/todo/${taskId}`)
 }
 
+// 确认删除
+const confirmDelete = (todo) => {
+  ElMessageBox.confirm(
+    `确定要删除待办事项 "${todo.taskName}" 吗？此操作无法撤销。`,
+    '删除确认',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }
+  ).then(() => {
+    deleteTodo(todo)
+  }).catch(() => {
+    // 用户取消删除
+  })
+}
+
+// 删除待办项
+const deleteTodo = async (todo) => {
+  try {
+    const response = await request.delete(`/task/${todo.taskId}`)
+    
+    if (response.code === 1) {
+      ElMessage.success('删除成功')
+      // 从列表中移除已删除的待办项
+      const index = todos.value.findIndex(item => item.taskId === todo.taskId)
+      if (index > -1) {
+        todos.value.splice(index, 1)
+      }
+      // 更新总数
+      total.value -= 1
+    } else {
+      ElMessage.error(response.msg || '删除失败')
+    }
+  } catch (error) {
+    ElMessage.error('删除失败')
+  }
+}
+
 // 暴露方法给父组件
 defineExpose({
   fetchTodos
@@ -243,6 +289,17 @@ onMounted(() => {
 .todo-meta {
   display: flex;
   align-items: center;
+}
+
+.delete-icon {
+  margin-left: 10px;
+  cursor: pointer;
+  color: #909399;
+  font-size: 16px;
+}
+
+.delete-icon:hover {
+  color: #f56c6c;
 }
 
 .countdown-tag {

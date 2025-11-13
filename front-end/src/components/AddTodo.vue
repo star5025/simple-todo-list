@@ -123,6 +123,17 @@ const handleSubmit = async () => {
   
   await todoFormRef.value.validate(async (valid) => {
     if (valid) {
+      // 时间校验逻辑
+      if (todoForm.startTime && todoForm.dueTime && new Date(todoForm.startTime) > new Date(todoForm.dueTime)) {
+        ElMessage.error('开始时间不能晚于截止时间')
+        return
+      }
+      
+      if (todoForm.remindTime && todoForm.dueTime && new Date(todoForm.remindTime) > new Date(todoForm.dueTime)) {
+        ElMessage.error('提醒时间不能晚于截止时间')
+        return
+      }
+      
       // 提交数据到后端
       submitting.value = true
       

@@ -238,6 +238,17 @@ const saveEdit = async () => {
     return
   }
   
+  // 时间校验逻辑
+  if (editForm.startTime && editForm.dueTime && new Date(editForm.startTime) > new Date(editForm.dueTime)) {
+    ElMessage.error('开始时间不能晚于截止时间')
+    return
+  }
+  
+  if (editForm.remindTime && editForm.dueTime && new Date(editForm.remindTime) > new Date(editForm.dueTime)) {
+    ElMessage.error('提醒时间不能晚于截止时间')
+    return
+  }
+  
   try {
     // 构造请求数据，只包含有值的字段
     const requestData = {}
