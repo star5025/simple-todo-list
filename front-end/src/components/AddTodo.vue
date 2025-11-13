@@ -90,10 +90,11 @@
 
 <script setup>
 import { reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import request from '@/utils/request'
 
-const emit = defineEmits(['todoAdded'])
+const router = useRouter()
 
 const todoFormRef = ref()
 const submitting = ref(false)
@@ -143,8 +144,8 @@ const handleSubmit = async () => {
           ElMessage.success('待办事项添加成功！')
           // 重置表单
           resetForm()
-          // 触发事件通知父组件更新待办列表并切换回列表视图
-          emit('todoAdded')
+          // 跳转回待办列表
+          router.push('/home/list')
         } else {
           // 只显示后端返回的错误信息，如果没有则显示默认信息
           if (res.msg) {
@@ -165,8 +166,8 @@ const handleSubmit = async () => {
 
 const handleCancel = () => {
   resetForm()
-  // 触发事件通知父组件切换回列表视图
-  emit('todoAdded')
+  // 跳转回待办列表
+  router.push('/home/list')
 }
 
 defineExpose({

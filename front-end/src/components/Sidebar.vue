@@ -49,12 +49,12 @@
 </template>
 
 <script setup>
-// 侧边栏组件 - 移除了新增待办功能
+import { useRouter } from 'vue-router'
 
-const emit = defineEmits(['add-todo'])
+const router = useRouter()
 
 const handleAddTodo = () => {
-    emit('add-todo')
+    router.push('/home/add')
 }
 </script>
 

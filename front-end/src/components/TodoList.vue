@@ -21,11 +21,13 @@
           :key="todo.taskId" 
           class="todo-item"
           :class="{ 'completed': todo.status }"
+          @click="goToDetail(todo.taskId)"
         >
           <div class="todo-info">
             <el-checkbox 
               v-model="todo.status" 
               @change="updateTodoStatus(todo)"
+              @click.stop
               class="todo-checkbox"
             />
             <span 
@@ -63,8 +65,11 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import request from '@/utils/request'
+import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import request from '@/utils/request'
+
+const router = useRouter()
 
 // 数据相关
 const todos = ref([])
@@ -163,6 +168,11 @@ const handleSizeChange = (val) => {
 const handleCurrentChange = (val) => {
   currentPage.value = val
   fetchTodos()
+}
+
+// 跳转到详情页
+const goToDetail = (taskId) => {
+  router.push(`/home/todo/${taskId}`)
 }
 
 // 暴露方法给父组件

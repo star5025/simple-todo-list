@@ -1,4 +1,5 @@
 <script setup>
+import { RouterView } from 'vue-router'
 import Footer from './components/Footer.vue'
 </script>
 
@@ -6,7 +7,7 @@ import Footer from './components/Footer.vue'
   <el-container class="app-container" direction="vertical">
     <el-container class="main-container">
       <el-main class="content-main">
-        <router-view />
+        <RouterView />
       </el-main>
     </el-container>
     <Footer />

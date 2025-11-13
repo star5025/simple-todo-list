@@ -3,13 +3,12 @@
     <Header />
     
     <el-container class="main-container">
-      <Sidebar @add-todo="showAddTodo" />
+      <Sidebar />
       
       <el-main class="main-content">
         <!-- 主页内容区域 -->
         <div class="home-content">
-          <AddTodo v-if="showAddTodoForm" @todo-added="handleTodoAdded" />
-          <TodoList v-else ref="todoListRef" />
+          <router-view />
         </div>
       </el-main>
     </el-container>
@@ -17,32 +16,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import Header from '@/components/Header.vue'
 import Sidebar from '@/components/Sidebar.vue'
-import AddTodo from '@/components/AddTodo.vue'
-import TodoList from '@/components/TodoList.vue'
-
-const showAddTodoForm = ref(false)
-const todoListRef = ref(null)
-
-const showAddTodo = () => {
-  showAddTodoForm.value = true
-}
-
-// 当新增待办完成后，可以调用此方法刷新列表并返回列表视图
-const handleTodoAdded = () => {
-  showAddTodoForm.value = false
-  // 刷新待办列表
-  if (todoListRef.value) {
-    todoListRef.value.fetchTodos()
-  }
-}
-
-// 将handleTodoAdded方法提供给AddTodo组件使用
-defineExpose({
-  handleTodoAdded
-})
 </script>
 
 <style scoped>

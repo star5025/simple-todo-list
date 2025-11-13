@@ -2,6 +2,9 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Login from '@/views/Login.vue'
 import Register from '@/views/Register.vue'
 import Home from '@/views/Home.vue'
+import TodoList from '@/components/TodoList.vue'
+import TodoDetail from '@/components/TodoDetail.vue'
+import AddTodo from '@/components/AddTodo.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -23,7 +26,26 @@ const router = createRouter({
     {
       path: '/home',
       name: 'Home',
-      component: Home
+      component: Home,
+      redirect: '/home/list',
+      children: [
+        {
+          path: 'list',
+          name: 'TodoList',
+          component: TodoList
+        },
+        {
+          path: 'todo/:id',
+          name: 'TodoDetail',
+          component: TodoDetail,
+          props: true
+        },
+        {
+          path: 'add',
+          name: 'AddTodo',
+          component: AddTodo
+        }
+      ]
     }
   ]
 })
