@@ -19,30 +19,43 @@
                         <div class="filter-options">
                             <div class="filter-group">
                                 <el-text class="filter-group-label">时间排序</el-text>
-                                <div class="time-filter-item" v-for="timeFilter in timeFilterOptions" :key="timeFilter.value">
-                                    <el-checkbox 
-                                        v-model="timeFilter.active" 
-                                        @change="updateFilter"
-                                        class="time-filter-checkbox"
+                                <div class="filter-buttons">
+                                    <el-button 
+                                        :type="timeFilter.field === 'dueTime' ? 'primary' : 'default'"
+                                        @click="setTimeFilter('dueTime')"
+                                        size="small"
+                                        class="filter-button"
                                     >
-                                        {{ timeFilter.label }}
-                                    </el-checkbox>
-                                    <el-select 
-                                        v-if="timeFilter.active"
-                                        v-model="timeFilter.order"
-                                        placeholder="选择排序方向"
-                                        @change="updateFilter"
-                                        class="time-order-select"
+                                        截止时间
+                                        <el-icon v-if="timeFilter.field === 'dueTime'">
+                                            <ArrowUp v-if="timeFilter.order === 'asc'" />
+                                            <ArrowDown v-else />
+                                        </el-icon>
+                                    </el-button>
+                                    <el-button 
+                                        :type="timeFilter.field === 'createdTime' ? 'primary' : 'default'"
+                                        @click="setTimeFilter('createdTime')"
+                                        size="small"
+                                        class="filter-button"
                                     >
-                                        <el-option
-                                            label="由近到远"
-                                            value="asc"
-                                        />
-                                        <el-option
-                                            label="由远到近"
-                                            value="desc"
-                                        />
-                                    </el-select>
+                                        创建时间
+                                        <el-icon v-if="timeFilter.field === 'createdTime'">
+                                            <ArrowUp v-if="timeFilter.order === 'asc'" />
+                                            <ArrowDown v-else />
+                                        </el-icon>
+                                    </el-button>
+                                    <el-button 
+                                        :type="timeFilter.field === 'startTime' ? 'primary' : 'default'"
+                                        @click="setTimeFilter('startTime')"
+                                        size="small"
+                                        class="filter-button"
+                                    >
+                                        开始时间
+                                        <el-icon v-if="timeFilter.field === 'startTime'">
+                                            <ArrowUp v-if="timeFilter.order === 'asc'" />
+                                            <ArrowDown v-else />
+                                        </el-icon>
+                                    </el-button>
                                 </div>
                             </div>
                             <div class="filter-group">
@@ -74,6 +87,15 @@
                                     </el-button>
                                 </div>
                             </div>
+                            <div class="filter-actions">
+                                <el-button 
+                                    type="primary" 
+                                    @click="applyFilters"
+                                    style="width: 100%"
+                                >
+                                    确认筛选
+                                </el-button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -83,17 +105,21 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, inject } from 'vue'
 import { useRouter } from 'vue-router'
+import { ArrowUp, ArrowDown } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 
-// 时间筛选选项
-const timeFilterOptions = ref([
-    { label: '截止时间', value: 'dueTime', active: true, order: 'asc' },
-    { label: '创建时间', value: 'createdTime', active: false, order: 'asc' },
-    { label: '开始时间', value: 'startTime', active: false, order: 'asc' }
-])
+// 注入更新筛选条件的方法
+const updateFilter = inject('updateFilter', null)
+
+// 时间筛选条件（单选）
+const timeFilter = ref({
+    field: 'dueTime',  // 默认按截止时间排序
+    order: 'asc'       // asc: 从近到远, desc: 从远到近
+})
 
 // 状态筛选
 const statusFilter = ref(null) // null: 全部, false: 未完成, true: 已完成
@@ -102,27 +128,51 @@ const handleAddTodo = () => {
     router.push('/home/add')
 }
 
+// 设置时间筛选条件
+const setTimeFilter = (field) => {
+    if (timeFilter.value.field === field) {
+        // 如果点击的是当前激活的字段，则切换排序方向
+        timeFilter.value.order = timeFilter.value.order === 'asc' ? 'desc' : 'asc'
+    } else {
+        // 如果点击的是新的字段，则设置为该字段并默认升序
+        timeFilter.value.field = field
+        timeFilter.value.order = 'asc'
+    }
+}
+
 // 设置状态筛选
 const setStatusFilter = (status) => {
     statusFilter.value = status
-    // 触发筛选更新
-    updateFilter()
 }
 
-// 更新筛选条件（实际应用中会通过事件传递给父组件或其他组件）
-const updateFilter = () => {
-    // 获取所有激活的时间筛选条件
-    const activeFilters = timeFilterOptions.value
-        .filter(option => option.active)
-        .map(option => ({
-            field: option.value,
-            order: option.order
-        }))
-    
-    console.log('筛选条件更新:', {
-        timeFilters: activeFilters,
+// 应用筛选条件
+const applyFilters = () => {
+    // 构造发送给后端的参数
+    const params = {
+        page: 1,
+        pageSize: 10,
         status: statusFilter.value
-    })
+    }
+    
+    // 根据时间字段和排序方向构造orderBy参数
+    const fieldMap = {
+        'dueTime': 'dueTime',
+        'createdTime': 'createdTime',
+        'startTime': 'startTime'
+    }
+    
+    const fieldName = fieldMap[timeFilter.value.field] || 'createdTime'
+    const orderSuffix = timeFilter.value.order === 'desc' ? 'Desc' : ''
+    params.orderBy = fieldName + orderSuffix
+    
+    // 调用更新筛选条件的方法
+    if (updateFilter) {
+        updateFilter(params)
+    } else {
+        console.warn('updateFilter 方法未找到')
+    }
+    
+    console.log('筛选条件已应用:', params)
 }
 </script>
 
@@ -212,25 +262,6 @@ const updateFilter = () => {
     color: #666;
 }
 
-.time-filter-item {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    margin-bottom: 10px;
-}
-
-.time-filter-item:last-child {
-    margin-bottom: 0;
-}
-
-.time-filter-checkbox {
-    margin-right: 0;
-}
-
-.time-order-select {
-    margin-left: 20px;
-}
-
 .filter-buttons {
     display: flex;
     flex-direction: column;
@@ -238,8 +269,14 @@ const updateFilter = () => {
 }
 
 .filter-button {
-    justify-content: center;
+    justify-content: space-between;
     font-size: 12px;
+}
+
+.filter-actions {
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+    margin-top: 10px;
 }
 
 /* 响应式设计 - 针对不同屏幕尺寸调整sidebar宽度 */

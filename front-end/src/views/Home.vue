@@ -16,8 +16,33 @@
 </template>
 
 <script setup>
+import { provide, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import Header from '@/components/Header.vue'
 import Sidebar from '@/components/Sidebar.vue'
+
+// 获取当前路由
+const route = useRoute()
+
+// 创建筛选条件响应式引用
+const filterParams = ref({})
+
+// 创建更新筛选条件的方法
+const updateFilter = (params) => {
+  filterParams.value = params
+}
+
+// 提供筛选条件和更新方法给子组件
+provide('filterParams', filterParams)
+provide('updateFilter', updateFilter)
+
+// 监听路由变化，在路由切换到TodoList时能够正确应用筛选条件
+watch(route, (newRoute) => {
+  if (newRoute.name === 'TodoList') {
+    // 当切换到TodoList页面时，触发一次筛选以确保显示最新数据
+    // 这里我们不重置筛选条件，而是保持当前的筛选状态
+  }
+})
 </script>
 
 <style scoped>

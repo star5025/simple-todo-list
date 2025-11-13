@@ -70,7 +70,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, inject, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/utils/request'
@@ -85,14 +85,20 @@ const currentPage = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
 
+// 注入筛选条件
+const filterParams = inject('filterParams', ref({}))
+
 // 获取待办列表
-const fetchTodos = async () => {
+const fetchTodos = async (filters = {}) => {
   loading.value = true
   try {
-    const response = await request.get('/task/pageQuery', {
+    const params = {
       page: currentPage.value,
-      pageSize: pageSize.value
-    })
+      pageSize: pageSize.value,
+      ...filters
+    }
+    
+    const response = await request.get('/task/pageQuery', params)
     
     if (response.code === 1) {
       todos.value = response.data.records
@@ -106,6 +112,12 @@ const fetchTodos = async () => {
     loading.value = false
   }
 }
+
+// 监听筛选条件变化
+watch(filterParams, (newParams) => {
+  currentPage.value = 1
+  fetchTodos(newParams)
+}, { deep: true })
 
 // 更新待办状态
 const updateTodoStatus = async (todo) => {
@@ -192,12 +204,12 @@ const getCountdownTagType = (todo) => {
 const handleSizeChange = (val) => {
   pageSize.value = val
   currentPage.value = 1
-  fetchTodos()
+  fetchTodos(filterParams.value)
 }
 
 const handleCurrentChange = (val) => {
   currentPage.value = val
-  fetchTodos()
+  fetchTodos(filterParams.value)
 }
 
 // 跳转到详情页
@@ -251,7 +263,7 @@ defineExpose({
 
 // 组件挂载时获取数据
 onMounted(() => {
-  fetchTodos()
+  fetchTodos(filterParams.value)
 })
 </script>
 
