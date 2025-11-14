@@ -3,11 +3,11 @@
   <el-footer class="footer">
     <div class="footer-content">
       <div class="container version-container">
-        <el-text type="info">版本: test</el-text>
+        <el-text type="info" size="small">版本: test</el-text>
       </div>
       
       <div class="container authors-container">
-        <el-text type="info">作者: </el-text>
+        <el-text type="info" size="small">作者: </el-text>
         <div class="avatar-container">
           <el-avatar 
             src="https://www.github.com/star5025.png" 
@@ -33,8 +33,8 @@
         <!-- 白色黑底的GitHub图标 -->
         <svg 
           xmlns="http://www.w3.org/2000/svg" 
-          width="24" 
-          height="24" 
+          width="20" 
+          height="20" 
           viewBox="0 0 24 24" 
           fill="#ffffff" 
           stroke="#000000" 
@@ -71,8 +71,8 @@ const goToRepository = () => {
   width: 100%;
   box-sizing: border-box;
   /* 缩小footer高度 */
-  height: 60px;
-  min-height: 60px;
+  height: 40px;
+  min-height: 40px;
   padding: 0;
 }
 
@@ -81,11 +81,11 @@ const goToRepository = () => {
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 20px;
+  padding: 5px 15px;
   width: 100%;
   height: 100%;
   box-sizing: border-box;
-  border-radius: 8px;
+  border-radius: 6px;
 }
 
 .container {
@@ -107,7 +107,7 @@ const goToRepository = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 .github-container {
@@ -116,33 +116,33 @@ const goToRepository = () => {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
+  padding: 2px;
+  border-radius: 3px;
   margin: 0;
 }
 
 .github-icon:hover {
-  transform: scale(1.2);
+  transform: scale(1.1);
   transition: all 0.3s ease;
 }
 
 .github-icon {
   fill: #333;
   display: block;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
 }
 
 .avatar {
   cursor: pointer;
   transition: transform 0.3s ease;
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
 }
 
 .avatar:hover {
-  transform: scale(1.2);
-  box-shadow: 0.5px 2px 8px 0px rgba(0, 0, 0, 0.2);
+  transform: scale(1.1);
+  box-shadow: 0.5px 2px 6px 0px rgba(0, 0, 0, 0.2);
 }
 
 /* 如果使用Element Plus，确保el-footer样式正确 */

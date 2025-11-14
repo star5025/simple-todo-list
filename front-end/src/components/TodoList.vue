@@ -16,40 +16,51 @@
       </div>
       
       <div v-else>
+        <!-- 按日期分组显示待办事项 -->
         <div 
-          v-for="todo in todos" 
-          :key="todo.taskId" 
-          class="todo-item"
-          :class="{ 'completed': todo.status }"
-          @click="goToDetail(todo.taskId)"
+          v-for="(group, date) in groupedTodos" 
+          :key="date" 
+          class="date-group"
         >
-          <div class="todo-info">
-            <el-checkbox 
-              v-model="todo.status" 
-              @change="updateTodoStatus(todo)"
-              @click.stop
-              class="todo-checkbox"
-            />
-            <span 
-              class="todo-name" 
-              :class="{ 'completed-text': todo.status }"
-              >{{ todo.taskName }}</span>
+          <div class="date-header">
+            <el-text size="large" class="date-title">{{ formatDateHeader(date) }}</el-text>
           </div>
           
-          <div class="todo-meta">
-            <el-tag 
-              :type="getCountdownTagType(todo)" 
-              size="small"
-              class="countdown-tag"
-            >
-              {{ getCountdownText(todo) }}
-            </el-tag>
-            <el-icon 
-              class="delete-icon" 
-              @click.stop="confirmDelete(todo)"
-            >
-              <Delete />
-            </el-icon>
+          <div 
+            v-for="todo in group" 
+            :key="todo.taskId" 
+            class="todo-item"
+            :class="{ 'completed': todo.status }"
+            @click="goToDetail(todo.taskId)"
+          >
+            <div class="todo-info">
+              <el-checkbox 
+                v-model="todo.status" 
+                @change="updateTodoStatus(todo)"
+                @click.stop
+                class="todo-checkbox"
+              />
+              <span 
+                class="todo-name" 
+                :class="{ 'completed-text': todo.status }"
+                >{{ todo.taskName }}</span>
+            </div>
+            
+            <div class="todo-meta">
+              <el-tag 
+                :type="getCountdownTagType(todo)" 
+                size="small"
+                class="countdown-tag"
+              >
+                {{ getCountdownText(todo) }}
+              </el-tag>
+              <el-icon 
+                class="delete-icon" 
+                @click.stop="confirmDelete(todo)"
+              >
+                <Delete />
+              </el-icon>
+            </div>
           </div>
         </div>
       </div>
@@ -70,7 +81,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, inject, watch } from 'vue'
+import { ref, onMounted, inject, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/utils/request'
@@ -88,21 +99,94 @@ const total = ref(0)
 // 注入筛选条件
 const filterParams = inject('filterParams', ref({}))
 
+// 按创建日期分组的待办事项
+const groupedTodos = computed(() => {
+  const groups = {}
+  
+  todos.value.forEach(todo => {
+    // 打印调试信息，检查创建时间字段
+    console.log('待办事项创建时间信息:', {
+      taskId: todo.taskId,
+      taskName: todo.taskName,
+      createTime: todo.createTime,
+      createdTime: todo.createdTime,
+      createTimeType: typeof todo.createTime,
+      createdTimeType: typeof todo.createdTime
+    })
+    
+    // 获取创建日期的日期部分（不包含时间）
+    let createTimeStr = null
+    
+    // 检查不同的字段名（后端可能使用不同的字段名）
+    if (todo.createTime) {
+      createTimeStr = new Date(todo.createTime).toISOString().split('T')[0]
+    } else if (todo.createdTime) {
+      createTimeStr = new Date(todo.createdTime).toISOString().split('T')[0]
+    }
+    
+    if (createTimeStr) {
+      if (!groups[createTimeStr]) {
+        groups[createTimeStr] = []
+      }
+      
+      groups[createTimeStr].push(todo)
+    }
+  })
+  
+  console.log('分组结果:', groups)
+  return groups
+})
+
+// 格式化日期标题
+const formatDateHeader = (dateStr) => {
+  const date = new Date(dateStr)
+  const today = new Date()
+  const tomorrow = new Date(today)
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  
+  // 格式化日期为 YYYY-MM-DD
+  const formattedDate = date.toISOString().split('T')[0]
+  const todayStr = today.toISOString().split('T')[0]
+  const tomorrowStr = tomorrow.toISOString().split('T')[0]
+  
+  if (formattedDate === todayStr) {
+    return '今天'
+  } else if (formattedDate === tomorrowStr) {
+    return '明天'
+  } else {
+    // 显示为 "11月15日" 格式
+    const month = date.getMonth() + 1
+    const day = date.getDate()
+    return `${month}月${day}日`
+  }
+}
+
 // 获取待办列表
 const fetchTodos = async (filters = {}) => {
   loading.value = true
   try {
+    // 确保直接使用 currentPage 变量的值
     const params = {
-      page: currentPage.value,
+      page: currentPage.value,  // 直接使用 currentPage 变量
       pageSize: pageSize.value,
       ...filters
     }
     
+    console.log('发送请求参数:', params) // 调试信息
+    console.log('当前 currentPage 值:', currentPage.value) // 调试信息
+    
     const response = await request.get('/task/pageQuery', params)
+    
+    console.log('后端返回的完整响应:', response) // 调试信息
     
     if (response.code === 1) {
       todos.value = response.data.records
       total.value = response.data.total
+      
+      // 打印第一条记录来检查字段
+      if (response.data.records && response.data.records.length > 0) {
+        console.log('第一条待办事项:', response.data.records[0])
+      }
     } else {
       ElMessage.error(response.msg || '获取待办列表失败')
     }
@@ -115,6 +199,7 @@ const fetchTodos = async (filters = {}) => {
 
 // 监听筛选条件变化
 watch(filterParams, (newParams) => {
+  console.log('筛选条件变化:', newParams)
   currentPage.value = 1
   fetchTodos(newParams)
 }, { deep: true })
@@ -202,14 +287,27 @@ const getCountdownTagType = (todo) => {
 
 // 分页相关方法
 const handleSizeChange = (val) => {
+  console.log('页面大小改变:', val) // 调试信息
   pageSize.value = val
   currentPage.value = 1
-  fetchTodos(filterParams.value)
+  // 使用最新的分页参数
+  fetchTodos({
+    ...filterParams.value,
+    page: 1,  // 重置为第一页
+    pageSize: val
+  })
 }
 
 const handleCurrentChange = (val) => {
+  console.log('当前页改变:', val) // 调试信息
+  console.log('设置 currentPage 为:', val) // 调试信息
   currentPage.value = val
-  fetchTodos(filterParams.value)
+  // 使用最新的分页参数
+  fetchTodos({
+    ...filterParams.value,
+    page: val,
+    pageSize: pageSize.value
+  })
 }
 
 // 跳转到详情页
@@ -281,6 +379,25 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.date-group {
+  margin-bottom: 20px;
+}
+
+.date-group:last-child {
+  margin-bottom: 0;
+}
+
+.date-header {
+  padding: 10px 0;
+  border-bottom: 2px solid #409eff;
+  margin-bottom: 10px;
+}
+
+.date-title {
+  font-weight: bold;
+  color: #409eff;
 }
 
 .todo-item {

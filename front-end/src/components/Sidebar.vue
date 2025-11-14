@@ -230,31 +230,41 @@ applyFilters()
 
 <style scoped>
 .sidebar {
-  width: 300px;
-  min-height: calc(100vh - 120px);
+  width: 240px;
+  min-height: calc(100vh - 140px); /* 增加与header和footer的距离 */
   background-color: #f5f7fa;
-  padding: 20px;
+  padding: 15px;
   box-sizing: border-box;
   border-right: 1px solid #e4e7ed;
+  margin: 10px 0; /* 增加上下边距 */
+  border-radius: 8px; /* 添加圆角 */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* 添加阴影效果 */
 }
 
 .sidebar-container {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 15px;
 }
 
 .add-todo-section {
-  padding: 10px 0;
+  padding: 8px 0;
 }
 
 .user-info-section {
-  padding: 10px 0;
+  padding: 8px 0;
 }
 
 .filter-card {
-  border-radius: 8px;
+  border-radius: 6px;
   border: 1px solid #e4e7ed;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.filter-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
 }
 
 .filter-header {
@@ -262,48 +272,52 @@ applyFilters()
   align-items: center;
   font-weight: bold;
   color: #606266;
+  font-size: 14px;
 }
 
 .filter-header .el-icon {
-  margin-right: 8px;
+  margin-right: 6px;
+  font-size: 14px;
 }
 
 .filter-content {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 12px;
 }
 
 .filter-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .filter-group-label {
   font-weight: 500;
   color: #606266;
+  font-size: 13px;
 }
 
 .filter-buttons {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .status-filter-buttons {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .filter-button {
   width: 100%;
-  min-height: 32px;
+  min-height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
+  font-size: 12px;
 }
 
 /* 自定义按钮样式 */
@@ -317,20 +331,22 @@ applyFilters()
   justify-content: center;
   text-align: center;
   box-sizing: border-box;
-  font-size: 14px;
-  padding: 8px 16px;
+  font-size: 13px;
+  padding: 6px 12px;
+  width: 100%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .custom-button--large {
-  padding: 12px 24px;
-  font-size: 16px;
-  width: 100%;
+  padding: 8px 12px;
+  font-size: 14px;
+  max-width: 100%;
 }
 
 .custom-button--small {
-  padding: 6px 12px;
+  padding: 4px 8px;
   font-size: 12px;
-  min-height: 32px;
+  min-height: 28px;
   width: 100%;
 }
 
@@ -348,6 +364,8 @@ applyFilters()
 
 .custom-button:hover {
   opacity: 0.8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .custom-button--primary:hover {

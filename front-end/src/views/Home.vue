@@ -87,7 +87,7 @@ watch(route, (newRoute) => {
   flex: 1;
   padding: 20px;
   overflow-y: auto;
-  background-color: #fff;
+  background-color: transparent; /* 取消白色背景 */
   display: flex;
   flex-direction: column;
 }

@@ -5,11 +5,11 @@
             <div class="name-container">
                 <el-text type="primary" size="large">Simple Todo List</el-text>
             </div>
-            <div class="avatar-container">
-                <el-avatar>{{ displayedUserName.charAt(0).toUpperCase() }}</el-avatar>
+            <div class="avatar-container" @click="goToUserInfo">
+                <el-avatar class="clickable-avatar">{{ displayedUserName.charAt(0).toUpperCase() }}</el-avatar>
             </div>
-            <div class="username-container">
-                <el-text>{{ displayedUserName }}</el-text>
+            <div class="username-container" @click="goToUserInfo">
+                <el-text class="clickable-username">{{ displayedUserName }}</el-text>
             </div>
             <div class="button-container">
                 <el-button type="primary" plain @click="handleLogout">登出</el-button>
@@ -44,6 +44,11 @@ const handleUsernameUpdate = (event) => {
   displayedUserName.value = event.detail
 }
 
+// 跳转到用户信息页面
+const goToUserInfo = () => {
+  router.push('/home/userinfo')
+}
+
 const handleLogout = () => {
   // 执行登出逻辑，清除localStorage中的token和userName
   localStorage.removeItem('token')
@@ -62,12 +67,13 @@ onUnmounted(() => {
 
 <style scoped>
 .header {
-    padding: 10px 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    background-color: white;
+    padding: 10px 20px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    background-color: white !important;
     /* 固定header高度为60px */
-    height: 60px;
-    min-height: 60px;
+    height: 60px !important;
+    min-height: 60px !important;
+    border: none !important;
 }
 
 .header-container {
@@ -87,5 +93,13 @@ onUnmounted(() => {
 
 .avatar-container, .username-container, .button-container {
     margin-left: 15px;
+}
+
+.clickable-avatar {
+    cursor: pointer;
+}
+
+.clickable-username {
+    cursor: pointer;
 }
 </style>
