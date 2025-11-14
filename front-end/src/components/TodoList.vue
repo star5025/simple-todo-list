@@ -389,7 +389,8 @@ const handleCurrentChange = (val) => {
   // 合并默认筛选条件
   const mergedParams = {
     status: false, // 始终保持只显示未完成的待办事项
-    ...filterParams.value
+    ...filterParams.value,
+    page: val // 确保使用正确的页码
   }
   fetchTodos(mergedParams)
 }

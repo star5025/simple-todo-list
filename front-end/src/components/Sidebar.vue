@@ -18,6 +18,7 @@
           class="custom-button custom-button--primary custom-button--large"
           @click="handleUserInfo"
         >
+          <el-icon><User /></el-icon>
           个人信息
         </button>
       </div>
@@ -135,7 +136,8 @@ import {
   ArrowUp, 
   ArrowDown, 
   Plus,
-  Filter
+  Filter,
+  User
 } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
