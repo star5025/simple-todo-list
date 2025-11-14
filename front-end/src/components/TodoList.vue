@@ -12,7 +12,7 @@
             />
           </div>
           <div class="header-right">
-            <span>我的待办</span>
+
           </div>
         </div>
       </template>
@@ -323,6 +323,11 @@ const updateTodoStatus = async (todo) => {
 
 // 计算倒计时文本
 const getCountdownText = (todo) => {
+  // 如果待办事项已完成，直接显示"已完成"
+  if (todo.status) {
+    return '已完成'
+  }
+  
   if (!todo.dueTime) return '无截止时间'
   
   const now = new Date()
@@ -343,6 +348,11 @@ const getCountdownText = (todo) => {
 
 // 获取倒计时标签类型
 const getCountdownTagType = (todo) => {
+  // 如果待办事项已完成，显示绿色标签
+  if (todo.status) {
+    return 'success'
+  }
+  
   if (!todo.dueTime) return ''
   
   const now = new Date()

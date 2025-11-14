@@ -193,6 +193,9 @@ const setStatusFilter = (status) => {
 
 // 应用筛选条件
 const applyFilters = () => {
+  // 先跳转到待办列表界面
+  router.push('/home/list')
+  
   // 构造发送给后端的参数
   const params = {
     page: 1,
