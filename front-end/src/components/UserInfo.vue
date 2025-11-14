@@ -1,61 +1,63 @@
 <template>
-  <div class="user-info-container">
-    <el-card class="user-info-card">
-      <template #header>
-        <div class="card-header">
-          <span>{{ isEditing ? '编辑个人信息' : '个人信息' }}</span>
-          <div class="header-actions">
-            <el-button 
-              v-if="!isEditing" 
-              @click="startEdit" 
-              type="primary" 
-              link
-            >
-              编辑
-            </el-button>
+  <transition name="el-zoom-in-top" appear>
+    <div class="user-info-container">
+      <el-card class="user-info-card">
+        <template #header>
+          <div class="card-header">
+            <span>{{ isEditing ? '编辑个人信息' : '个人信息' }}</span>
+            <div class="header-actions">
+              <el-button 
+                v-if="!isEditing" 
+                @click="startEdit" 
+                type="primary" 
+                link
+              >
+                编辑
+              </el-button>
+            </div>
           </div>
-        </div>
-      </template>
-      
-      <div class="user-info-content" v-loading="loading">
-        <div v-if="userInfo && !isEditing" class="user-info-details">
-          <div class="info-item">
-            <span class="info-label">用户名:</span>
-            <span class="info-value">{{ userInfo.userName }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">注册时间:</span>
-            <span class="info-value">{{ formatCreateTime(userInfo.createTime) }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">创建待办:</span>
-            <span class="info-value">{{ userInfo.taskCount || 0 }} 个</span>
-          </div>
-        </div>
+        </template>
         
-        <div v-else-if="userInfo && isEditing" class="user-edit-form">
-          <el-form :model="editForm" label-width="100px" ref="editFormRef">
-            <el-form-item label="用户名">
-              <el-input v-model="editForm.userName" />
-            </el-form-item>
-            <el-form-item label="新密码">
-              <el-input v-model="editForm.userPassword" type="password" show-password />
-            </el-form-item>
-            <el-form-item label="确认密码">
-              <el-input v-model="editForm.confirmPassword" type="password" show-password />
-            </el-form-item>
-          </el-form>
+        <div class="user-info-content" v-loading="loading">
+          <div v-if="userInfo && !isEditing" class="user-info-details">
+            <div class="info-item">
+              <span class="info-label">用户名:</span>
+              <span class="info-value">{{ userInfo.userName }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">注册时间:</span>
+              <span class="info-value">{{ formatCreateTime(userInfo.createTime) }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">创建待办:</span>
+              <span class="info-value">{{ userInfo.taskCount || 0 }} 个</span>
+            </div>
+          </div>
           
-          <div class="form-actions">
-            <el-button @click="cancelEdit">取消</el-button>
-            <el-button type="primary" @click="confirmEdit">确认修改</el-button>
+          <div v-else-if="userInfo && isEditing" class="user-edit-form">
+            <el-form :model="editForm" label-width="100px" ref="editFormRef">
+              <el-form-item label="用户名">
+                <el-input v-model="editForm.userName" />
+              </el-form-item>
+              <el-form-item label="新密码">
+                <el-input v-model="editForm.userPassword" type="password" show-password />
+              </el-form-item>
+              <el-form-item label="确认密码">
+                <el-input v-model="editForm.confirmPassword" type="password" show-password />
+              </el-form-item>
+            </el-form>
+            
+            <div class="form-actions">
+              <el-button @click="cancelEdit">取消</el-button>
+              <el-button type="primary" @click="confirmEdit">确认修改</el-button>
+            </div>
           </div>
+          
+          <el-empty v-else description="无法加载用户信息" />
         </div>
-        
-        <el-empty v-else description="无法加载用户信息" />
-      </div>
-    </el-card>
-  </div>
+      </el-card>
+    </div>
+  </transition>
 </template>
 
 <script setup>
@@ -198,63 +200,67 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* 缩短过渡动画时间 */
+.el-zoom-in-top-enter-active {
+  transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1) !important;
+}
+
+.el-zoom-in-top-leave-active {
+  transition: all 0.15s cubic-bezier(0.755, 0.05, 0.855, 0.06) !important;
+}
+
 .user-info-container {
   width: 100%;
 }
 
 .user-info-card {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  font-size: 18px;
+  font-weight: bold;
 }
 
 .user-info-content {
-  padding: 20px 0;
-  min-height: 300px;
+  padding: 20px;
 }
 
 .user-info-details {
-  width: 100%;
-  max-width: 500px;
-  padding: 20px;
-  margin: 0 auto;
-}
-
-.user-edit-form {
-  width: 100%;
-  max-width: 500px;
-  padding: 20px;
-  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 .info-item {
   display: flex;
-  margin-bottom: 15px;
-  padding: 10px;
-  border-radius: 4px;
-  background-color: #f5f7fa;
+  align-items: center;
 }
 
 .info-label {
-  font-weight: bold;
   width: 100px;
+  font-weight: bold;
   color: #606266;
 }
 
 .info-value {
-  flex: 1;
+  margin-left: 20px;
   color: #303133;
+}
+
+.user-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .form-actions {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  margin-top: 20px;
 }
 </style>

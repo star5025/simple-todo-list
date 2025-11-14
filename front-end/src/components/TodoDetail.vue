@@ -1,135 +1,165 @@
 <template>
-  <div class="todo-detail-container">
-    <el-card class="todo-detail-card">
-      <template #header>
-        <div class="card-header">
-          <el-button @click="goBack" type="primary" link>
-            <el-icon><ArrowLeft /></el-icon>
-            返回
-          </el-button>
-          <div class="header-title">{{ isEditing ? '编辑待办' : '待办详情' }}</div>
-          <div class="header-actions">
-            <el-button 
-              v-if="!isEditing" 
-              @click="startEdit" 
-              type="primary" 
-              link
-            >
-              编辑
+  <transition name="el-fade-in-linear" mode="out-in">
+    <div class="todo-detail-container" v-if="!loading && todo">
+      <el-card class="todo-detail-card">
+        <template #header>
+          <div class="card-header">
+            <el-button @click="goBack" type="primary" link>
+              <el-icon><ArrowLeft /></el-icon>
+              返回
             </el-button>
-            <el-button 
-              v-else 
-              @click="saveEdit" 
-              type="primary" 
-              link
-            >
-              保存
-            </el-button>
-          </div>
-        </div>
-      </template>
-      
-      <div v-if="loading" class="loading-container">
-        <el-skeleton animated>
-          <template #template>
-            <el-skeleton-item variant="h3" style="width: 40%" />
-            <div style="margin-top: 20px">
-              <el-skeleton-item variant="text" style="margin-bottom: 16px" />
-              <el-skeleton-item variant="text" style="margin-bottom: 16px" />
-              <el-skeleton-item variant="text" style="margin-bottom: 16px" />
-              <el-skeleton-item variant="text" style="margin-bottom: 16px" />
+            <div class="header-title">{{ isEditing ? '编辑待办' : '待办详情' }}</div>
+            <div class="header-actions">
+              <el-button 
+                v-if="!isEditing" 
+                @click="startEdit" 
+                type="primary" 
+                link
+              >
+                编辑
+              </el-button>
+              <el-button 
+                v-else 
+                @click="saveEdit" 
+                type="primary" 
+                link
+              >
+                保存
+              </el-button>
             </div>
-          </template>
-        </el-skeleton>
-      </div>
-      
-      <div v-else-if="todo" class="todo-detail-content">
-        <div class="todo-basic-info">
-          <div class="todo-status">
-            <el-tag :type="todo.status ? 'success' : 'info'">
-              {{ todo.status ? '已完成' : '未完成' }}
-            </el-tag>
           </div>
-          
-          <h2 v-if="!isEditing" class="todo-title">{{ todo.taskName }}</h2>
-          <el-input 
-            v-else
-            v-model="editForm.taskName" 
-            class="todo-title-input"
-            placeholder="请输入待办事项名称"
-          />
-          
-          <div v-if="todo.description || isEditing" class="todo-description">
-            <h3>描述</h3>
-            <p v-if="!isEditing">{{ todo.description }}</p>
+        </template>
+
+        <div class="todo-detail-content">
+          <div class="todo-basic-info">
+            <div class="todo-status">
+              <el-tag :type="todo.status ? 'success' : 'info'">
+                {{ todo.status ? '已完成' : '未完成' }}
+              </el-tag>
+            </div>
+            
+            <h2 v-if="!isEditing" class="todo-title">{{ todo.taskName }}</h2>
             <el-input 
               v-else
-              v-model="editForm.description" 
-              type="textarea" 
-              :rows="3"
-              placeholder="请输入待办事项描述"
+              v-model="editForm.taskName" 
+              class="todo-title-input"
+              placeholder="请输入待办事项名称"
             />
+            
+            <div v-if="todo.description || isEditing" class="todo-description">
+              <h3>描述</h3>
+              <p v-if="!isEditing">{{ todo.description }}</p>
+              <el-input 
+                v-else
+                v-model="editForm.description" 
+                type="textarea" 
+                :rows="3"
+                placeholder="请输入待办事项描述"
+              />
+            </div>
+          </div>
+          
+          <el-divider />
+          
+          <div class="todo-time-info">
+            <div class="time-item" v-if="todo.createdTime">
+              <div class="time-label">创建时间</div>
+              <div class="time-value">{{ formatTime(todo.createdTime) }}</div>
+            </div>
+            
+            <div class="time-item">
+              <div class="time-label">开始时间</div>
+              <div v-if="!isEditing" class="time-value">{{ todo.startTime ? formatTime(todo.startTime) : '未设置' }}</div>
+              <el-date-picker 
+                v-else
+                v-model="editForm.startTime"
+                type="datetime"
+                placeholder="请选择开始时间"
+                format="YYYY-MM-DD HH:mm"
+                value-format="YYYY-MM-DD HH:mm"
+                style="margin-left: 20px; flex: 1;"
+              />
+            </div>
+            
+            <div class="time-item">
+              <div class="time-label">截止时间</div>
+              <div v-if="!isEditing" class="time-value">{{ todo.dueTime ? formatTime(todo.dueTime) : '未设置' }}</div>
+              <div v-if="!isEditing && todo.dueTime" class="time-remaining">{{ getCountdownText(todo) }}</div>
+              <el-date-picker 
+                v-else
+                v-model="editForm.dueTime"
+                type="datetime"
+                placeholder="请选择截止时间"
+                format="YYYY-MM-DD HH:mm"
+                value-format="YYYY-MM-DD HH:mm"
+                style="margin-left: 20px; flex: 1;"
+              />
+            </div>
+            
+            <div class="time-item">
+              <div class="time-label">提醒时间</div>
+              <div v-if="!isEditing" class="time-value">{{ todo.remindTime ? formatTime(todo.remindTime) : '未设置' }}</div>
+              <el-date-picker 
+                v-else
+                v-model="editForm.remindTime"
+                type="datetime"
+                placeholder="请选择提醒时间"
+                format="YYYY-MM-DD HH:mm"
+                value-format="YYYY-MM-DD HH:mm"
+                style="margin-left: 20px; flex: 1;"
+              />
+            </div>
           </div>
         </div>
+      </el-card>
+    </div>
+    
+    <div class="todo-detail-container" v-else-if="loading">
+      <el-card class="todo-detail-card">
+        <template #header>
+          <div class="card-header">
+            <el-button @click="goBack" type="primary" link>
+              <el-icon><ArrowLeft /></el-icon>
+              返回
+            </el-button>
+            <div class="header-title">加载中...</div>
+          </div>
+        </template>
         
-        <el-divider />
-        
-        <div class="todo-time-info">
-          <div class="time-item" v-if="todo.createdTime">
-            <div class="time-label">创建时间</div>
-            <div class="time-value">{{ formatTime(todo.createdTime) }}</div>
-          </div>
-          
-          <div class="time-item">
-            <div class="time-label">开始时间</div>
-            <div v-if="!isEditing" class="time-value">{{ todo.startTime ? formatTime(todo.startTime) : '未设置' }}</div>
-            <el-date-picker 
-              v-else
-              v-model="editForm.startTime"
-              type="datetime"
-              placeholder="请选择开始时间"
-              format="YYYY-MM-DD HH:mm"
-              value-format="YYYY-MM-DD HH:mm"
-              style="margin-left: 20px; flex: 1;"
-            />
-          </div>
-          
-          <div class="time-item">
-            <div class="time-label">截止时间</div>
-            <div v-if="!isEditing" class="time-value">{{ todo.dueTime ? formatTime(todo.dueTime) : '未设置' }}</div>
-            <div v-if="!isEditing && todo.dueTime" class="time-remaining">{{ getCountdownText(todo) }}</div>
-            <el-date-picker 
-              v-else
-              v-model="editForm.dueTime"
-              type="datetime"
-              placeholder="请选择截止时间"
-              format="YYYY-MM-DD HH:mm"
-              value-format="YYYY-MM-DD HH:mm"
-              style="margin-left: 20px; flex: 1;"
-            />
-          </div>
-          
-          <div class="time-item">
-            <div class="time-label">提醒时间</div>
-            <div v-if="!isEditing" class="time-value">{{ todo.remindTime ? formatTime(todo.remindTime) : '未设置' }}</div>
-            <el-date-picker 
-              v-else
-              v-model="editForm.remindTime"
-              type="datetime"
-              placeholder="请选择提醒时间"
-              format="YYYY-MM-DD HH:mm"
-              value-format="YYYY-MM-DD HH:mm"
-              style="margin-left: 20px; flex: 1;"
-            />
-          </div>
+        <div class="loading-container">
+          <el-skeleton animated>
+            <template #template>
+              <el-skeleton-item variant="h3" style="width: 40%" />
+              <div style="margin-top: 20px">
+                <el-skeleton-item variant="text" style="margin-bottom: 16px" />
+                <el-skeleton-item variant="text" style="margin-bottom: 16px" />
+                <el-skeleton-item variant="text" style="margin-bottom: 16px" />
+                <el-skeleton-item variant="text" style="margin-bottom: 16px" />
+              </div>
+            </template>
+          </el-skeleton>
         </div>
-      </div>
-      
-      <div v-else class="empty-container">
-        <el-empty description="未找到待办事项" />
-      </div>
-    </el-card>
-  </div>
+      </el-card>
+    </div>
+    
+    <div class="todo-detail-container" v-else>
+      <el-card class="todo-detail-card">
+        <template #header>
+          <div class="card-header">
+            <el-button @click="goBack" type="primary" link>
+              <el-icon><ArrowLeft /></el-icon>
+              返回
+            </el-button>
+            <div class="header-title">待办详情</div>
+          </div>
+        </template>
+        
+        <div class="empty-container">
+          <el-empty description="未找到待办事项" />
+        </div>
+      </el-card>
+    </div>
+  </transition>
 </template>
 
 <script setup>
@@ -299,13 +329,22 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* 缩短过渡动画时间 */
+.el-fade-in-linear-enter-active {
+  transition: opacity 0.2s linear !important;
+}
+
+.el-fade-in-linear-leave-active {
+  transition: opacity 0.15s linear !important;
+}
+
 .todo-detail-container {
   width: 100%;
 }
 
 .todo-detail-card {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 }
 
 .card-header {
@@ -317,6 +356,8 @@ onMounted(() => {
 .header-title {
   font-size: 18px;
   font-weight: bold;
+  text-align: center;
+  flex: 1;
 }
 
 .todo-detail-content {
@@ -324,34 +365,34 @@ onMounted(() => {
 }
 
 .todo-basic-info {
-  margin-bottom: 20px;
+  padding: 0 20px;
 }
 
 .todo-status {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 .todo-title {
   font-size: 24px;
+  font-weight: bold;
   margin-bottom: 20px;
   color: #303133;
 }
 
 .todo-title-input {
-  font-size: 24px;
   margin-bottom: 20px;
 }
 
 .todo-description h3 {
-  margin-top: 0;
-  margin-bottom: 10px;
+  margin: 20px 0 10px 0;
+  font-size: 18px;
   color: #606266;
 }
 
 .todo-description p {
-  margin: 0;
   color: #606266;
   line-height: 1.6;
+  white-space: pre-wrap;
 }
 
 .todo-time-info {
@@ -360,37 +401,45 @@ onMounted(() => {
 
 .time-item {
   display: flex;
-  margin-bottom: 15px;
   align-items: center;
+  margin-bottom: 15px;
 }
 
 .time-label {
   width: 80px;
-  color: #909399;
-  font-size: 14px;
+  font-weight: bold;
+  color: #606266;
 }
 
 .time-value {
-  flex: 1;
-  color: #303133;
   margin-left: 20px;
+  color: #303133;
+  flex: 1;
 }
 
 .time-remaining {
   margin-left: 10px;
-  font-size: 12px;
   color: #909399;
+  font-size: 14px;
 }
 
 .loading-container,
 .empty-container {
-  padding: 50px 0;
+  padding: 20px 0;
   display: flex;
   justify-content: center;
   align-items: center;
+  min-height: 300px;
 }
 
 .empty-container {
   width: 100%;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
 }
 </style>

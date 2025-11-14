@@ -8,7 +8,9 @@
       <el-main class="main-content">
         <!-- 主页内容区域 -->
         <div class="home-content">
-          <router-view />
+          <transition name="el-fade-in" mode="out-in">
+            <router-view :key="$route.fullPath" />
+          </transition>
         </div>
       </el-main>
     </el-container>
@@ -73,6 +75,15 @@ watch(route, (newRoute) => {
 </script>
 
 <style scoped>
+/* 缩短过渡动画时间 */
+.el-fade-in-enter-active {
+  transition: opacity 0.2s ease-in-out !important;
+}
+
+.el-fade-in-leave-active {
+  transition: opacity 0.15s ease-in-out !important;
+}
+
 .home-container {
   height: 100%;
   display: flex;

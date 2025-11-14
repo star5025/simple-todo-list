@@ -1,44 +1,86 @@
 <template>
-  <div class="todo-list-container">
-    <el-card class="todo-list-card">
-      <template #header>
-        <div class="card-header">
-          <div class="header-left">
-            <el-switch
-              v-model="showDateGroups"
-              :active-text="showDateGroups ? '显示日期' : '隐藏日期'"
-              inactive-text=""
-              @change="handleDateGroupToggle"
-            />
-          </div>
-          <div class="header-right">
-
-          </div>
-        </div>
-      </template>
-      
-      <div v-if="loading" class="loading-container">
-        <el-skeleton :rows="5" animated />
-      </div>
-      
-      <div v-else-if="todos.length === 0" class="empty-container">
-        <el-empty description="暂无待办事项" />
-      </div>
-      
-      <div v-else>
-        <!-- 按日期分组显示待办事项 -->
-        <template v-if="showDateGroups">
-          <div 
-            v-for="(group, date) in groupedTodos" 
-            :key="date" 
-            class="date-group"
-          >
-            <div class="date-header">
-              <el-text size="large" class="date-title">{{ formatDateHeader(date) }}</el-text>
+  <transition name="el-zoom-in-top" appear>
+    <div class="todo-list-container">
+      <el-card class="todo-list-card">
+        <template #header>
+          <div class="card-header">
+            <div class="header-left">
+              <el-switch
+                v-model="showDateGroups"
+                :active-text="showDateGroups ? '显示日期' : '隐藏日期'"
+                inactive-text=""
+                @change="handleDateGroupToggle"
+              />
             </div>
-            
+            <div class="header-right">
+
+            </div>
+          </div>
+        </template>
+        
+        <div v-if="loading" class="loading-container">
+          <el-skeleton :rows="5" animated />
+        </div>
+        
+        <div v-else-if="todos.length === 0" class="empty-container">
+          <el-empty description="暂无待办事项" />
+        </div>
+        
+        <div v-else>
+          <!-- 按日期分组显示待办事项 -->
+          <template v-if="showDateGroups">
             <div 
-              v-for="todo in group" 
+              v-for="(group, date) in groupedTodos" 
+              :key="date" 
+              class="date-group"
+            >
+              <div class="date-header">
+                <el-text size="large" class="date-title">{{ formatDateHeader(date) }}</el-text>
+              </div>
+              
+              <div 
+                v-for="todo in group" 
+                :key="todo.taskId" 
+                class="todo-item"
+                :class="{ 'completed': todo.status }"
+                @click="goToDetail(todo.taskId)"
+              >
+                <div class="todo-info">
+                  <el-checkbox 
+                    v-model="todo.status" 
+                    @change="updateTodoStatus(todo)"
+                    @click.stop
+                    class="todo-checkbox"
+                  />
+                  <span 
+                    class="todo-name" 
+                    :class="{ 'completed-text': todo.status }"
+                    >{{ todo.taskName }}</span>
+                </div>
+                
+                <div class="todo-meta">
+                  <el-tag 
+                    :type="getCountdownTagType(todo)" 
+                    size="small"
+                    class="countdown-tag"
+                  >
+                    {{ getCountdownText(todo) }}
+                  </el-tag>
+                  <el-icon 
+                    class="delete-icon" 
+                    @click.stop="confirmDelete(todo)"
+                  >
+                    <Delete />
+                  </el-icon>
+                </div>
+              </div>
+            </div>
+          </template>
+          
+          <!-- 不按日期分组显示待办事项 -->
+          <template v-else>
+            <div 
+              v-for="todo in todos" 
               :key="todo.taskId" 
               class="todo-item"
               :class="{ 'completed': todo.status }"
@@ -73,63 +115,23 @@
                 </el-icon>
               </div>
             </div>
-          </div>
-        </template>
+          </template>
+        </div>
         
-        <!-- 不按日期分组显示待办事项 -->
-        <template v-else>
-          <div 
-            v-for="todo in todos" 
-            :key="todo.taskId" 
-            class="todo-item"
-            :class="{ 'completed': todo.status }"
-            @click="goToDetail(todo.taskId)"
-          >
-            <div class="todo-info">
-              <el-checkbox 
-                v-model="todo.status" 
-                @change="updateTodoStatus(todo)"
-                @click.stop
-                class="todo-checkbox"
-              />
-              <span 
-                class="todo-name" 
-                :class="{ 'completed-text': todo.status }"
-                >{{ todo.taskName }}</span>
-            </div>
-            
-            <div class="todo-meta">
-              <el-tag 
-                :type="getCountdownTagType(todo)" 
-                size="small"
-                class="countdown-tag"
-              >
-                {{ getCountdownText(todo) }}
-              </el-tag>
-              <el-icon 
-                class="delete-icon" 
-                @click.stop="confirmDelete(todo)"
-              >
-                <Delete />
-              </el-icon>
-            </div>
-          </div>
-        </template>
-      </div>
-      
-      <div v-if="total > 0" class="pagination-container">
-        <el-pagination
-          v-model:current-page="currentPage"
-          v-model:page-size="pageSize"
-          :page-sizes="[10, 20, 50]"
-          :total="total"
-          layout="total, sizes, prev, pager, next, jumper"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-        />
-      </div>
-    </el-card>
-  </div>
+        <div v-if="total > 0" class="pagination-container">
+          <el-pagination
+            v-model:current-page="currentPage"
+            v-model:page-size="pageSize"
+            :page-sizes="[10, 20, 50]"
+            :total="total"
+            layout="total, sizes, prev, pager, next, jumper"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+          />
+        </div>
+      </el-card>
+    </div>
+  </transition>
 </template>
 
 <script setup>
@@ -451,6 +453,15 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* 缩短过渡动画时间 */
+.el-zoom-in-top-enter-active {
+  transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1) !important;
+}
+
+.el-zoom-in-top-leave-active {
+  transition: all 0.15s cubic-bezier(0.755, 0.05, 0.855, 0.06) !important;
+}
+
 .todo-list-container {
   width: 100%;
 }

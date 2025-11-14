@@ -1,121 +1,123 @@
 <template>
-  <div class="add-todo-container">
-    <el-card class="add-todo-card">
-      <template #header>
-        <div class="card-header">
-          <span>新增待办事项</span>
-        </div>
-      </template>
-      <el-form 
-        :model="todoForm" 
-        :rules="rules" 
-        ref="todoFormRef" 
-        label-position="top"
-        @submit.prevent="handleSubmit"
-      >
-        <el-form-item label="待办事项名称" prop="taskName">
-          <el-input 
-            v-model="todoForm.taskName" 
-            placeholder="请输入待办事项名称"
-            clearable
-          />
-        </el-form-item>
-        
-        <el-form-item label="待办事项描述（可选）" prop="description">
-          <el-input 
-            v-model="todoForm.description" 
-            placeholder="请输入待办事项描述"
-            type="textarea"
-            :rows="3"
-            clearable
-          />
-        </el-form-item>
-        
-        <el-form-item label="开始时间" prop="startTime">
-          <div class="date-picker-container">
-            <el-date-picker
-              v-model="todoForm.startTime"
-              :type="timePrecision.startTime === 'date' ? 'date' : 'datetime'"
-              :placeholder="timePrecision.startTime === 'date' ? '请选择开始日期' : '请选择开始时间'"
-              :format="timePrecision.startTime === 'date' ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm'"
-              :value-format="timePrecision.startTime === 'date' ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm'"
-              style="width: 100%"
-            />
-            <el-select 
-              v-model="timePrecision.startTime" 
-              class="precision-select"
-              size="small"
-            >
-              <el-option label="日期" value="date"></el-option>
-              <el-option label="时间" value="datetime"></el-option>
-            </el-select>
+  <transition name="el-zoom-in-center" appear>
+    <div class="add-todo-container">
+      <el-card class="add-todo-card">
+        <template #header>
+          <div class="card-header">
+            <span>新增待办事项</span>
           </div>
-        </el-form-item>
-        
-        <el-form-item label="截止时间" prop="dueTime">
-          <div class="date-picker-container">
-            <el-date-picker
-              v-model="todoForm.dueTime"
-              :type="timePrecision.dueTime === 'date' ? 'date' : 'datetime'"
-              :placeholder="timePrecision.dueTime === 'date' ? '请选择截止日期' : '请选择截止时间'"
-              :format="timePrecision.dueTime === 'date' ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm'"
-              :value-format="timePrecision.dueTime === 'date' ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm'"
-              style="width: 100%"
+        </template>
+        <el-form 
+          :model="todoForm" 
+          :rules="rules" 
+          ref="todoFormRef" 
+          label-position="top"
+          @submit.prevent="handleSubmit"
+        >
+          <el-form-item label="待办事项名称" prop="taskName">
+            <el-input 
+              v-model="todoForm.taskName" 
+              placeholder="请输入待办事项名称"
+              clearable
             />
-            <el-select 
-              v-model="timePrecision.dueTime" 
-              class="precision-select"
-              size="small"
-            >
-              <el-option label="日期" value="date"></el-option>
-              <el-option label="时间" value="datetime"></el-option>
-            </el-select>
-          </div>
-        </el-form-item>
-        
-        <el-form-item label="提醒时间" prop="remindTime">
-          <div class="date-picker-container">
-            <el-date-picker
-              v-model="todoForm.remindTime"
-              :type="timePrecision.remindTime === 'date' ? 'date' : 'datetime'"
-              :placeholder="timePrecision.remindTime === 'date' ? '请选择提醒日期' : '请选择提醒时间'"
-              :format="timePrecision.remindTime === 'date' ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm'"
-              :value-format="timePrecision.remindTime === 'date' ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm'"
-              style="width: 100%"
+          </el-form-item>
+          
+          <el-form-item label="待办事项描述（可选）" prop="description">
+            <el-input 
+              v-model="todoForm.description" 
+              placeholder="请输入待办事项描述"
+              type="textarea"
+              :rows="3"
+              clearable
             />
-            <el-select 
-              v-model="timePrecision.remindTime" 
-              class="precision-select"
-              size="small"
+          </el-form-item>
+          
+          <el-form-item label="开始时间" prop="startTime">
+            <div class="date-picker-container">
+              <el-date-picker
+                v-model="todoForm.startTime"
+                :type="timePrecision.startTime === 'date' ? 'date' : 'datetime'"
+                :placeholder="timePrecision.startTime === 'date' ? '请选择开始日期' : '请选择开始时间'"
+                :format="timePrecision.startTime === 'date' ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm'"
+                :value-format="timePrecision.startTime === 'date' ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm'"
+                style="width: 100%"
+              />
+              <el-select 
+                v-model="timePrecision.startTime" 
+                class="precision-select"
+                size="small"
+              >
+                <el-option label="日期" value="date"></el-option>
+                <el-option label="时间" value="datetime"></el-option>
+              </el-select>
+            </div>
+          </el-form-item>
+          
+          <el-form-item label="截止时间" prop="dueTime">
+            <div class="date-picker-container">
+              <el-date-picker
+                v-model="todoForm.dueTime"
+                :type="timePrecision.dueTime === 'date' ? 'date' : 'datetime'"
+                :placeholder="timePrecision.dueTime === 'date' ? '请选择截止日期' : '请选择截止时间'"
+                :format="timePrecision.dueTime === 'date' ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm'"
+                :value-format="timePrecision.dueTime === 'date' ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm'"
+                style="width: 100%"
+              />
+              <el-select 
+                v-model="timePrecision.dueTime" 
+                class="precision-select"
+                size="small"
+              >
+                <el-option label="日期" value="date"></el-option>
+                <el-option label="时间" value="datetime"></el-option>
+              </el-select>
+            </div>
+          </el-form-item>
+          
+          <el-form-item label="提醒时间" prop="remindTime">
+            <div class="date-picker-container">
+              <el-date-picker
+                v-model="todoForm.remindTime"
+                :type="timePrecision.remindTime === 'date' ? 'date' : 'datetime'"
+                :placeholder="timePrecision.remindTime === 'date' ? '请选择提醒日期' : '请选择提醒时间'"
+                :format="timePrecision.remindTime === 'date' ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm'"
+                :value-format="timePrecision.remindTime === 'date' ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm'"
+                style="width: 100%"
+              />
+              <el-select 
+                v-model="timePrecision.remindTime" 
+                class="precision-select"
+                size="small"
+              >
+                <el-option label="日期" value="date"></el-option>
+                <el-option label="时间" value="datetime"></el-option>
+              </el-select>
+            </div>
+          </el-form-item>
+          
+          <el-form-item>
+            <el-button 
+              type="primary" 
+              @click="handleSubmit"
+              :loading="submitting"
+              style="width: 100%"
             >
-              <el-option label="日期" value="date"></el-option>
-              <el-option label="时间" value="datetime"></el-option>
-            </el-select>
-          </div>
-        </el-form-item>
-        
-        <el-form-item>
-          <el-button 
-            type="primary" 
-            @click="handleSubmit"
-            :loading="submitting"
-            style="width: 100%"
-          >
-            {{ submitting ? '添加中...' : '添加待办事项' }}
-          </el-button>
-        </el-form-item>
-        
-        <el-form-item>
-          <el-button 
-            @click="handleCancel"
-            style="width: 100%"
-          >
-            取消
-          </el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
-  </div>
+              {{ submitting ? '添加中...' : '添加待办事项' }}
+            </el-button>
+          </el-form-item>
+          
+          <el-form-item>
+            <el-button 
+              @click="handleCancel"
+              style="width: 100%"
+            >
+              取消
+            </el-button>
+          </el-form-item>
+        </el-form>
+      </el-card>
+    </div>
+  </transition>
 </template>
 
 <script setup>
@@ -286,6 +288,15 @@ defineExpose({
 </script>
 
 <style scoped>
+/* 缩短过渡动画时间 */
+.el-zoom-in-center-enter-active {
+  transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1) !important;
+}
+
+.el-zoom-in-center-leave-active {
+  transition: all 0.15s cubic-bezier(0.755, 0.05, 0.855, 0.06) !important;
+}
+
 .add-todo-container {
   margin-bottom: 20px;
 }
