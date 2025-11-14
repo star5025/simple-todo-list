@@ -43,12 +43,15 @@ import Sidebar from '@/components/Sidebar.vue'
 const router = useRouter()
 const route = useRoute()
 
-// 创建筛选条件响应式引用
-const filterParams = ref({})
+// 创建筛选条件响应式引用，设置默认筛选条件
+const filterParams = ref({
+  status: false,    // 默认只显示未完成的待办事项
+  orderBy: 'dueTime' // 默认按截止时间排序
+})
 
 // 创建更新筛选条件的方法
 const updateFilter = (params) => {
-  filterParams.value = params
+  filterParams.value = {...filterParams.value, ...params}
 }
 
 // 提供筛选条件和更新方法给子组件

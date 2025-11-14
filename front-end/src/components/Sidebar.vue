@@ -135,7 +135,7 @@ import {
   ArrowUp, 
   ArrowDown, 
   Plus,
-  Filter 
+  Filter
 } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
@@ -151,7 +151,7 @@ const timeFilter = ref({
 })
 
 // 状态筛选
-const statusFilter = ref(null) // null: 全部, false: 未完成, true: 已完成
+const statusFilter = ref(false) // null: 全部, false: 未完成, true: 已完成
 
 const handleAddTodo = () => {
   router.push('/home/add')
@@ -286,6 +286,12 @@ applyFilters()
   gap: 12px;
 }
 
+.filter-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .filter-group {
   display: flex;
   flex-direction: column;
@@ -296,18 +302,6 @@ applyFilters()
   font-weight: 500;
   color: #606266;
   font-size: 13px;
-}
-
-.filter-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.status-filter-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
 }
 
 .filter-button {

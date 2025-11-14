@@ -3,7 +3,17 @@
     <el-card class="todo-list-card">
       <template #header>
         <div class="card-header">
-          <span>我的待办</span>
+          <div class="header-left">
+            <el-switch
+              v-model="showDateGroups"
+              :active-text="showDateGroups ? '显示日期' : '隐藏日期'"
+              inactive-text=""
+              @change="handleDateGroupToggle"
+            />
+          </div>
+          <div class="header-right">
+            <span>我的待办</span>
+          </div>
         </div>
       </template>
       
@@ -17,17 +27,59 @@
       
       <div v-else>
         <!-- 按日期分组显示待办事项 -->
-        <div 
-          v-for="(group, date) in groupedTodos" 
-          :key="date" 
-          class="date-group"
-        >
-          <div class="date-header">
-            <el-text size="large" class="date-title">{{ formatDateHeader(date) }}</el-text>
-          </div>
-          
+        <template v-if="showDateGroups">
           <div 
-            v-for="todo in group" 
+            v-for="(group, date) in groupedTodos" 
+            :key="date" 
+            class="date-group"
+          >
+            <div class="date-header">
+              <el-text size="large" class="date-title">{{ formatDateHeader(date) }}</el-text>
+            </div>
+            
+            <div 
+              v-for="todo in group" 
+              :key="todo.taskId" 
+              class="todo-item"
+              :class="{ 'completed': todo.status }"
+              @click="goToDetail(todo.taskId)"
+            >
+              <div class="todo-info">
+                <el-checkbox 
+                  v-model="todo.status" 
+                  @change="updateTodoStatus(todo)"
+                  @click.stop
+                  class="todo-checkbox"
+                />
+                <span 
+                  class="todo-name" 
+                  :class="{ 'completed-text': todo.status }"
+                  >{{ todo.taskName }}</span>
+              </div>
+              
+              <div class="todo-meta">
+                <el-tag 
+                  :type="getCountdownTagType(todo)" 
+                  size="small"
+                  class="countdown-tag"
+                >
+                  {{ getCountdownText(todo) }}
+                </el-tag>
+                <el-icon 
+                  class="delete-icon" 
+                  @click.stop="confirmDelete(todo)"
+                >
+                  <Delete />
+                </el-icon>
+              </div>
+            </div>
+          </div>
+        </template>
+        
+        <!-- 不按日期分组显示待办事项 -->
+        <template v-else>
+          <div 
+            v-for="todo in todos" 
             :key="todo.taskId" 
             class="todo-item"
             :class="{ 'completed': todo.status }"
@@ -62,7 +114,7 @@
               </el-icon>
             </div>
           </div>
-        </div>
+        </template>
       </div>
       
       <div v-if="total > 0" class="pagination-container">
@@ -95,9 +147,18 @@ const loading = ref(false)
 const currentPage = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
+const showDateGroups = ref(true) // 控制是否显示日期分组
 
 // 注入筛选条件
 const filterParams = inject('filterParams', ref({}))
+
+// 在组件初始化时，默认添加status=false的筛选条件，只显示未完成的待办事项
+const defaultFilterParams = computed(() => {
+  return {
+    status: false, // 默认只显示未完成的待办事项
+    ...filterParams.value
+  }
+})
 
 // 按创建日期分组的待办事项
 const groupedTodos = computed(() => {
@@ -161,6 +222,24 @@ const formatDateHeader = (dateStr) => {
   }
 }
 
+// 处理日期分组切换
+const handleDateGroupToggle = (value) => {
+  console.log('日期分组切换:', value)
+  // 这里可以添加其他逻辑，如果需要的话
+}
+
+// 监听筛选条件变化
+watch(filterParams, (newParams) => {
+  console.log('筛选条件变化:', newParams)
+  currentPage.value = 1
+  // 合并默认筛选条件和传入的筛选条件
+  const mergedParams = {
+    status: false, // 始终保持只显示未完成的待办事项
+    ...newParams
+  }
+  fetchTodos(mergedParams)
+}, { deep: true })
+
 // 获取待办列表
 const fetchTodos = async (filters = {}) => {
   loading.value = true
@@ -169,6 +248,7 @@ const fetchTodos = async (filters = {}) => {
     const params = {
       page: currentPage.value,  // 直接使用 currentPage 变量
       pageSize: pageSize.value,
+      status: false, // 默认只查询未完成的待办事项
       ...filters
     }
     
@@ -196,13 +276,6 @@ const fetchTodos = async (filters = {}) => {
     loading.value = false
   }
 }
-
-// 监听筛选条件变化
-watch(filterParams, (newParams) => {
-  console.log('筛选条件变化:', newParams)
-  currentPage.value = 1
-  fetchTodos(newParams)
-}, { deep: true })
 
 // 更新待办状态
 const updateTodoStatus = async (todo) => {
@@ -290,24 +363,25 @@ const handleSizeChange = (val) => {
   console.log('页面大小改变:', val) // 调试信息
   pageSize.value = val
   currentPage.value = 1
-  // 使用最新的分页参数
-  fetchTodos({
-    ...filterParams.value,
-    page: 1,  // 重置为第一页
-    pageSize: val
-  })
+  // 合并默认筛选条件
+  const mergedParams = {
+    status: false, // 始终保持只显示未完成的待办事项
+    ...filterParams.value
+  }
+  fetchTodos(mergedParams)
 }
 
 const handleCurrentChange = (val) => {
   console.log('当前页改变:', val) // 调试信息
   console.log('设置 currentPage 为:', val) // 调试信息
   currentPage.value = val
-  // 使用最新的分页参数
-  fetchTodos({
-    ...filterParams.value,
-    page: val,
-    pageSize: pageSize.value
-  })
+  // 直接调用 fetchTodos，确保使用更新后的 currentPage 值
+  // 合并默认筛选条件
+  const mergedParams = {
+    status: false, // 始终保持只显示未完成的待办事项
+    ...filterParams.value
+  }
+  fetchTodos(mergedParams)
 }
 
 // 跳转到详情页
@@ -361,7 +435,7 @@ defineExpose({
 
 // 组件挂载时获取数据
 onMounted(() => {
-  fetchTodos(filterParams.value)
+  fetchTodos(defaultFilterParams.value)
 })
 </script>
 
@@ -379,6 +453,15 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.header-left {
+  flex: 1;
+}
+
+.header-right {
+  font-weight: bold;
+  color: #606266;
 }
 
 .date-group {
