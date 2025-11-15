@@ -4,22 +4,12 @@
       <el-card class="user-info-card">
         <template #header>
           <div class="card-header">
-            <span>{{ isEditing ? '编辑个人信息' : '个人信息' }}</span>
-            <div class="header-actions">
-              <el-button 
-                v-if="!isEditing" 
-                @click="startEdit" 
-                type="primary" 
-                link
-              >
-                编辑
-              </el-button>
-            </div>
+            <span>个人信息</span>
           </div>
         </template>
         
         <div class="user-info-content" v-loading="loading">
-          <div v-if="userInfo && !isEditing" class="user-info-details">
+          <div v-if="userInfo" class="user-info-details">
             <div class="info-item">
               <span class="info-label">用户名:</span>
               <span class="info-value">{{ userInfo.userName }}</span>
@@ -32,24 +22,11 @@
               <span class="info-label">创建待办:</span>
               <span class="info-value">{{ userInfo.taskCount || 0 }} 个</span>
             </div>
-          </div>
-          
-          <div v-else-if="userInfo && isEditing" class="user-edit-form">
-            <el-form :model="editForm" label-width="100px" ref="editFormRef">
-              <el-form-item label="用户名">
-                <el-input v-model="editForm.userName" />
-              </el-form-item>
-              <el-form-item label="新密码">
-                <el-input v-model="editForm.userPassword" type="password" show-password />
-              </el-form-item>
-              <el-form-item label="确认密码">
-                <el-input v-model="editForm.confirmPassword" type="password" show-password />
-              </el-form-item>
-            </el-form>
             
-            <div class="form-actions">
-              <el-button @click="cancelEdit">取消</el-button>
-              <el-button type="primary" @click="confirmEdit">确认修改</el-button>
+            <!-- 底部操作按钮 -->
+            <div class="user-actions">
+              <el-button type="primary" @click="showUsernameDialog">修改用户名</el-button>
+              <el-button type="primary" @click="showPasswordDialog">修改密码</el-button>
             </div>
           </div>
           
@@ -58,6 +35,42 @@
       </el-card>
     </div>
   </transition>
+  
+  <!-- 修改用户名对话框 -->
+  <el-dialog v-model="usernameDialogVisible" title="修改用户名" width="400px">
+    <el-form :model="usernameForm" ref="usernameFormRef">
+      <el-form-item label="新用户名" :label-width="80">
+        <el-input v-model="usernameForm.newUsername" autocomplete="off" />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="usernameDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="updateUsername">确认</el-button>
+      </span>
+    </template>
+  </el-dialog>
+  
+  <!-- 修改密码对话框 -->
+  <el-dialog v-model="passwordDialogVisible" title="修改密码" width="400px">
+    <el-form :model="passwordForm" ref="passwordFormRef">
+      <el-form-item label="原密码" :label-width="80">
+        <el-input v-model="passwordForm.oldPassword" type="password" show-password autocomplete="off" />
+      </el-form-item>
+      <el-form-item label="新密码" :label-width="80">
+        <el-input v-model="passwordForm.newPassword" type="password" show-password autocomplete="off" />
+      </el-form-item>
+      <el-form-item label="确认密码" :label-width="80">
+        <el-input v-model="passwordForm.confirmPassword" type="password" show-password autocomplete="off" />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="passwordDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="updatePassword">确认</el-button>
+      </span>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup>
@@ -68,13 +81,24 @@ import request from '@/utils/request'
 // 用户信息
 const userInfo = ref(null)
 const loading = ref(false)
-const isEditing = ref(false)
-const editFormRef = ref(null)
 
-// 编辑表单
-const editForm = reactive({
-  userName: '',
-  userPassword: '',
+// 对话框控制
+const usernameDialogVisible = ref(false)
+const passwordDialogVisible = ref(false)
+
+// 表单引用
+const usernameFormRef = ref(null)
+const passwordFormRef = ref(null)
+
+// 用户名表单
+const usernameForm = reactive({
+  newUsername: ''
+})
+
+// 密码表单
+const passwordForm = reactive({
+  oldPassword: '',
+  newPassword: '',
   confirmPassword: ''
 })
 
@@ -112,34 +136,35 @@ const formatCreateTime = (createTime) => {
   return `${date.getFullYear()}年${String(date.getMonth() + 1).padStart(2, '0')}月${String(date.getDate()).padStart(2, '0')}日`
 }
 
-// 开始编辑
-const startEdit = () => {
-  isEditing.value = true
-  // 初始化编辑表单
-  if (userInfo.value) {
-    editForm.userName = userInfo.value.userName
-    editForm.userPassword = ''
-    editForm.confirmPassword = ''
+// 显示修改用户名对话框
+const showUsernameDialog = () => {
+  usernameForm.newUsername = userInfo.value.userName
+  usernameDialogVisible.value = true
+}
+
+// 显示修改密码对话框
+const showPasswordDialog = () => {
+  passwordForm.oldPassword = ''
+  passwordForm.newPassword = ''
+  passwordForm.confirmPassword = ''
+  passwordDialogVisible.value = true
+}
+
+// 更新用户名
+const updateUsername = async () => {
+  if (!usernameForm.newUsername) {
+    ElMessage.error('用户名不能为空')
+    return
   }
-}
-
-// 取消编辑
-const cancelEdit = () => {
-  isEditing.value = false
-}
-
-// 确认编辑
-const confirmEdit = async () => {
-  // 验证密码确认
-  if (editForm.userPassword !== editForm.confirmPassword) {
-    ElMessage.error('两次输入的密码不一致')
+  
+  if (usernameForm.newUsername === userInfo.value.userName) {
+    ElMessage.info('新用户名不能与当前用户名相同')
     return
   }
   
   try {
-    // 弹出确认对话框
     await ElMessageBox.confirm(
-      '确定要修改个人信息吗？',
+      `确定要将用户名从 "${userInfo.value.userName}" 修改为 "${usernameForm.newUsername}" 吗？`,
       '确认修改',
       {
         confirmButtonText: '确定',
@@ -150,38 +175,72 @@ const confirmEdit = async () => {
     
     // 构造更新数据
     const updateData = {
-      userId: userInfo.value.userId
-    }
-    
-    // 只有当用户名或密码有变化时才添加到更新数据中
-    if (editForm.userName !== userInfo.value.userName) {
-      updateData.userName = editForm.userName
-    }
-    
-    if (editForm.userPassword) {
-      updateData.userPassword = editForm.userPassword
-    }
-    
-    // 如果没有需要更新的字段，则直接返回
-    if (!updateData.userName && !updateData.userPassword) {
-      ElMessage.info('没有需要更新的信息')
-      isEditing.value = false
-      return
+      userId: userInfo.value.userId,
+      userName: usernameForm.newUsername
     }
     
     const response = await request.put('/user', updateData)
     
     if (response.code === 1) {
-      ElMessage.success('更新成功')
-      isEditing.value = false
-      // 更新本地存储中的用户名（如果用户名有变化）
-      if (updateData.userName) {
-        localStorage.setItem('userName', updateData.userName)
-        // 发送自定义事件通知Header组件更新用户名
-        window.dispatchEvent(new CustomEvent('usernameUpdated', { detail: updateData.userName }))
-      }
+      ElMessage.success('用户名更新成功')
+      usernameDialogVisible.value = false
+      // 更新本地存储中的用户名
+      localStorage.setItem('userName', usernameForm.newUsername)
+      // 发送自定义事件通知Header组件更新用户名
+      window.dispatchEvent(new CustomEvent('usernameUpdated', { detail: usernameForm.newUsername }))
       // 重新获取用户信息
       fetchUserInfo()
+    } else {
+      ElMessage.error(response.msg || '更新失败')
+    }
+  } catch (error) {
+    // 用户取消操作或请求失败
+    if (error !== 'cancel' && error !== 'close') {
+      ElMessage.error('更新失败')
+    }
+  }
+}
+
+// 更新密码
+const updatePassword = async () => {
+  if (!passwordForm.oldPassword || !passwordForm.newPassword) {
+    ElMessage.error('密码不能为空')
+    return
+  }
+  
+  if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+    ElMessage.error('两次输入的新密码不一致')
+    return
+  }
+  
+  if (passwordForm.oldPassword === passwordForm.newPassword) {
+    ElMessage.info('新密码不能与原密码相同')
+    return
+  }
+  
+  try {
+    await ElMessageBox.confirm(
+      '确定要修改密码吗？',
+      '确认修改',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+    )
+    
+    // 构造更新数据（这里需要同时提供原密码和新密码）
+    const updateData = {
+      userId: userInfo.value.userId,
+      oldPassword: passwordForm.oldPassword,
+      userPassword: passwordForm.newPassword
+    }
+    
+    const response = await request.put('/user', updateData)
+    
+    if (response.code === 1) {
+      ElMessage.success('密码更新成功')
+      passwordDialogVisible.value = false
     } else {
       ElMessage.error(response.msg || '更新失败')
     }
@@ -252,13 +311,13 @@ onMounted(() => {
   color: #303133;
 }
 
-.user-edit-form {
+.user-actions {
   display: flex;
-  flex-direction: column;
-  gap: 20px;
+  gap: 10px;
+  margin-top: 20px;
 }
 
-.form-actions {
+.dialog-footer {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
