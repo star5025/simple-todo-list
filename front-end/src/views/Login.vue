@@ -16,6 +16,9 @@
           <el-input v-model="loginForm.userPassword" type="password" placeholder="请输入密码" show-password
             class="login-input" />
         </el-form-item>
+        <el-form-item>
+          <el-checkbox v-model="rememberMe" @change="handleRememberMeChange">记住我</el-checkbox>
+        </el-form-item>
         <el-form-item class="button-form-item">
           <el-button type="primary" class="login-button" @click="handleLogin">
             登录
@@ -33,7 +36,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import request from '@/utils/request'
 import { ElMessage } from 'element-plus'
@@ -44,7 +47,32 @@ const loginForm = ref({
   userPassword: ''
 })
 
+const rememberMe = ref(false)
+
 const router = useRouter()
+
+// 页面加载时检查是否有记住的登录信息
+onMounted(() => {
+  const savedCredentials = localStorage.getItem('rememberedCredentials')
+  if (savedCredentials) {
+    try {
+      const credentials = JSON.parse(savedCredentials)
+      loginForm.value.userName = credentials.userName || ''
+      loginForm.value.userPassword = credentials.userPassword || ''
+      rememberMe.value = true
+    } catch (e) {
+      console.error('解析记住的凭据时出错:', e)
+    }
+  }
+})
+
+// 处理"记住我"选项变化
+const handleRememberMeChange = (checked) => {
+  if (!checked) {
+    // 如果用户取消勾选"记住我"，则清除已保存的凭据
+    localStorage.removeItem('rememberedCredentials')
+  }
+}
 
 async function login() {
   // 登录前清除旧的用户信息缓存
@@ -58,6 +86,18 @@ async function login() {
     const res = await request.post('/user/login', loginForm.value)
     // 注意：现在业务逻辑错误不会进入catch块，而是正常返回
     if (res.code === 1) {
+      // 如果用户选择了"记住我"，则保存凭据
+      if (rememberMe.value) {
+        const credentials = {
+          userName: loginForm.value.userName,
+          userPassword: loginForm.value.userPassword
+        }
+        localStorage.setItem('rememberedCredentials', JSON.stringify(credentials))
+      } else {
+        // 如果没有选择"记住我"，确保清除已保存的凭据
+        localStorage.removeItem('rememberedCredentials')
+      }
+      
       // 存储token
       localStorage.setItem('token', res.data?.token || res.token)
       // 存储用户名
