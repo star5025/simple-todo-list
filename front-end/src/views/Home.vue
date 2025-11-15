@@ -37,7 +37,7 @@
 </template>
 
 <script setup>
-import { provide, ref, watch, onMounted } from 'vue'
+import { provide, ref, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElNotification } from 'element-plus'
 import Header from '@/components/Header.vue'
@@ -70,14 +70,16 @@ const goToTodoList = () => {
   router.push('/home/list')
 }
 
-// 检查是否有当天提醒的待办事项
+// 定时器引用
+const reminderTimer = ref(null)
+
+// 检查是否有需要提醒的待办事项
 const checkTodaysReminders = async () => {
   try {
     // 获取当前时间
     const now = new Date();
-    const todayStr = now.toISOString().split('T')[0];
     
-    console.log('当前时间:', now);
+    console.log('检查提醒时间:', now);
     
     // 获取所有未完成的待办事项
     const response = await request.get('/task/pageQuery', {
@@ -139,7 +141,26 @@ const checkTodaysReminders = async () => {
   } catch (error) {
     console.error('检查提醒失败:', error);
   }
-}
+};
+
+// 开始定时检查提醒
+const startReminderChecks = () => {
+  // 立即检查一次
+  checkTodaysReminders();
+  
+  // 每分钟检查一次提醒
+  reminderTimer.value = setInterval(() => {
+    checkTodaysReminders();
+  }, 60000); // 60秒检查一次
+};
+
+// 停止定时检查提醒
+const stopReminderChecks = () => {
+  if (reminderTimer.value) {
+    clearInterval(reminderTimer.value);
+    reminderTimer.value = null;
+  }
+};
 
 // 监听路由变化，在路由切换到TodoList时能够正确应用筛选条件
 watch(route, (newRoute) => {
@@ -147,14 +168,19 @@ watch(route, (newRoute) => {
     // 当切换到TodoList页面时，触发一次筛选以确保显示最新数据
     // 这里我们不重置筛选条件，而是保持当前的筛选状态
   }
-}, { immediate: true })
+}, { immediate: true });
 
 // 组件挂载时检查提醒
 onMounted(() => {
-  // 延迟一段时间再检查提醒，确保页面加载完成
+  // 延迟一段时间再开始检查提醒，确保页面加载完成
   setTimeout(() => {
-    checkTodaysReminders();
+    startReminderChecks();
   }, 1000);
+});
+
+// 组件卸载时停止检查提醒
+onUnmounted(() => {
+  stopReminderChecks();
 });
 </script>
 
