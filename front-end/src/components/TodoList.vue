@@ -162,46 +162,84 @@ const defaultFilterParams = computed(() => {
   }
 })
 
-// 按创建日期分组的待办事项
+// 按指定时间字段分组的待办事项
 const groupedTodos = computed(() => {
   const groups = {}
   
+  // 确定用于分组的时间字段
+  let groupByField = 'createdTime' // 默认按创建时间分组
+  
+  // 根据当前筛选条件中的orderBy参数决定分组字段
+  if (filterParams.value && filterParams.value.orderBy) {
+    const orderBy = filterParams.value.orderBy
+    if (orderBy.startsWith('dueTime')) {
+      groupByField = 'dueTime'
+    } else if (orderBy.startsWith('startTime')) {
+      groupByField = 'startTime'
+    } else if (orderBy.startsWith('createdTime')) {
+      groupByField = 'createdTime'
+    }
+  }
+  
   todos.value.forEach(todo => {
-    // 打印调试信息，检查创建时间字段
-    console.log('待办事项创建时间信息:', {
-      taskId: todo.taskId,
-      taskName: todo.taskName,
-      createTime: todo.createTime,
-      createdTime: todo.createdTime,
-      createTimeType: typeof todo.createTime,
-      createdTimeType: typeof todo.createdTime
-    })
+    // 获取用于分组的时间字段值
+    let timeValue = null
     
-    // 获取创建日期的日期部分（不包含时间）
-    let createTimeStr = null
-    
-    // 检查不同的字段名（后端可能使用不同的字段名）
-    if (todo.createTime) {
-      createTimeStr = new Date(todo.createTime).toISOString().split('T')[0]
-    } else if (todo.createdTime) {
-      createTimeStr = new Date(todo.createdTime).toISOString().split('T')[0]
+    // 根据分组字段获取对应的时间值
+    switch (groupByField) {
+      case 'dueTime':
+        timeValue = todo.dueTime
+        break
+      case 'startTime':
+        timeValue = todo.startTime
+        break
+      case 'createdTime':
+      default:
+        // 检查不同的字段名（后端可能使用不同的字段名）
+        if (todo.createTime) {
+          timeValue = todo.createTime
+        } else if (todo.createdTime) {
+          timeValue = todo.createdTime
+        }
+        break
     }
     
-    if (createTimeStr) {
-      if (!groups[createTimeStr]) {
-        groups[createTimeStr] = []
+    // 获取日期部分（不包含时间）
+    let timeStr = null
+    if (timeValue) {
+      try {
+        timeStr = new Date(timeValue).toISOString().split('T')[0]
+      } catch (e) {
+        console.error('日期解析错误:', e)
+      }
+    }
+    
+    if (timeStr) {
+      if (!groups[timeStr]) {
+        groups[timeStr] = []
       }
       
-      groups[createTimeStr].push(todo)
+      groups[timeStr].push(todo)
+    } else {
+      // 如果没有有效的时间值，归入"未指定"组
+      const unspecifiedGroup = '未指定'
+      if (!groups[unspecifiedGroup]) {
+        groups[unspecifiedGroup] = []
+      }
+      groups[unspecifiedGroup].push(todo)
     }
   })
   
-  console.log('分组结果:', groups)
   return groups
 })
 
 // 格式化日期标题
 const formatDateHeader = (dateStr) => {
+  // 处理"未指定"组
+  if (dateStr === '未指定') {
+    return '未指定日期'
+  }
+  
   const date = new Date(dateStr)
   const today = new Date()
   const tomorrow = new Date(today)
@@ -355,7 +393,7 @@ const getCountdownTagType = (todo) => {
     return 'success'
   }
   
-  if (!todo.dueTime) return ''
+  if (!todo.dueTime) return 'info' // 返回'info'类型而不是空字符串
   
   const now = new Date()
   const dueDate = new Date(todo.dueTime)
