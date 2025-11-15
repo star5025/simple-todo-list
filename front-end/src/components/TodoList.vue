@@ -416,7 +416,8 @@ const handleSizeChange = (val) => {
   // 合并默认筛选条件
   const mergedParams = {
     status: false, // 始终保持只显示未完成的待办事项
-    ...filterParams.value
+    ...filterParams.value,
+    pageSize: val // 确保使用正确的页面大小
   }
   fetchTodos(mergedParams)
 }
@@ -430,7 +431,8 @@ const handleCurrentChange = (val) => {
   const mergedParams = {
     status: false, // 始终保持只显示未完成的待办事项
     ...filterParams.value,
-    page: val // 确保使用正确的页码
+    page: val, // 确保使用正确的页码
+    pageSize: pageSize.value // 确保使用正确的页面大小
   }
   fetchTodos(mergedParams)
 }
