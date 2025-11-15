@@ -16,7 +16,6 @@ import org.star5025.backend.service.TaskService;
 import org.star5025.backend.service.UserService;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Slf4j
 @Api(tags = "任务相关接口")
@@ -64,8 +63,7 @@ public class TaskController {
     public Result deleteTask(@PathVariable Long taskId) {
         log.info("删除任务Id为{}的任务", taskId);
         taskService.deleteTask(taskId);
-        // 减少用户任务计数
-        userService.incrementTaskCount(BaseContext.getCurrentId(), -1);
+        // 不再减少用户任务计数，因为创建过的待办总数量是只增不减的
         return Result.success();
     }
 

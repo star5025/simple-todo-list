@@ -47,15 +47,14 @@ public interface TaskMapper {
             "<if test='dueTime != null'> AND DATE(due_time) = DATE(#{dueTime}) </if>" +
             "order by " +
             "<choose>" +
-            "  <when test='orderBy == \"dueTime\"'>due_time asc,</when>" +
-            "  <when test='orderBy == \"dueTimeDesc\"'>due_time desc,</when>" +
-            "  <when test='orderBy == \"startTime\"'>start_time asc,</when>" +
-            "  <when test='orderBy == \"startTimeDesc\"'>start_time desc,</when>" +
-            "  <when test='orderBy == \"createdTime\"'>created_time asc,</when>" +
-            "  <when test='orderBy == \"createdTimeDesc\"'>created_time desc,</when>" +
-            "  <otherwise>created_time desc,</otherwise>" +
+            "  <when test='orderBy == \"dueTime\"'>due_time asc</when>" +
+            "  <when test='orderBy == \"dueTimeDesc\"'>due_time desc</when>" +
+            "  <when test='orderBy == \"startTime\"'>start_time asc</when>" +
+            "  <when test='orderBy == \"startTimeDesc\"'>start_time desc</when>" +
+            "  <when test='orderBy == \"createdTime\"'>created_time asc</when>" +
+            "  <when test='orderBy == \"createdTimeDesc\"'>created_time desc</when>" +
+            "  <otherwise>created_time desc, task_id desc</otherwise>" +
             "</choose>" +
-            "task_id desc" +
             "</script>")
     Page<Task> pageQuery(@Param("userId") Long userId, @Param("status") Boolean status, @Param("dueTime") LocalDateTime dueTime, @Param("orderBy") String orderBy);
 
