@@ -165,7 +165,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, inject, watch, computed, onActivated } from 'vue'
+import { ref, onMounted, inject, watch, computed, onActivated, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/utils/request'
@@ -301,12 +301,39 @@ const handleDateGroupToggle = (value) => {
   // 这里可以添加其他逻辑，如果需要的话
 }
 
+// 处理键盘事件
+const handleKeydown = (event) => {
+  // 只在批量删除模式下处理键盘事件
+  if (!batchMode.value) return
+  
+  // ESC键退出批量删除模式
+  if (event.key === 'Escape') {
+    cancelBatchMode()
+  }
+  // Enter键触发确认删除对话框
+  else if (event.key === 'Enter' && selectedTodoIds.value.length > 0) {
+    event.preventDefault() // 防止表单默认提交行为
+    event.stopPropagation() // 阻止事件冒泡
+    
+    // 检查是否已经有确认对话框打开
+    const hasMessageBox = document.querySelector('.el-message-box')
+    if (!hasMessageBox) {
+      confirmBatchDelete()
+    }
+  }
+}
+
 // 处理批量模式切换
 const toggleBatchMode = () => {
   batchMode.value = !batchMode.value
   if (!batchMode.value) {
     // 退出批量模式时清空选中项
     selectedTodoIds.value = []
+    // 移除键盘事件监听
+    document.removeEventListener('keydown', handleKeydown)
+  } else {
+    // 进入批量模式时添加键盘事件监听
+    document.addEventListener('keydown', handleKeydown)
   }
 }
 
@@ -341,6 +368,8 @@ const handleTodoSelect = (selected, taskId) => {
 const cancelBatchMode = () => {
   batchMode.value = false
   selectedTodoIds.value = []
+  // 移除键盘事件监听
+  document.removeEventListener('keydown', handleKeydown)
 }
 
 // 监听筛选条件变化
@@ -627,6 +656,8 @@ const batchDeleteTodos = async () => {
       selectedTodoIds.value = []
       // 退出批量模式
       batchMode.value = false
+      // 移除键盘事件监听
+      document.removeEventListener('keydown', handleKeydown)
       // 重新获取数据
       fetchTodos(defaultFilterParams.value)
     } else {
@@ -640,6 +671,11 @@ const batchDeleteTodos = async () => {
 // 暴露方法给父组件
 defineExpose({
   fetchTodos
+})
+
+// 组件卸载时清理事件监听
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleKeydown)
 })
 
 // 组件挂载时获取数据

@@ -37,10 +37,10 @@
   </transition>
   
   <!-- 修改用户名对话框 -->
-  <el-dialog v-model="usernameDialogVisible" title="修改用户名" width="400px">
-    <el-form :model="usernameForm" ref="usernameFormRef">
+  <el-dialog v-model="usernameDialogVisible" title="修改用户名" width="400px" @keydown.enter="handleUsernameEnter">
+    <el-form :model="usernameForm" ref="usernameFormRef" @submit.prevent>
       <el-form-item label="新用户名" :label-width="80">
-        <el-input v-model="usernameForm.newUsername" autocomplete="off" />
+        <el-input v-model="usernameForm.newUsername" autocomplete="off" ref="usernameInput" />
       </el-form-item>
     </el-form>
     <template #footer>
@@ -52,10 +52,10 @@
   </el-dialog>
   
   <!-- 修改密码对话框 -->
-  <el-dialog v-model="passwordDialogVisible" title="修改密码" width="400px">
-    <el-form :model="passwordForm" ref="passwordFormRef">
+  <el-dialog v-model="passwordDialogVisible" title="修改密码" width="400px" @keydown.enter="handlePasswordEnter">
+    <el-form :model="passwordForm" ref="passwordFormRef" @submit.prevent>
       <el-form-item label="原密码" :label-width="80">
-        <el-input v-model="passwordForm.oldPassword" type="password" show-password autocomplete="off" />
+        <el-input v-model="passwordForm.oldPassword" type="password" show-password autocomplete="off" ref="oldPasswordInput" />
       </el-form-item>
       <el-form-item label="新密码" :label-width="80">
         <el-input v-model="passwordForm.newPassword" type="password" show-password autocomplete="off" />
@@ -74,7 +74,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onActivated, onUnmounted } from 'vue'
+import { ref, reactive, onMounted, onActivated, onUnmounted, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/utils/request'
 import { useRouter } from 'vue-router'
@@ -92,6 +92,8 @@ const passwordDialogVisible = ref(false)
 // 表单引用
 const usernameFormRef = ref(null)
 const passwordFormRef = ref(null)
+const usernameInput = ref(null)
+const oldPasswordInput = ref(null)
 
 // 用户名表单
 const usernameForm = reactive({
@@ -111,6 +113,18 @@ const handleEscKey = (event) => {
   if (event.key === 'Escape' && !usernameDialogVisible.value && !passwordDialogVisible.value) {
     router.push('/home/list')
   }
+}
+
+// 处理用户名对话框中按下Enter键
+const handleUsernameEnter = (event) => {
+  event.preventDefault()
+  updateUsername()
+}
+
+// 处理密码对话框中按下Enter键
+const handlePasswordEnter = (event) => {
+  event.preventDefault()
+  updatePassword()
 }
 
 // 组件挂载时添加键盘事件监听
@@ -162,6 +176,13 @@ const formatCreateTime = (createTime) => {
 const showUsernameDialog = () => {
   usernameForm.newUsername = userInfo.value.userName
   usernameDialogVisible.value = true
+  
+  // 聚焦到输入框
+  nextTick(() => {
+    if (usernameInput.value) {
+      usernameInput.value.focus()
+    }
+  })
 }
 
 // 显示修改密码对话框
@@ -170,6 +191,13 @@ const showPasswordDialog = () => {
   passwordForm.newPassword = ''
   passwordForm.confirmPassword = ''
   passwordDialogVisible.value = true
+  
+  // 聚焦到输入框
+  nextTick(() => {
+    if (oldPasswordInput.value) {
+      oldPasswordInput.value.focus()
+    }
+  })
 }
 
 // 更新用户名
