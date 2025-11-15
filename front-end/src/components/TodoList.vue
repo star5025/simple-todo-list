@@ -14,13 +14,20 @@
             </div>
             <div class="header-right">
               <el-button 
-                v-if="selectedTodoIds.length > 0" 
+                v-if="!batchMode"
                 type="danger" 
                 :icon="Delete" 
-                @click="confirmBatchDelete"
-                size="small"
+                @click="toggleBatchMode"
               >
-                批量删除 ({{ selectedTodoIds.length }})
+                批量删除
+              </el-button>
+              <el-button 
+                v-else
+                type="danger" 
+                :icon="DeleteFilled" 
+                @click="toggleBatchMode"
+              >
+                退出
               </el-button>
             </div>
           </div>
@@ -50,21 +57,16 @@
                 v-for="todo in group" 
                 :key="todo.taskId" 
                 class="todo-item"
-                :class="{ 'completed': todo.status, 'selected': selectedTodoIds.includes(todo.taskId) }"
+                :class="{ 'completed': todo.status, 'selected': batchMode && selectedTodoIds.includes(todo.taskId), 'batch-mode': batchMode }"
                 @click="handleTodoClick(todo)"
               >
                 <div class="todo-info">
                   <el-checkbox 
+                    v-if="!batchMode"
                     v-model="todo.status" 
                     @change="updateTodoStatus(todo)"
                     @click.stop
                     class="todo-checkbox"
-                  />
-                  <el-checkbox 
-                    :model-value="selectedTodoIds.includes(todo.taskId)"
-                    @change="(val) => handleTodoSelect(val, todo.taskId)"
-                    @click.stop
-                    class="batch-select-checkbox"
                   />
                   <span 
                     class="todo-name" 
@@ -81,6 +83,7 @@
                     {{ getCountdownText(todo) }}
                   </el-tag>
                   <el-icon 
+                    v-if="!batchMode"
                     class="delete-icon" 
                     @click.stop="confirmDelete(todo)"
                   >
@@ -97,21 +100,16 @@
               v-for="todo in todos" 
               :key="todo.taskId" 
               class="todo-item"
-              :class="{ 'completed': todo.status, 'selected': selectedTodoIds.includes(todo.taskId) }"
+              :class="{ 'completed': todo.status, 'selected': batchMode && selectedTodoIds.includes(todo.taskId), 'batch-mode': batchMode }"
               @click="handleTodoClick(todo)"
             >
               <div class="todo-info">
                 <el-checkbox 
+                  v-if="!batchMode"
                   v-model="todo.status" 
                   @change="updateTodoStatus(todo)"
                   @click.stop
                   class="todo-checkbox"
-                />
-                <el-checkbox 
-                  :model-value="selectedTodoIds.includes(todo.taskId)"
-                  @change="(val) => handleTodoSelect(val, todo.taskId)"
-                  @click.stop
-                  class="batch-select-checkbox"
                 />
                 <span 
                   class="todo-name" 
@@ -128,6 +126,7 @@
                   {{ getCountdownText(todo) }}
                 </el-tag>
                 <el-icon 
+                  v-if="!batchMode"
                   class="delete-icon" 
                   @click.stop="confirmDelete(todo)"
                 >
@@ -136,6 +135,17 @@
               </div>
             </div>
           </template>
+        </div>
+        
+        <!-- 批量删除操作栏 -->
+        <div v-if="batchMode && selectedTodoIds.length > 0" class="batch-action-bar">
+          <div class="batch-info">
+            已选择 {{ selectedTodoIds.length }} 项
+          </div>
+          <div class="batch-actions">
+            <el-button type="danger" @click="confirmBatchDelete">删除</el-button>
+            <el-button @click="cancelBatchMode">取消</el-button>
+          </div>
         </div>
         
         <div v-if="total > 0" class="pagination-container">
@@ -159,7 +169,7 @@ import { ref, onMounted, inject, watch, computed, onActivated } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/utils/request'
-import { Delete } from '@element-plus/icons-vue'
+import { Delete, DeleteFilled } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -171,6 +181,7 @@ const currentPage = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
 const showDateGroups = ref(true) // 控制是否显示日期分组
+const batchMode = ref(false) // 控制是否处于批量删除模式
 const selectedTodoIds = ref([]) // 用于批量删除的选中项
 
 // 注入筛选条件
@@ -290,10 +301,19 @@ const handleDateGroupToggle = (value) => {
   // 这里可以添加其他逻辑，如果需要的话
 }
 
+// 处理批量模式切换
+const toggleBatchMode = () => {
+  batchMode.value = !batchMode.value
+  if (!batchMode.value) {
+    // 退出批量模式时清空选中项
+    selectedTodoIds.value = []
+  }
+}
+
 // 处理待办事项点击事件
 const handleTodoClick = (todo) => {
-  // 如果有选中的待办事项，则进入批量选择模式
-  if (selectedTodoIds.value.length > 0) {
+  // 如果处于批量模式，则进入选择/取消选择逻辑
+  if (batchMode.value) {
     handleTodoSelect(!selectedTodoIds.value.includes(todo.taskId), todo.taskId)
   } else {
     // 否则进入详情页面
@@ -315,6 +335,12 @@ const handleTodoSelect = (selected, taskId) => {
       selectedTodoIds.value.splice(index, 1)
     }
   }
+}
+
+// 取消批量模式
+const cancelBatchMode = () => {
+  batchMode.value = false
+  selectedTodoIds.value = []
 }
 
 // 监听筛选条件变化
@@ -599,6 +625,8 @@ const batchDeleteTodos = async () => {
       ElMessage.success('批量删除成功')
       // 清空选中项
       selectedTodoIds.value = []
+      // 退出批量模式
+      batchMode.value = false
       // 重新获取数据
       fetchTodos(defaultFilterParams.value)
     } else {
@@ -693,8 +721,14 @@ onMounted(() => {
 }
 
 .todo-item.selected {
-  background-color: #ecf5ff;
+  background-color: #ffffff; /* 使用正常白色背景 */
   border-left: 3px solid #409eff;
+}
+
+/* 批量模式下未选中的待办事项使用更明显的灰色调 */
+.todo-item:not(.selected).batch-mode {
+  background-color: #f0f0f0;
+  opacity: 1; /* 移除透明度，使用更明确的背景色 */
 }
 
 .todo-info {
@@ -758,5 +792,25 @@ onMounted(() => {
 
 .empty-container {
   width: 100%;
+}
+
+.batch-action-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: #f5f7fa;
+  border-top: 1px solid #ebeef5;
+  border-bottom: 1px solid #ebeef5;
+}
+
+.batch-info {
+  font-weight: bold;
+  color: #606266;
+}
+
+.batch-actions {
+  display: flex;
+  gap: 10px;
 }
 </style>
