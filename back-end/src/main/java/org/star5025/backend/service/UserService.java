@@ -52,4 +52,12 @@ public interface UserService {
      * @param count
      */
     void incrementTaskCount(Long userId, int count);
+    
+    /**
+     * 验证用户密码
+     * @param userId 用户ID
+     * @param password 密码（明文）
+     * @return 是否匹配
+     */
+    boolean verifyPassword(Long userId, String password);
 }

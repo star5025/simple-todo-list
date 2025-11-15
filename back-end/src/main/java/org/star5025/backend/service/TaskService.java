@@ -29,6 +29,12 @@ public interface TaskService {
     void deleteTask(Long taskId);
 
     /**
+     * 批量删除任务
+     * @param taskIds
+     */
+    void deleteTasks(List<Long> taskIds);
+
+    /**
      * 根据用户Id进行分页查询
      * @param taskPageQueryDTO
      * @return

@@ -11,7 +11,6 @@ import org.star5025.backend.mapper.UserMapper;
 import org.star5025.backend.service.UserService;
 import org.star5025.backend.utils.Md5Util;
 
-import javax.security.auth.login.LoginException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -110,5 +109,21 @@ public class UserServiceImpl implements UserService {
     @Override
     public void incrementTaskCount(Long userId, int count) {
         userMapper.incrementTaskCount(userId, count);
+    }
+    
+    /**
+     * 验证用户密码
+     * @param userId 用户ID
+     * @param password 密码（明文）
+     * @return 是否匹配
+     */
+    @Override
+    public boolean verifyPassword(Long userId, String password) {
+        User user = getUserById(userId);
+        if (user == null) {
+            return false;
+        }
+        String encryptedPassword = Md5Util.getMD5String(password);
+        return encryptedPassword.equals(user.getUserPassword());
     }
 }

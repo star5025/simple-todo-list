@@ -16,6 +16,7 @@ import org.star5025.backend.service.TaskService;
 import org.star5025.backend.service.UserService;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Api(tags = "任务相关接口")
@@ -51,6 +52,18 @@ public class TaskController {
 
         taskService.createTask(taskDTO);
 
+        return Result.success();
+    }
+
+    /**
+     * 批量删除任务
+     * @param taskIds 任务ID列表
+     */
+    @ApiOperation("批量删除任务接口")
+    @DeleteMapping("/batch/delete")
+    public Result deleteTasks(@RequestBody List<Long> taskIds) {
+        log.info("批量删除任务，任务Ids: {}", taskIds);
+        taskService.deleteTasks(taskIds);
         return Result.success();
     }
 

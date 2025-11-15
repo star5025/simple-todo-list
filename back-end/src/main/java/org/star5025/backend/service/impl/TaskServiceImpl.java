@@ -71,6 +71,15 @@ public class TaskServiceImpl implements TaskService {
     }
 
     /**
+     * 批量删除任务
+     * @param taskIds
+     */
+    @Override
+    public void deleteTasks(List<Long> taskIds) {
+        taskMapper.deleteTasks(taskIds);
+    }
+
+    /**
      * 根据用户id分页查询任务
      * @param taskPageQueryDTO
      */

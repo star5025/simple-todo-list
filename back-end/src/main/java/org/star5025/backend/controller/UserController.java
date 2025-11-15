@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.star5025.backend.dto.UserDTO;
+import org.star5025.backend.dto.UserUpdateDTO;
 import org.star5025.backend.dto.ValidationGroup;
 import org.star5025.backend.entity.User;
 import org.star5025.backend.exception.AuthException;
@@ -14,6 +15,7 @@ import org.star5025.backend.properties.JwtProperties;
 import org.star5025.backend.result.Result;
 import org.star5025.backend.service.UserService;
 import org.star5025.backend.utils.JwtUtil;
+import org.star5025.backend.utils.Md5Util;
 import org.star5025.backend.vo.UserVO;
 
 import javax.validation.Valid;
@@ -119,16 +121,44 @@ public class UserController {
     }
 
     /**
-     * 修改用户信息
-     * @param user
+     * 修改用户信息（用户名或密码）
+     * @param userUpdateDTO
      * @return
      */
     @ApiOperation("修改用户信息")
     @PutMapping
-    public Result updateUser(@RequestBody User user){
-        log.info("修改Id为{}的用户",user.getUserId());
-        userService.updateUser(user);
-        return Result.success();
+    public Result updateUser(@RequestBody UserUpdateDTO userUpdateDTO){
+        log.info("修改Id为{}的用户", userUpdateDTO.getUserId());
+        
+        try {
+            User user = userService.getUserById(userUpdateDTO.getUserId());
+            if (user == null) {
+                return Result.error("用户不存在");
+            }
+            
+            // 如果要修改密码，需要验证旧密码
+            if (userUpdateDTO.getOldPassword() != null && !userUpdateDTO.getOldPassword().isEmpty()) {
+                // 验证旧密码是否正确
+                String encryptedOldPassword = Md5Util.getMD5String(userUpdateDTO.getOldPassword());
+                if (!encryptedOldPassword.equals(user.getUserPassword())) {
+                    return Result.error("原密码不正确");
+                }
+                
+                // 设置新密码（需要加密）
+                user.setUserPassword(Md5Util.getMD5String(userUpdateDTO.getUserPassword()));
+            }
+            
+            // 如果要修改用户名
+            if (userUpdateDTO.getUserName() != null && !userUpdateDTO.getUserName().isEmpty()) {
+                user.setUserName(userUpdateDTO.getUserName());
+            }
+            
+            userService.updateUser(user);
+            return Result.success();
+        } catch (Exception e) {
+            log.error("更新用户信息失败", e);
+            return Result.error("更新失败");
+        }
     }
 
     /**

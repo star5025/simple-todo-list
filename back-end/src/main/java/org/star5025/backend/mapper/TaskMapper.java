@@ -33,6 +33,18 @@ public interface TaskMapper {
     void deleteTask(Long taskId);
 
     /**
+     * 批量删除任务
+     * @param taskIds
+     */
+    @Delete("<script>" +
+            "DELETE FROM task WHERE task_id IN " +
+            "<foreach item='id' collection='taskIds' open='(' separator=',' close=')'>" +
+            "#{id}" +
+            "</foreach>" +
+            "</script>")
+    void deleteTasks(@Param("taskIds") List<Long> taskIds);
+
+    /**
      * 根据用户Id分页查询任务
      * @param userId
      * @param status 完成状态，如果为null则不筛选
