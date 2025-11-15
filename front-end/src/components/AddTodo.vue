@@ -122,7 +122,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, watch, onActivated } from 'vue'
+import { reactive, ref, watch, onActivated, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import request from '@/utils/request'
@@ -170,6 +170,23 @@ watch(() => timePrecision.remindTime, () => {
     const date = new Date(todoForm.remindTime);
     todoForm.remindTime = date.toISOString().split('T')[0];
   }
+})
+
+// ESC键事件处理函数
+const handleEscKey = (event) => {
+  if (event.key === 'Escape') {
+    router.push('/home/list')
+  }
+}
+
+// 组件挂载时添加键盘事件监听
+onMounted(() => {
+  document.addEventListener('keydown', handleEscKey)
+})
+
+// 组件卸载时移除键盘事件监听
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleEscKey)
 })
 
 const rules = {

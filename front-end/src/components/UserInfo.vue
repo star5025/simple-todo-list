@@ -74,9 +74,12 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onActivated } from 'vue'
+import { ref, reactive, onMounted, onActivated, onUnmounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/utils/request'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 // 用户信息
 const userInfo = ref(null)
@@ -100,6 +103,25 @@ const passwordForm = reactive({
   oldPassword: '',
   newPassword: '',
   confirmPassword: ''
+})
+
+// ESC键事件处理函数
+const handleEscKey = (event) => {
+  // 只有在没有打开对话框时才处理ESC键
+  if (event.key === 'Escape' && !usernameDialogVisible.value && !passwordDialogVisible.value) {
+    router.push('/home/list')
+  }
+}
+
+// 组件挂载时添加键盘事件监听
+onMounted(() => {
+  document.addEventListener('keydown', handleEscKey)
+  fetchUserInfo()
+})
+
+// 组件卸载时移除键盘事件监听
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleEscKey)
 })
 
 // 获取用户信息
