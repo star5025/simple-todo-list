@@ -37,10 +37,12 @@
 </template>
 
 <script setup>
-import { provide, ref, watch } from 'vue'
+import { provide, ref, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { ElNotification } from 'element-plus'
 import Header from '@/components/Header.vue'
 import Sidebar from '@/components/Sidebar.vue'
+import request from '@/utils/request'
 
 const router = useRouter()
 const route = useRoute()
@@ -68,6 +70,77 @@ const goToTodoList = () => {
   router.push('/home/list')
 }
 
+// 检查是否有当天提醒的待办事项
+const checkTodaysReminders = async () => {
+  try {
+    // 获取当前时间
+    const now = new Date();
+    const todayStr = now.toISOString().split('T')[0];
+    
+    console.log('当前时间:', now);
+    
+    // 获取所有未完成的待办事项
+    const response = await request.get('/task/pageQuery', {
+      page: 1,
+      pageSize: 100, // 获取足够多的待办事项
+      status: false
+    });
+    
+    console.log('获取待办事项响应:', response);
+    
+    if (response.code === 1) {
+      const todos = response.data.records;
+      
+      console.log('所有待办事项:', todos);
+      
+      // 筛选出提醒时间已到的待办事项（提醒时间不为空且已到提醒时间）
+      const dueReminders = todos.filter(todo => {
+        if (todo.remindTime) {
+          try {
+            const remindDate = new Date(todo.remindTime);
+            console.log(`待办事项 "${todo.taskName}" 的提醒时间: ${remindDate}, 当前时间: ${now}`);
+            // 判断提醒时间是否已到
+            return remindDate <= now;
+          } catch (e) {
+            console.error('日期解析错误:', e);
+            return false;
+          }
+        }
+        return false;
+      });
+      
+      console.log('已到提醒时间的事项:', dueReminders);
+      
+      // 对每个提醒弹出通知（检查是否已提醒过）
+      dueReminders.forEach(todo => {
+        // 检查是否已经提醒过这个待办事项（避免重复提醒）
+        const reminderKey = `reminder_${todo.taskId}`;
+        const isNotified = localStorage.getItem(reminderKey);
+        console.log(`提醒键: ${reminderKey}, 是否已提醒: ${isNotified}`);
+        
+        if (!isNotified) {
+          ElNotification({
+            title: '待办提醒',
+            message: `您有一个待办事项需要处理：${todo.taskName}`,
+            type: 'warning',
+            duration: 0, // 不自动关闭
+            onClick: () => {
+              // 点击通知跳转到待办详情页
+              router.push(`/home/todo/${todo.taskId}`);
+            }
+          });
+          
+          // 记录已提醒，避免重复提醒
+          localStorage.setItem(reminderKey, 'notified');
+          console.log('已发送提醒通知');
+        }
+      });
+    }
+  } catch (error) {
+    console.error('检查提醒失败:', error);
+  }
+}
+
 // 监听路由变化，在路由切换到TodoList时能够正确应用筛选条件
 watch(route, (newRoute) => {
   if (newRoute.name === 'TodoList') {
@@ -75,6 +148,14 @@ watch(route, (newRoute) => {
     // 这里我们不重置筛选条件，而是保持当前的筛选状态
   }
 }, { immediate: true })
+
+// 组件挂载时检查提醒
+onMounted(() => {
+  // 延迟一段时间再检查提醒，确保页面加载完成
+  setTimeout(() => {
+    checkTodaysReminders();
+  }, 1000);
+});
 </script>
 
 <style scoped>
