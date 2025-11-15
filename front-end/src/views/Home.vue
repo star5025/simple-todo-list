@@ -9,7 +9,7 @@
         <!-- 主页内容区域 -->
         <div class="home-content">
           <transition name="el-fade-in" mode="out-in">
-            <router-view :key="$route.fullPath" />
+            <router-view />
           </transition>
         </div>
       </el-main>
@@ -51,6 +51,9 @@ const filterParams = ref({
   orderBy: 'dueTime' // 默认按截止时间排序
 })
 
+// 获取TodoList组件的引用
+const todoListRef = ref(null)
+
 // 创建更新筛选条件的方法
 const updateFilter = (params) => {
   filterParams.value = {...filterParams.value, ...params}
@@ -71,7 +74,7 @@ watch(route, (newRoute) => {
     // 当切换到TodoList页面时，触发一次筛选以确保显示最新数据
     // 这里我们不重置筛选条件，而是保持当前的筛选状态
   }
-})
+}, { immediate: true })
 </script>
 
 <style scoped>

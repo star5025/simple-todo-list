@@ -122,7 +122,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, watch } from 'vue'
+import { reactive, ref, watch, onActivated } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import request from '@/utils/request'
@@ -276,6 +276,14 @@ const handleSubmit = async () => {
     }
   })
 }
+
+// 添加onActivated钩子，处理组件被keep-alive缓存后重新激活的情况
+onActivated(() => {
+  // 组件被激活时，如果有默认值需要重置，可以在这里处理
+  if (!todoForm.startTime) {
+    todoForm.startTime = new Date(); // 设置默认值为当前日期和时间
+  }
+})
 
 const handleCancel = () => {
   resetForm()

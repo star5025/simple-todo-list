@@ -135,13 +135,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, inject, watch, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, inject, watch, computed, onActivated } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/utils/request'
 import { Delete } from '@element-plus/icons-vue'
 
 const router = useRouter()
+const route = useRoute()
 
 // 数据相关
 const todos = ref([])
@@ -279,6 +280,37 @@ watch(filterParams, (newParams) => {
   }
   fetchTodos(mergedParams)
 }, { deep: true })
+
+// 监听路由变化，确保在返回到待办列表时重新加载数据
+watch(
+  () => route.name,
+  (newRouteName) => {
+    if (newRouteName === 'TodoList') {
+      // 当路由切换到待办列表时，重新获取数据
+      fetchTodos(defaultFilterParams.value)
+    }
+  }
+)
+
+// 添加对路由全路径的监听，确保更可靠的组件更新
+watch(
+  () => route.fullPath,
+  (newPath) => {
+    if (newPath.startsWith('/home/list')) {
+      // 当路由切换到待办列表时，重新获取数据
+      fetchTodos(defaultFilterParams.value)
+    }
+  }
+)
+
+// 使用onActivated钩子处理keep-alive缓存情况
+onActivated(() => {
+  // 当组件被激活时（从缓存中恢复），重新获取数据
+  // 使用nextTick确保在DOM更新后执行
+  setTimeout(() => {
+    fetchTodos(defaultFilterParams.value)
+  }, 0)
+})
 
 // 获取待办列表
 const fetchTodos = async (filters = {}) => {

@@ -74,7 +74,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, onActivated } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/utils/request'
 
@@ -254,6 +254,12 @@ const updatePassword = async () => {
 
 // 组件挂载时获取用户信息
 onMounted(() => {
+  fetchUserInfo()
+})
+
+// 添加onActivated钩子，处理组件被keep-alive缓存后重新激活的情况
+onActivated(() => {
+  // 组件被激活时重新获取用户信息，确保显示最新数据
   fetchUserInfo()
 })
 </script>
