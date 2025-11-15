@@ -88,8 +88,8 @@ export default {
     put(url, data = {}) {
         return service({ url, method: 'put', data })
     },
-    delete(url, params = {}) {
-        return service({ url, method: 'delete', params })
+    delete(url, params = {}, config = {}) {
+        return service({ url, method: 'delete', params, ...config })
     },
     patch(url, data = {}) {
         return service({ url, method: 'patch', data })

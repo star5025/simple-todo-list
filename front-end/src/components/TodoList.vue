@@ -13,7 +13,15 @@
               />
             </div>
             <div class="header-right">
-
+              <el-button 
+                v-if="selectedTodoIds.length > 0" 
+                type="danger" 
+                :icon="Delete" 
+                @click="confirmBatchDelete"
+                size="small"
+              >
+                批量删除 ({{ selectedTodoIds.length }})
+              </el-button>
             </div>
           </div>
         </template>
@@ -42,8 +50,8 @@
                 v-for="todo in group" 
                 :key="todo.taskId" 
                 class="todo-item"
-                :class="{ 'completed': todo.status }"
-                @click="goToDetail(todo.taskId)"
+                :class="{ 'completed': todo.status, 'selected': selectedTodoIds.includes(todo.taskId) }"
+                @click="handleTodoClick(todo)"
               >
                 <div class="todo-info">
                   <el-checkbox 
@@ -51,6 +59,12 @@
                     @change="updateTodoStatus(todo)"
                     @click.stop
                     class="todo-checkbox"
+                  />
+                  <el-checkbox 
+                    :model-value="selectedTodoIds.includes(todo.taskId)"
+                    @change="(val) => handleTodoSelect(val, todo.taskId)"
+                    @click.stop
+                    class="batch-select-checkbox"
                   />
                   <span 
                     class="todo-name" 
@@ -83,8 +97,8 @@
               v-for="todo in todos" 
               :key="todo.taskId" 
               class="todo-item"
-              :class="{ 'completed': todo.status }"
-              @click="goToDetail(todo.taskId)"
+              :class="{ 'completed': todo.status, 'selected': selectedTodoIds.includes(todo.taskId) }"
+              @click="handleTodoClick(todo)"
             >
               <div class="todo-info">
                 <el-checkbox 
@@ -92,6 +106,12 @@
                   @change="updateTodoStatus(todo)"
                   @click.stop
                   class="todo-checkbox"
+                />
+                <el-checkbox 
+                  :model-value="selectedTodoIds.includes(todo.taskId)"
+                  @change="(val) => handleTodoSelect(val, todo.taskId)"
+                  @click.stop
+                  class="batch-select-checkbox"
                 />
                 <span 
                   class="todo-name" 
@@ -151,6 +171,7 @@ const currentPage = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
 const showDateGroups = ref(true) // 控制是否显示日期分组
+const selectedTodoIds = ref([]) // 用于批量删除的选中项
 
 // 注入筛选条件
 const filterParams = inject('filterParams', ref({}))
@@ -267,6 +288,33 @@ const formatDateHeader = (dateStr) => {
 const handleDateGroupToggle = (value) => {
   console.log('日期分组切换:', value)
   // 这里可以添加其他逻辑，如果需要的话
+}
+
+// 处理待办事项点击事件
+const handleTodoClick = (todo) => {
+  // 如果有选中的待办事项，则进入批量选择模式
+  if (selectedTodoIds.value.length > 0) {
+    handleTodoSelect(!selectedTodoIds.value.includes(todo.taskId), todo.taskId)
+  } else {
+    // 否则进入详情页面
+    goToDetail(todo.taskId)
+  }
+}
+
+// 处理待办事项选择事件
+const handleTodoSelect = (selected, taskId) => {
+  if (selected) {
+    // 添加到选中列表
+    if (!selectedTodoIds.value.includes(taskId)) {
+      selectedTodoIds.value.push(taskId)
+    }
+  } else {
+    // 从选中列表中移除
+    const index = selectedTodoIds.value.indexOf(taskId)
+    if (index > -1) {
+      selectedTodoIds.value.splice(index, 1)
+    }
+  }
 }
 
 // 监听筛选条件变化
@@ -491,6 +539,28 @@ const confirmDelete = (todo) => {
   })
 }
 
+// 确认批量删除
+const confirmBatchDelete = () => {
+  if (selectedTodoIds.value.length === 0) {
+    ElMessage.warning('请先选择要删除的待办事项')
+    return
+  }
+
+  ElMessageBox.confirm(
+    `确定要删除选中的 ${selectedTodoIds.value.length} 个待办事项吗？此操作无法撤销。`,
+    '批量删除确认',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }
+  ).then(() => {
+    batchDeleteTodos()
+  }).catch(() => {
+    // 用户取消删除
+  })
+}
+
 // 删除待办项
 const deleteTodo = async (todo) => {
   try {
@@ -510,6 +580,32 @@ const deleteTodo = async (todo) => {
     }
   } catch (error) {
     ElMessage.error('删除失败')
+  }
+}
+
+// 批量删除待办项
+const batchDeleteTodos = async () => {
+  if (selectedTodoIds.value.length === 0) {
+    ElMessage.warning('请先选择要删除的待办事项')
+    return
+  }
+
+  try {
+    const response = await request.delete('/task/batch/delete', {}, {
+      data: selectedTodoIds.value
+    })
+
+    if (response.code === 1) {
+      ElMessage.success('批量删除成功')
+      // 清空选中项
+      selectedTodoIds.value = []
+      // 重新获取数据
+      fetchTodos(defaultFilterParams.value)
+    } else {
+      ElMessage.error(response.msg || '批量删除失败')
+    }
+  } catch (error) {
+    ElMessage.error('批量删除失败')
   }
 }
 
@@ -584,6 +680,7 @@ onMounted(() => {
   padding: 15px 10px;
   border-bottom: 1px solid #eee;
   transition: all 0.3s ease;
+  position: relative;
 }
 
 .todo-item:hover {
@@ -595,6 +692,11 @@ onMounted(() => {
   border-bottom: none;
 }
 
+.todo-item.selected {
+  background-color: #ecf5ff;
+  border-left: 3px solid #409eff;
+}
+
 .todo-info {
   display: flex;
   align-items: center;
@@ -602,6 +704,10 @@ onMounted(() => {
 }
 
 .todo-checkbox {
+  margin-right: 12px;
+}
+
+.batch-select-checkbox {
   margin-right: 12px;
 }
 
