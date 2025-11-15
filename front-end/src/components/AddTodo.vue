@@ -13,6 +13,7 @@
           ref="todoFormRef" 
           label-position="top"
           @submit.prevent="handleSubmit"
+          @keyup.enter="handleSubmit"
         >
           <el-form-item label="待办事项名称" prop="taskName">
             <el-input 

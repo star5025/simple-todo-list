@@ -8,7 +8,7 @@
           </el-text>
         </div>
       </template>
-      <el-form class="login-form" label-position="left" :label-width="80">
+      <el-form class="login-form" label-position="left" :label-width="80" @keyup.enter="handleLogin">
         <el-form-item label="用户名">
           <el-input v-model="loginForm.userName" placeholder="请输入用户名" clearable class="login-input" />
         </el-form-item>
