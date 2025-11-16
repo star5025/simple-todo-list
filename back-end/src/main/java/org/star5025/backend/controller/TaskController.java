@@ -103,6 +103,7 @@ public class TaskController {
      * @param status 完成状态
      * @param dueTime 截止时间
      * @param orderBy 排序字段
+     * @param favourite 收藏状态
      * @return
      */
     @ApiOperation("根据用户Id分页查询接口")
@@ -112,12 +113,13 @@ public class TaskController {
             @RequestParam(value = "pageSize", required = false) int pageSize,
             @RequestParam(value = "status", required = false) Boolean status,
             @RequestParam(value = "dueTime", required = false) LocalDateTime dueTime,
-            @RequestParam(value = "orderBy", required = false) String orderBy) {
+            @RequestParam(value = "orderBy", required = false) String orderBy,
+            @RequestParam(value = "favourite", required = false) Boolean favourite) {
         // 从线程上下文中获取当前用户ID
         Long userId = BaseContext.getCurrentId();
-        log.info("收到分页查询请求: page={}, pageSize={}, userId={}, status={}, dueTime={}, orderBy={}", page, pageSize, userId, status, dueTime, orderBy);
+        log.info("收到分页查询请求: page={}, pageSize={}, userId={}, status={}, dueTime={}, orderBy={}, favourite={}", page, pageSize, userId, status, dueTime, orderBy, favourite);
         log.info("进行分页查询，查询的用户Id为：{}", userId);
-        TaskPageQueryDTO taskPageQueryDTO = new TaskPageQueryDTO(page, pageSize, userId, status, dueTime, orderBy);
+        TaskPageQueryDTO taskPageQueryDTO = new TaskPageQueryDTO(page, pageSize, userId, status, dueTime, orderBy, favourite);
         PageResult pageResult = taskService.pageQuery(taskPageQueryDTO);
         log.info("分页查询结果: 总数={}, 当前页返回数量={}", pageResult.getTotal(), pageResult.getRecords().size());
         return Result.success(pageResult);

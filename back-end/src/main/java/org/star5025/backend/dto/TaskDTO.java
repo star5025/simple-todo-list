@@ -22,5 +22,6 @@ public class TaskDTO {
     private String description;
 
     private long userId;
+    
+    private Boolean favourite;
 }
-

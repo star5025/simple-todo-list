@@ -19,4 +19,6 @@ public class TaskPatchDTO {
     private LocalDateTime remindTime;
 
     private LocalDateTime dueTime;
+    
+    private Boolean favourite;
 }

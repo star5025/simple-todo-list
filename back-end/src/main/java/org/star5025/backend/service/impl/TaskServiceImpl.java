@@ -25,6 +25,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class TaskServiceImpl implements TaskService {
 
@@ -85,7 +88,7 @@ public class TaskServiceImpl implements TaskService {
      */
     @Override
     public PageResult pageQuery(TaskPageQueryDTO taskPageQueryDTO) {
-        return pageQuery(taskPageQueryDTO.getPage(), taskPageQueryDTO.getPageSize(), taskPageQueryDTO.getUserId(), taskPageQueryDTO.getStatus(), taskPageQueryDTO.getDueTime(), taskPageQueryDTO.getOrderBy());
+        return pageQuery(taskPageQueryDTO.getPage(), taskPageQueryDTO.getPageSize(), taskPageQueryDTO.getUserId(), taskPageQueryDTO.getStatus(), taskPageQueryDTO.getDueTime(), taskPageQueryDTO.getOrderBy(), taskPageQueryDTO.getFavourite());
     }
     
     /**
@@ -96,11 +99,17 @@ public class TaskServiceImpl implements TaskService {
      * @param status 完成状态
      * @param dueTime 截止时间
      * @param orderBy 排序字段
+     * @param favourite 收藏状态
      */
-    public PageResult pageQuery(int page, int pageSize, Long userId, Boolean status, LocalDateTime dueTime, String orderBy) {
+    public PageResult pageQuery(int page, int pageSize, Long userId, Boolean status, LocalDateTime dueTime, String orderBy, Boolean favourite) {
+        log.info("分页查询任务: page={}, pageSize={}, userId={}, status={}, dueTime={}, orderBy={}, favourite={}", 
+                 page, pageSize, userId, status, dueTime, orderBy, favourite);
+        
         PageHelper.startPage(page, pageSize);
 
-        Page<Task> taskPage = taskMapper.pageQuery(userId, status, dueTime, orderBy);
+        Page<Task> taskPage = taskMapper.pageQueryWithFavourite(userId, status, dueTime, orderBy, favourite);
+        
+        log.info("查询结果: 总数={}, 当前页数量={}", taskPage.getTotal(), taskPage.size());
 
         return new PageResult(taskPage.getTotal(), taskPage.getResult());
     }

@@ -9,6 +9,6 @@ create table task
     remind_time  datetime     null,
     user_id      int          null comment '拥有该任务的用户Id',
     start_time   datetime     null,
-    description  varchar(255) null comment '详细说明'
+    description  varchar(255) null comment '详细说明',
+    favourite    tinyint(1)   default 0 not null comment '收藏状态（0-未收藏，1-已收藏）'
 );
-

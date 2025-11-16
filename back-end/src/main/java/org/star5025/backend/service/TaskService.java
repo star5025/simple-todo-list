@@ -49,9 +49,10 @@ public interface TaskService {
      * @param status 完成状态
      * @param dueTime 截止时间
      * @param orderBy 排序字段
+     * @param favourite 收藏状态
      * @return
      */
-    PageResult pageQuery(int page, int pageSize, Long userId, Boolean status, LocalDateTime dueTime, String orderBy);
+    PageResult pageQuery(int page, int pageSize, Long userId, Boolean status, LocalDateTime dueTime, String orderBy, Boolean favourite);
 
     /**
      * 更新任务

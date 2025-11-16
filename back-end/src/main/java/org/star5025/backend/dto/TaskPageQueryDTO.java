@@ -17,6 +17,8 @@ public class TaskPageQueryDTO {
     private LocalDateTime dueTime; // 添加截止时间筛选字段
     
     private String orderBy; // 添加排序字段
+    
+    private Boolean favourite; // 添加收藏状态筛选字段
 
     public TaskPageQueryDTO(int page, int pageSize, Long userId) {
         this.page = page;
@@ -46,5 +48,15 @@ public class TaskPageQueryDTO {
         this.status = status;
         this.dueTime = dueTime;
         this.orderBy = orderBy;
+    }
+    
+    public TaskPageQueryDTO(int page, int pageSize, Long userId, Boolean status, LocalDateTime dueTime, String orderBy, Boolean favourite) {
+        this.page = page;
+        this.pageSize = pageSize;
+        this.userId = userId;
+        this.status = status;
+        this.dueTime = dueTime;
+        this.orderBy = orderBy;
+        this.favourite = favourite;
     }
 }

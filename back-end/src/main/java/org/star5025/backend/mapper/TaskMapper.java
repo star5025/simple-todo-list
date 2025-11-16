@@ -21,8 +21,8 @@ public interface TaskMapper {
      * 新增任务
      * @param task
      */
-    @Insert("insert into task (task_name, status, description, created_time, start_time, remind_time, due_time, user_id)" +
-            "values (#{taskName},#{status},#{description},now(),#{startTime},#{remindTime},#{dueTime},#{userId})")
+    @Insert("insert into task (task_name, status, description, created_time, start_time, remind_time, due_time, user_id, favourite)" +
+            "values (#{taskName},#{status},#{description},now(),#{startTime},#{remindTime},#{dueTime},#{userId},#{favourite})")
     void createTask(Task task);
 
     /**
@@ -52,7 +52,7 @@ public interface TaskMapper {
      * @param orderBy 排序字段
      */
     @Select("<script>" +
-            "select task_id as taskId, task_name as taskName, description as description, due_time as dueTime, status, start_time as startTime, remind_time as remindTime, created_time as createdTime " +
+            "select task_id as taskId, task_name as taskName, description as description, due_time as dueTime, status, start_time as startTime, remind_time as remindTime, created_time as createdTime, favourite as favourite " +
             "from task " +
             "where user_id = #{userId} " +
             "<if test='status != null'> AND status = #{status} </if>" +
@@ -69,6 +69,34 @@ public interface TaskMapper {
             "</choose>" +
             "</script>")
     Page<Task> pageQuery(@Param("userId") Long userId, @Param("status") Boolean status, @Param("dueTime") LocalDateTime dueTime, @Param("orderBy") String orderBy);
+    
+    /**
+     * 根据用户Id分页查询任务（支持收藏筛选）
+     * @param userId
+     * @param status 完成状态，如果为null则不筛选
+     * @param dueTime 截止时间，如果为null则不筛选
+     * @param orderBy 排序字段
+     * @param favourite 收藏状态，如果为null则不筛选
+     */
+    @Select("<script>" +
+            "select task_id as taskId, task_name as taskName, description as description, due_time as dueTime, status, start_time as startTime, remind_time as remindTime, created_time as createdTime, favourite as favourite " +
+            "from task " +
+            "where user_id = #{userId} " +
+            "<if test='status != null'> AND status = #{status} </if>" +
+            "<if test='dueTime != null'> AND DATE(due_time) = DATE(#{dueTime}) </if>" +
+            "<if test='favourite != null'> AND favourite = <choose><when test='favourite'>1</when><otherwise>0</otherwise></choose> </if>" +
+            "order by " +
+            "<choose>" +
+            "  <when test='orderBy == \"dueTime\"'>due_time asc</when>" +
+            "  <when test='orderBy == \"dueTimeDesc\"'>due_time desc</when>" +
+            "  <when test='orderBy == \"startTime\"'>start_time asc</when>" +
+            "  <when test='orderBy == \"startTimeDesc\"'>start_time desc</when>" +
+            "  <when test='orderBy == \"createdTime\"'>created_time asc</when>" +
+            "  <when test='orderBy == \"createdTimeDesc\"'>created_time desc</when>" +
+            "  <otherwise>created_time desc, task_id desc</otherwise>" +
+            "</choose>" +
+            "</script>")
+    Page<Task> pageQueryWithFavourite(@Param("userId") Long userId, @Param("status") Boolean status, @Param("dueTime") LocalDateTime dueTime, @Param("orderBy") String orderBy, @Param("favourite") Boolean favourite);
 
     /**
      * 根据任务Id查询单个任务
@@ -81,6 +109,6 @@ public interface TaskMapper {
      * 更新任务
      * @param newTask
      */
-    @Update("update task set task_name = #{taskName}, status = #{status}, description = #{description}, start_time = #{startTime}, remind_time = #{remindTime}, due_time = #{dueTime} WHERE task_id = #{taskId}")
+    @Update("update task set task_name = #{taskName}, status = #{status}, description = #{description}, start_time = #{startTime}, remind_time = #{remindTime}, due_time = #{dueTime}, favourite = #{favourite} WHERE task_id = #{taskId}")
     void updateTask(Task newTask);
 }

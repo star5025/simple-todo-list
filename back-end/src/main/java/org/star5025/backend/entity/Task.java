@@ -29,4 +29,6 @@ public class Task {
     private LocalDateTime dueTime;
 
     private Long userId;
+    
+    private Boolean favourite;
 }
