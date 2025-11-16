@@ -75,6 +75,15 @@
                 </div>
                 
                 <div class="todo-meta">
+                  <el-icon 
+                    v-if="!batchMode"
+                    class="favourite-icon"
+                    :class="{ 'favourited': todo.favourite }"
+                    @click.stop="toggleFavourite(todo)"
+                  >
+                    <Star v-if="!todo.favourite" />
+                    <StarFilled v-else />
+                  </el-icon>
                   <el-tag 
                     :type="getCountdownTagType(todo)" 
                     size="small"
@@ -118,6 +127,15 @@
               </div>
               
               <div class="todo-meta">
+                <el-icon 
+                  v-if="!batchMode"
+                  class="favourite-icon"
+                  :class="{ 'favourited': todo.favourite }"
+                  @click.stop="toggleFavourite(todo)"
+                >
+                  <Star v-if="!todo.favourite" />
+                  <StarFilled v-else />
+                </el-icon>
                 <el-tag 
                   :type="getCountdownTagType(todo)" 
                   size="small"
@@ -165,11 +183,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, inject, watch, computed, onActivated, onUnmounted } from 'vue'
+import { ref, onMounted, inject, watch, computed, onActivated, onUnmounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/utils/request'
-import { Delete, DeleteFilled } from '@element-plus/icons-vue'
+import { Delete, DeleteFilled, Star, StarFilled } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -189,9 +207,12 @@ const filterParams = inject('filterParams', ref({}))
 
 // 在组件初始化时，默认添加status=false的筛选条件，只显示未完成的待办事项
 const defaultFilterParams = computed(() => {
+  // 检查filterParams.value是否已定义
+  const params = filterParams.value || {};
+  
   return {
     status: false, // 默认只显示未完成的待办事项
-    ...filterParams.value
+    ...params
   }
 })
 
@@ -410,9 +431,9 @@ watch(
 onActivated(() => {
   // 当组件被激活时（从缓存中恢复），重新获取数据
   // 使用nextTick确保在DOM更新后执行
-  setTimeout(() => {
+  nextTick(() => {
     fetchTodos(defaultFilterParams.value)
-  }, 0)
+  })
 })
 
 // 获取待办列表
@@ -423,8 +444,12 @@ const fetchTodos = async (filters = {}) => {
     const params = {
       page: currentPage.value,  // 直接使用 currentPage 变量
       pageSize: pageSize.value,
-      status: false, // 默认只查询未完成的待办事项
       ...filters
+    }
+    
+    // 只有当filters中明确设置了status时才传递，否则不传递该参数
+    if (filters.hasOwnProperty('status')) {
+      params.status = filters.status;
     }
     
     console.log('发送请求参数:', params) // 调试信息
@@ -435,18 +460,27 @@ const fetchTodos = async (filters = {}) => {
     console.log('后端返回的完整响应:', response) // 调试信息
     
     if (response.code === 1) {
-      todos.value = response.data.records
+      // 确保favourite字段正确设置
+      const records = response.data.records.map(todo => {
+        return {
+          ...todo,
+          favourite: todo.favourite || false
+        }
+      })
+      
+      todos.value = records
       total.value = response.data.total
       
       // 打印第一条记录来检查字段
-      if (response.data.records && response.data.records.length > 0) {
-        console.log('第一条待办事项:', response.data.records[0])
+      if (records && records.length > 0) {
+        console.log('第一条待办事项:', records[0])
       }
     } else {
       ElMessage.error(response.msg || '获取待办列表失败')
     }
   } catch (error) {
-    ElMessage.error('获取待办列表失败')
+    console.error('获取待办列表失败:', error)
+    ElMessage.error('获取待办列表失败: ' + error.message)
   } finally {
     loading.value = false
   }
@@ -551,9 +585,9 @@ const handleSizeChange = (val) => {
   // 合并默认筛选条件
   const mergedParams = {
     status: false, // 始终保持只显示未完成的待办事项
-    ...filterParams.value,
-    pageSize: val // 确保使用正确的页面大小
+    ...filterParams.value
   }
+  mergedParams.pageSize = val // 确保使用正确的页面大小
   fetchTodos(mergedParams)
 }
 
@@ -565,10 +599,10 @@ const handleCurrentChange = (val) => {
   // 合并默认筛选条件
   const mergedParams = {
     status: false, // 始终保持只显示未完成的待办事项
-    ...filterParams.value,
-    page: val, // 确保使用正确的页码
-    pageSize: pageSize.value // 确保使用正确的页面大小
+    ...filterParams.value
   }
+  mergedParams.page = val // 确保使用正确的页码
+  mergedParams.pageSize = pageSize.value // 确保使用正确的页面大小
   fetchTodos(mergedParams)
 }
 
@@ -668,6 +702,46 @@ const batchDeleteTodos = async () => {
   }
 }
 
+// 切换收藏状态
+const toggleFavourite = async (todo) => {
+  try {
+    const newFavouriteStatus = !todo.favourite;
+    
+    const response = await request.patch(`/task/${todo.taskId}`, {
+      favourite: newFavouriteStatus
+    });
+    
+    if (response.code === 1) {
+      // 更新本地状态
+      todo.favourite = newFavouriteStatus;
+      
+      // 触发自定义事件，通知侧边栏更新收藏列表
+      window.dispatchEvent(new CustomEvent('favouriteChanged', {
+        detail: { taskId: todo.taskId, favourite: newFavouriteStatus }
+      }));
+      
+      // 根据操作类型显示不同的提示信息
+      if (newFavouriteStatus) {
+        ElMessage.success('已添加到收藏');
+      } else {
+        ElMessage.success('已取消收藏');
+      }
+    } else {
+      ElMessage.error(response.msg || '操作失败');
+    }
+  } catch (error) {
+    ElMessage.error('操作失败: ' + error.message);
+  }
+};
+
+// 更新单个待办事项的收藏状态（供外部调用）
+const updateTodoFavouriteStatus = (taskId, favourite) => {
+  const todo = todos.value.find(item => item.taskId === taskId);
+  if (todo) {
+    todo.favourite = favourite;
+  }
+};
+
 // 暴露方法给父组件
 defineExpose({
   fetchTodos
@@ -680,7 +754,9 @@ onUnmounted(() => {
 
 // 组件挂载时获取数据
 onMounted(() => {
-  fetchTodos(defaultFilterParams.value)
+  nextTick(() => {
+    fetchTodos(defaultFilterParams.value)
+  })
 })
 </script>
 
@@ -794,6 +870,17 @@ onMounted(() => {
 .todo-meta {
   display: flex;
   align-items: center;
+}
+
+.favourite-icon {
+  margin-right: 10px;
+  cursor: pointer;
+  color: #c0c4cc;
+  font-size: 16px;
+}
+
+.favourite-icon.favourited {
+  color: #ffd700;
 }
 
 .delete-icon {

@@ -96,6 +96,13 @@
             </div>
           </el-form-item>
           
+          <el-form-item label="收藏">
+            <el-switch
+              v-model="todoForm.favourite"
+              active-text="收藏该待办事项"
+            />
+          </el-form-item>
+          
           <el-form-item>
             <el-button 
               type="primary" 
@@ -144,7 +151,8 @@ const todoForm = reactive({
   description: '',
   startTime: new Date(), // 设置默认值为当前日期和时间
   remindTime: '',
-  dueTime: ''
+  dueTime: '',
+  favourite: false  // 默认不收藏
 })
 
 // 监听时间精确度变化
@@ -264,7 +272,8 @@ const handleSubmit = async () => {
           status: false, // 默认为未完成
           startTime: startTimeObj ? startTimeObj.toISOString() : null,
           remindTime: remindTimeObj ? remindTimeObj.toISOString() : null,
-          dueTime: dueTimeObj ? dueTimeObj.toISOString() : null
+          dueTime: dueTimeObj ? dueTimeObj.toISOString() : null,
+          favourite: todoForm.favourite || false // 添加收藏状态
           // userId会由后端自动填充，基于JWT token解析
         }
         

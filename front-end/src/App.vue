@@ -12,6 +12,11 @@ onErrorCaptured((error) => {
   ElMessage.error('页面出现错误，请刷新页面重试')
   return false
 })
+
+// 定义刷新页面的方法
+const reloadPage = () => {
+  window.location.reload()
+}
 </script>
 
 <template>
@@ -29,7 +34,7 @@ onErrorCaptured((error) => {
           subTitle="请刷新页面重试"
         >
           <template #extra>
-            <el-button type="primary" @click="location.reload()">刷新页面</el-button>
+            <el-button type="primary" @click="reloadPage">刷新页面</el-button>
           </template>
         </el-result>
       </el-main>

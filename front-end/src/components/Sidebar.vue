@@ -23,6 +23,40 @@
         </button>
       </div>
       
+      <!-- 收藏待办卡片 -->
+      <el-card class="favourite-card" shadow="never">
+        <template #header>
+          <div class="favourite-header">
+            <el-icon><Star /></el-icon>
+            <span>我的收藏</span>
+          </div>
+        </template>
+        
+        <div class="favourite-content">
+          <div v-if="loadingFavourites" class="loading-container">
+            <el-skeleton :rows="3" animated />
+          </div>
+          
+          <div v-else-if="favouriteTodos.length === 0" class="empty-container">
+            <el-text size="small" type="info">暂无收藏的待办</el-text>
+          </div>
+          
+          <div v-else class="favourite-list">
+            <div 
+              v-for="todo in favouriteTodos" 
+              :key="todo.taskId"
+              class="favourite-item"
+              @click="goToTodoDetail(todo.taskId)"
+            >
+              <div class="favourite-item-name">{{ todo.taskName }}</div>
+              <div class="favourite-item-due" v-if="todo.dueTime">
+                {{ formatDueTime(todo.dueTime) }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </el-card>
+      
       <!-- 筛选区域 -->
       <el-card class="filter-card" shadow="never">
         <template #header>
@@ -130,16 +164,18 @@
 </template>
 
 <script setup>
-import { ref, inject, watch } from 'vue'
+import { ref, inject, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { 
   ArrowUp, 
   ArrowDown, 
   Plus,
   Filter,
-  User
+  User,
+  Star
 } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import request from '@/utils/request'
 
 const router = useRouter()
 
@@ -154,6 +190,10 @@ const timeFilter = ref({
 
 // 状态筛选
 const statusFilter = ref(false) // null: 全部, false: 未完成, true: 已完成
+
+// 收藏待办相关
+const favouriteTodos = ref([])
+const loadingFavourites = ref(false)
 
 const handleAddTodo = () => {
   router.push('/home/add')
@@ -229,8 +269,88 @@ const applyFilters = () => {
   console.log('筛选条件已应用:', params)
 }
 
-// 组件挂载时应用一次筛选条件
-applyFilters()
+// 获取收藏的待办事项
+const fetchFavouriteTodos = async () => {
+  loadingFavourites.value = true
+  try {
+    // 获取用户收藏的待办事项，最多显示5个
+    const response = await request.get('/task/pageQuery', {
+      page: 1,
+      pageSize: 5,
+      favourite: true,
+      orderBy: 'createdTimeDesc' // 按创建时间倒序排列，确保显示最新的收藏
+    })
+    
+    console.log('获取收藏待办响应:', response)
+    
+    if (response.code === 1) {
+      // 确保favourite字段正确设置
+      favouriteTodos.value = response.data.records.map(todo => ({
+        ...todo,
+        favourite: true // 明确设置为已收藏
+      }))
+      console.log('收藏的待办事项:', favouriteTodos.value)
+    } else {
+      ElMessage.error(response.msg || '获取收藏待办失败')
+    }
+  } catch (error) {
+    console.error('获取收藏待办失败:', error)
+  } finally {
+    loadingFavourites.value = false
+  }
+}
+
+// 格式化截止时间
+const formatDueTime = (dueTime) => {
+  if (!dueTime) return ''
+  const date = new Date(dueTime)
+  const today = new Date()
+  
+  // 如果是今天
+  if (date.toDateString() === today.toDateString()) {
+    return '今天 ' + date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+  }
+  
+  // 如果是今年
+  if (date.getFullYear() === today.getFullYear()) {
+    return `${date.getMonth() + 1}月${date.getDate()}日`
+  }
+  
+  // 其他情况显示完整日期
+  return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`
+}
+
+// 跳转到待办详情
+const goToTodoDetail = (taskId) => {
+  router.push(`/home/todo/${taskId}`)
+}
+
+// 处理收藏状态变化
+const handleFavouriteChange = (event) => {
+  // 延迟一小段时间再重新获取收藏列表，确保数据库操作已完成
+  setTimeout(() => {
+    fetchFavouriteTodos()
+  }, 300)
+}
+
+// 组件挂载时应用一次筛选条件并获取收藏待办
+onMounted(() => {
+  applyFilters()
+  fetchFavouriteTodos()
+  
+  // 监听收藏状态变化事件
+  window.addEventListener('favouriteChanged', handleFavouriteChange)
+})
+
+// 组件卸载时移除事件监听
+onUnmounted(() => {
+  window.removeEventListener('favouriteChanged', handleFavouriteChange)
+})
+
+// 暴露方法给父组件
+defineExpose({
+  fetchFavouriteTodos
+})
 </script>
 
 <style scoped>
@@ -260,6 +380,7 @@ applyFilters()
   padding: 8px 0;
 }
 
+.favourite-card,
 .filter-card {
   border-radius: 6px;
   border: 1px solid #e4e7ed;
@@ -267,11 +388,13 @@ applyFilters()
   transition: all 0.3s ease;
 }
 
+.favourite-card:hover,
 .filter-card:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   transform: translateY(-2px);
 }
 
+.favourite-header,
 .filter-header {
   display: flex;
   align-items: center;
@@ -280,9 +403,60 @@ applyFilters()
   font-size: 14px;
 }
 
+.favourite-header .el-icon,
 .filter-header .el-icon {
   margin-right: 6px;
   font-size: 14px;
+  color: #ffd700;
+}
+
+.favourite-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.favourite-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.favourite-item {
+  padding: 8px 10px;
+  border-radius: 4px;
+  background-color: #ffffff;
+  border: 1px solid #ebeef5;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.favourite-item:hover {
+  background-color: #ecf5ff;
+  border-color: #409eff;
+  transform: translateX(4px);
+}
+
+.favourite-item-name {
+  font-size: 13px;
+  color: #303133;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.favourite-item-due {
+  font-size: 12px;
+  color: #909399;
+}
+
+.loading-container,
+.empty-container {
+  padding: 10px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .filter-content {
