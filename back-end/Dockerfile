@@ -1,5 +1,4 @@
-# 使用最通用的Java镜像
-FROM openjdk:17
+FROM eclipse-temurin:17
 WORKDIR /app
 COPY . .
 RUN chmod +x ./mvnw
