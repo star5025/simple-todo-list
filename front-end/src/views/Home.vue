@@ -8,9 +8,11 @@
       <el-main class="main-content">
         <!-- 主页内容区域 -->
         <div class="home-content">
-          <transition name="el-fade-in" mode="out-in">
-            <router-view />
-          </transition>
+          <router-view v-slot="{ Component }">
+            <transition name="el-fade-in" mode="out-in">
+              <component :is="Component" />
+            </transition>
+          </router-view>
         </div>
       </el-main>
     </el-container>

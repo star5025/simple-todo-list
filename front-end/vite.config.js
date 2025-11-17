@@ -16,10 +16,11 @@ export default defineConfig({
     },
   },
   server: {
+    host: '0.0.0.0', // 添加这一行，使Vite监听所有网络接口
     proxy: {
       // 只要前端请求以 /api 开头，就代理到后端
       '/api': {
-        target: 'http://localhost:8088', // 后端服务地址
+        target: 'http://backend:8088', // 修改为Docker网络中的后端服务名称
         changeOrigin: true,
         rewrite: path => path.replace(/^\/api/, '/api'), // 保持路径一致
       }
