@@ -137,6 +137,8 @@ simple-todo-list/                  # 项目根目录
 
 项目使用 Docker Compose 统一管理 MySQL、后端和前端服务，可以通过一条命令启动整个应用：
 
+> ⚠️ **注意：使用 Docker Compose 前，请先确保已安装 Docker 客户端和 Docker Compose 工具。**
+
 ```bash
 # 克隆项目到本地
 git clone https://github.com/star5025/simple-todo-list
@@ -206,6 +208,8 @@ npm run dev
 ```
 
 默认情况下，前端服务将运行在 http://localhost:5173
+
+> 🛠️**系统测试账户与密码**: test 123456
 
 ## <span id="后端接口调试方法">后端接口调试方法</span>
 
