@@ -182,19 +182,29 @@ mysql -u root -p simple_todo_list < init.sql
 
 2. **启动后端服务**
 
+后端服务需要配置数据库连接信息，可以通过环境变量进行配置：
+
 ```bash
 # 进入后端目录
 cd back-end
 
-# 使用 Maven Wrapper 启动后端服务
+# 使用 Maven Wrapper 启动后端服务（需要设置环境变量）
+STDL_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver \
+STDL_DATASOURCE_HOST=localhost \
+STDL_DATASOURCE_PORT=3306 \
+STDL_DATASOURCE_DATABASE=simple_todo_list \
+#你的数据库用户名
+STDL_DATASOURCE_USERNAME=root \ 
+#你的数据库密码
+STDL_DATASOURCE_PASSWORD=12345678 \
 ./mvnw spring-boot:run
 ```
 
+也可以通过修改 `back-end/src/main/resources/application.yml` 文件来配置数据库连接信息。
+
 默认情况下，后端服务将运行在 http://localhost:8088
 
-> ⚠️ 注意：后端服务的数据库连接配置在 **application.yml** 文件中，请根据实际情况修改数据库连接信息。
-
-1. **启动前端服务**
+3. **启动前端服务**
 
 ```bash
 # 进入前端目录
