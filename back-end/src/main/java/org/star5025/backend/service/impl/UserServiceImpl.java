@@ -20,15 +20,6 @@ public class UserServiceImpl implements UserService {
     private UserMapper userMapper;
 
     /**
-     * 查询所有用户，测试用
-     * @return
-     */
-    @Override
-    public List<User> getAllUserTest() {
-        return userMapper.getAllUsers();
-    }
-
-    /**
      * 用户注册
      * @param userDTO
      */

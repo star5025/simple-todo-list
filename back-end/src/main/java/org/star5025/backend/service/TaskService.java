@@ -10,11 +10,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface TaskService {
-    /**
-     * 查询所有任务，测试用
-     * @return
-     */
-    List<Task> getAllTaskTest();
 
     /**
      * 新增任务

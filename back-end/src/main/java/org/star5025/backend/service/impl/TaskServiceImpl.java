@@ -38,15 +38,6 @@ public class TaskServiceImpl implements TaskService {
     private UserService userService;
 
     /**
-     * 查询所有任务，测试用
-     * @return
-     */
-    @Override
-    public List<Task> getAllTaskTest() {
-        return taskMapper.getAll();
-    }
-
-    /**
      * 新增任务
      * @param taskDTO
      */

@@ -30,12 +30,6 @@ public class TaskController {
     @Autowired
     private UserService userService;
 
-//    @ApiOperation("全部任务查询接口")
-//    @GetMapping("/all")
-//    public List<Task> getAllTaskTest() {
-//        return taskService.getAllTaskTest();
-//    }
-
     /**
      * 新增任务
      * @param taskDTO

@@ -9,13 +9,6 @@ import java.util.List;
 public interface UserMapper {
 
     /**
-     * 查询所有用户，测试用
-     * @return
-     */
-    @Select("select * from user")
-    List<User> getAllUsers();
-
-    /**
      * 用户注册
      * @param user
      */

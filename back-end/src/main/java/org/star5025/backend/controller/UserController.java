@@ -36,16 +36,6 @@ public class UserController {
     private JwtProperties jwtProperties;
 
     /**
-     * 查询所有用户，测试用
-     * @return
-     */
-    @ApiOperation("全部用户查询接口")
-    @GetMapping("/all")
-    public List<User> getAllUserTest(){
-        return userService.getAllUserTest();
-    }
-
-    /**
      * 用户注册
      * @param userDTO
      */

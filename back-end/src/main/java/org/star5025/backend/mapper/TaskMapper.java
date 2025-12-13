@@ -11,13 +11,6 @@ import java.util.List;
 public interface TaskMapper {
 
     /**
-     * 查询所有任务，测试用
-     * @return
-     */
-    @Select("select * from task")
-    List<Task> getAll();
-
-    /**
      * 新增任务
      * @param task
      */
