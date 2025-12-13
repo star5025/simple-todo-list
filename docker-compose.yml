@@ -9,7 +9,7 @@ services:
       MYSQL_ROOT_PASSWORD: "12345678"
       MYSQL_DATABASE: simple_todo_list
     ports:
-      - "3306:3306"
+      - "3307:3306"  # 修改为主机端口为3307，避免与本地MySQL冲突
     volumes:
       - mysql_data:/var/lib/mysql
       - ./back-end/src/main/resources/db:/docker-entrypoint-initdb.d
@@ -39,6 +39,8 @@ services:
   frontend:
     build: ./front-end
     container_name: todo-frontend
+    environment:
+      - VITE_BACKEND_URL=http://backend:8088  # 设置后端服务URL
     ports:
       - "5173:5173"
     depends_on:
