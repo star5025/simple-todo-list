@@ -11,8 +11,24 @@
             <div class="username-container" @click="goToUserInfo">
                 <el-text class="clickable-username">{{ displayedUserName }}</el-text>
             </div>
+            <div class="language-selector">
+                <el-dropdown @command="switchLanguage">
+                    <el-button type="primary" plain>
+                        {{ currentLanguage === 'zh-CN' ? '中文' : 'English' }}
+                        <el-icon class="el-icon--right">
+                            <arrow-down />
+                        </el-icon>
+                    </el-button>
+                    <template #dropdown>
+                        <el-dropdown-menu>
+                            <el-dropdown-item command="zh-CN">中文</el-dropdown-item>
+                            <el-dropdown-item command="en-US">English</el-dropdown-item>
+                        </el-dropdown-menu>
+                    </template>
+                </el-dropdown>
+            </div>
             <div class="button-container">
-                <el-button type="primary" plain @click="handleLogout">登出</el-button>
+                <el-button type="primary" plain @click="handleLogout">{{ t('header.logout') }}</el-button>
             </div>
         </div>
     </el-header>
@@ -21,10 +37,14 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { ArrowDown } from '@element-plus/icons-vue'
 import { clearUserInfoCache } from '@/utils/user'
+import { useI18n } from 'vue-i18n'
 
+const { t, locale } = useI18n()
 const router = useRouter()
 const displayedUserName = ref('')
+const currentLanguage = ref(localStorage.getItem('locale') || 'zh-CN')
 
 // 从localStorage获取用户名
 const getUserName = () => {
@@ -47,6 +67,13 @@ const handleUsernameUpdate = (event) => {
 // 跳转到用户信息页面
 const goToUserInfo = () => {
   router.push('/home/userinfo')
+}
+
+// 切换语言
+const switchLanguage = (lang) => {
+  locale.value = lang
+  currentLanguage.value = lang
+  localStorage.setItem('locale', lang)
 }
 
 const handleLogout = () => {
@@ -91,7 +118,7 @@ onUnmounted(() => {
     flex: 1;
 }
 
-.avatar-container, .username-container, .button-container {
+.avatar-container, .username-container, .language-selector, .button-container {
     margin-left: 15px;
 }
 

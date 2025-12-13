@@ -3,11 +3,10 @@
   <el-footer class="footer">
     <div class="footer-content">
       <div class="container version-container">
-        <el-text type="info" size="small">版本: test</el-text>
+        <el-text type="info" size="large">v0.2</el-text>
       </div>
       
       <div class="container authors-container">
-        <el-text type="info" size="small">作者: </el-text>
         <div class="avatar-container">
           <el-avatar 
             src="https://www.github.com/star5025.png" 

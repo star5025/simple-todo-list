@@ -10,7 +10,7 @@
         <div class="home-content">
           <router-view v-slot="{ Component }">
             <transition name="el-fade-in" mode="out-in">
-              <component :is="Component" />
+              <component :is="Component" :key="$route.fullPath" v-if="Component" />
             </transition>
           </router-view>
         </div>
@@ -170,7 +170,7 @@ watch(route, (newRoute) => {
     // 当切换到TodoList页面时，触发一次筛选以确保显示最新数据
     // 这里我们不重置筛选条件，而是保持当前的筛选状态
   }
-}, { immediate: true });
+});
 
 // 组件挂载时检查提醒
 onMounted(() => {

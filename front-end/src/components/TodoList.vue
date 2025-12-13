@@ -1,112 +1,59 @@
 <template>
-  <transition name="el-zoom-in-top" appear>
-    <div class="todo-list-container">
-      <el-card class="todo-list-card">
-        <template #header>
-          <div class="card-header">
-            <div class="header-left">
-              <el-switch
-                v-model="showDateGroups"
-                :active-text="showDateGroups ? '显示日期' : '隐藏日期'"
-                inactive-text=""
-                @change="handleDateGroupToggle"
-              />
-            </div>
-            <div class="header-right">
-              <el-button 
-                v-if="!batchMode"
-                type="danger" 
-                :icon="Delete" 
-                @click="toggleBatchMode"
-              >
-                批量删除
-              </el-button>
-              <el-button 
-                v-else
-                type="danger" 
-                :icon="DeleteFilled" 
-                @click="toggleBatchMode"
-              >
-                退出
-              </el-button>
-            </div>
+  <div class="todo-list-container">
+    <el-card class="todo-list-card">
+      <template #header>
+        <div class="card-header">
+          <div class="header-left">
+            <el-switch
+              v-model="showDateGroups"
+              :active-text="showDateGroups ? t('todoList.showDate') : t('todoList.hideDate')"
+              inactive-text=""
+              @change="handleDateGroupToggle"
+            />
           </div>
-        </template>
-        
-        <div v-if="loading" class="loading-container">
-          <el-skeleton :rows="5" animated />
-        </div>
-        
-        <div v-else-if="todos.length === 0" class="empty-container">
-          <el-empty description="暂无待办事项" />
-        </div>
-        
-        <div v-else>
-          <!-- 按日期分组显示待办事项 -->
-          <template v-if="showDateGroups">
-            <div 
-              v-for="(group, date) in groupedTodos" 
-              :key="date" 
-              class="date-group"
+          <div class="header-right">
+            <el-button 
+              v-if="!batchMode"
+              type="danger" 
+              :icon="Delete" 
+              @click="toggleBatchMode"
             >
-              <div class="date-header">
-                <el-text size="large" class="date-title">{{ formatDateHeader(date) }}</el-text>
-              </div>
-              
-              <div 
-                v-for="todo in group" 
-                :key="todo.taskId" 
-                class="todo-item"
-                :class="{ 'completed': todo.status, 'selected': batchMode && selectedTodoIds.includes(todo.taskId), 'batch-mode': batchMode }"
-                @click="handleTodoClick(todo)"
-              >
-                <div class="todo-info">
-                  <el-checkbox 
-                    v-if="!batchMode"
-                    v-model="todo.status" 
-                    @change="updateTodoStatus(todo)"
-                    @click.stop
-                    class="todo-checkbox"
-                  />
-                  <span 
-                    class="todo-name" 
-                    :class="{ 'completed-text': todo.status }"
-                    >{{ todo.taskName }}</span>
-                </div>
-                
-                <div class="todo-meta">
-                  <el-icon 
-                    v-if="!batchMode"
-                    class="favourite-icon"
-                    :class="{ 'favourited': todo.favourite }"
-                    @click.stop="toggleFavourite(todo)"
-                  >
-                    <Star v-if="!todo.favourite" />
-                    <StarFilled v-else />
-                  </el-icon>
-                  <el-tag 
-                    :type="getCountdownTagType(todo)" 
-                    size="small"
-                    class="countdown-tag"
-                  >
-                    {{ getCountdownText(todo) }}
-                  </el-tag>
-                  <el-icon 
-                    v-if="!batchMode"
-                    class="delete-icon" 
-                    @click.stop="confirmDelete(todo)"
-                  >
-                    <Delete />
-                  </el-icon>
-                </div>
-              </div>
+              {{ t('todoList.batchDelete') }}
+            </el-button>
+            <el-button 
+              v-else
+              type="danger" 
+              :icon="DeleteFilled" 
+              @click="toggleBatchMode"
+            >
+              {{ t('todoList.exit') }}
+            </el-button>
+          </div>
+        </div>
+      </template>
+      
+      <div v-if="loading" class="loading-container">
+        <el-skeleton :rows="5" animated />
+      </div>
+      
+      <div v-else-if="todos.length === 0" class="empty-container">
+        <el-empty :description="t('todoList.noTodos')" />
+      </div>
+      
+      <div v-else>
+        <!-- 按日期分组显示待办事项 -->
+        <template v-if="showDateGroups">
+          <div 
+            v-for="(group, date) in groupedTodos" 
+            :key="date" 
+            class="date-group"
+          >
+            <div class="date-header">
+              <el-text size="large" class="date-title">{{ formatDateHeader(date) }}</el-text>
             </div>
-          </template>
-          
-          <!-- 不按日期分组显示待办事项 -->
-          <template v-else>
+            
             <div 
-              v-for="todo in todos" 
+              v-for="todo in group" 
               :key="todo.taskId" 
               class="todo-item"
               :class="{ 'completed': todo.status, 'selected': batchMode && selectedTodoIds.includes(todo.taskId), 'batch-mode': batchMode }"
@@ -152,34 +99,85 @@
                 </el-icon>
               </div>
             </div>
-          </template>
-        </div>
-        
-        <!-- 批量删除操作栏 -->
-        <div v-if="batchMode && selectedTodoIds.length > 0" class="batch-action-bar">
-          <div class="batch-info">
-            已选择 {{ selectedTodoIds.length }} 项
           </div>
-          <div class="batch-actions">
-            <el-button type="danger" @click="confirmBatchDelete">删除</el-button>
-            <el-button @click="cancelBatchMode">取消</el-button>
-          </div>
-        </div>
+        </template>
         
-        <div v-if="total > 0" class="pagination-container">
-          <el-pagination
-            v-model:current-page="currentPage"
-            v-model:page-size="pageSize"
-            :page-sizes="[10, 20, 50]"
-            :total="total"
-            layout="total, sizes, prev, pager, next, jumper"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-          />
+        <!-- 不按日期分组显示待办事项 -->
+        <template v-else>
+          <div 
+            v-for="todo in todos" 
+            :key="todo.taskId" 
+            class="todo-item"
+            :class="{ 'completed': todo.status, 'selected': batchMode && selectedTodoIds.includes(todo.taskId), 'batch-mode': batchMode }"
+            @click="handleTodoClick(todo)"
+          >
+            <div class="todo-info">
+              <el-checkbox 
+                v-if="!batchMode"
+                v-model="todo.status" 
+                @change="updateTodoStatus(todo)"
+                @click.stop
+                class="todo-checkbox"
+              />
+              <span 
+                class="todo-name" 
+                :class="{ 'completed-text': todo.status }"
+                >{{ todo.taskName }}</span>
+            </div>
+            
+            <div class="todo-meta">
+              <el-icon 
+                v-if="!batchMode"
+                class="favourite-icon"
+                :class="{ 'favourited': todo.favourite }"
+                @click.stop="toggleFavourite(todo)"
+              >
+                <Star v-if="!todo.favourite" />
+                <StarFilled v-else />
+              </el-icon>
+              <el-tag 
+                :type="getCountdownTagType(todo)" 
+                size="small"
+                class="countdown-tag"
+              >
+                {{ getCountdownText(todo) }}
+              </el-tag>
+              <el-icon 
+                v-if="!batchMode"
+                class="delete-icon" 
+                @click.stop="confirmDelete(todo)"
+              >
+                <Delete />
+              </el-icon>
+            </div>
+          </div>
+        </template>
+      </div>
+      
+      <!-- 批量删除操作栏 -->
+      <div v-if="batchMode && selectedTodoIds.length > 0" class="batch-action-bar">
+        <div class="batch-info">
+          {{ t('todoList.selectedItems', [selectedTodoIds.length]) }}
         </div>
-      </el-card>
-    </div>
-  </transition>
+        <div class="batch-actions">
+          <el-button type="danger" @click="confirmBatchDelete">{{ t('todoList.delete') }}</el-button>
+          <el-button @click="cancelBatchMode">{{ t('todoList.cancel') }}</el-button>
+        </div>
+      </div>
+      
+      <div v-if="total > 0" class="pagination-container">
+        <el-pagination
+          v-model:current-page="currentPage"
+          v-model:page-size="pageSize"
+          :page-sizes="[10, 20, 50]"
+          :total="total"
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
+    </el-card>
+  </div>
 </template>
 
 <script setup>
@@ -188,7 +186,9 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/utils/request'
 import { Delete, DeleteFilled, Star, StarFilled } from '@element-plus/icons-vue'
+import { useI18n } from 'vue-i18n'
 
+const { t, locale } = useI18n()
 const router = useRouter()
 const route = useRoute()
 
@@ -276,7 +276,7 @@ const groupedTodos = computed(() => {
       groups[timeStr].push(todo)
     } else {
       // 如果没有有效的时间值，归入"未指定"组
-      const unspecifiedGroup = '未指定'
+      const unspecifiedGroup = t('todoList.unspecifiedDate')
       if (!groups[unspecifiedGroup]) {
         groups[unspecifiedGroup] = []
       }
@@ -290,8 +290,8 @@ const groupedTodos = computed(() => {
 // 格式化日期标题
 const formatDateHeader = (dateStr) => {
   // 处理"未指定"组
-  if (dateStr === '未指定') {
-    return '未指定日期'
+  if (dateStr === t('todoList.unspecifiedDate')) {
+    return t('todoList.unspecifiedDate')
   }
   
   const date = new Date(dateStr)
@@ -305,14 +305,25 @@ const formatDateHeader = (dateStr) => {
   const tomorrowStr = tomorrow.toISOString().split('T')[0]
   
   if (formattedDate === todayStr) {
-    return '今天'
+    return t('todoList.today')
   } else if (formattedDate === tomorrowStr) {
-    return '明天'
+    return t('todoList.tomorrow')
   } else {
-    // 显示为 "11月15日" 格式
-    const month = date.getMonth() + 1
-    const day = date.getDate()
-    return `${month}月${day}日`
+    // 根据当前语言显示不同格式
+    const currentLocale = locale.value;
+    if (currentLocale === 'zh-CN') {
+      // 中文格式: "1月30日"
+      const month = date.getMonth() + 1
+      const day = date.getDate()
+      return t('todoList.monthsLater', [month, day])
+    } else {
+      // 英文格式: "Jan 30"
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                         'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+      const month = monthNames[date.getMonth()]
+      const day = date.getDate()
+      return `${month} ${day}`
+    }
   }
 }
 
@@ -476,11 +487,11 @@ const fetchTodos = async (filters = {}) => {
         console.log('第一条待办事项:', records[0])
       }
     } else {
-      ElMessage.error(response.msg || '获取待办列表失败')
+      ElMessage.error(response.msg || t('todoList.fetchFailed'))
     }
   } catch (error) {
     console.error('获取待办列表失败:', error)
-    ElMessage.error('获取待办列表失败: ' + error.message)
+    ElMessage.error(t('todoList.fetchFailed') + ': ' + error.message)
   } finally {
     loading.value = false
   }
@@ -491,7 +502,7 @@ const updateTodoStatus = async (todo) => {
   // 如果待办事项已经完成，则不允许再标记为未完成
   if (!todo.status) {
     // 从已完成标记为未完成的情况，直接拒绝
-    ElMessage.warning('已完成的待办事项不能标记为未完成')
+    ElMessage.warning(t('todoList.cannotUncomplete'))
     // 恢复状态
     todo.status = true
     return
@@ -500,11 +511,11 @@ const updateTodoStatus = async (todo) => {
   // 待办事项从未完成标记为完成的情况
   try {
     await ElMessageBox.confirm(
-      `确定要完成待办事项 "${todo.taskName}" 吗？`,
-      '完成确认',
+      t('todoList.confirmComplete', [todo.taskName]),
+      t('todoList.completeConfirmation'),
       {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+        confirmButtonText: t('todoList.confirm'),
+        cancelButtonText: t('todoList.cancel'),
         type: 'warning',
       }
     );
@@ -515,16 +526,16 @@ const updateTodoStatus = async (todo) => {
     })
     
     if (response.code === 1) {
-      ElMessage.success('已完成待办')
+      ElMessage.success(t('todoList.taskCompleted'))
     } else {
       // 恢复状态
       todo.status = false
-      ElMessage.error(response.msg || '更新状态失败')
+      ElMessage.error(response.msg || t('todoList.statusUpdateFailed'))
     }
   } catch (error) {
     // 用户取消操作或请求失败，恢复状态
     if (error !== 'cancel' && error !== 'close') {
-      ElMessage.error('更新状态失败')
+      ElMessage.error(t('todoList.statusUpdateFailed'))
     }
     todo.status = false
   }
@@ -534,10 +545,10 @@ const updateTodoStatus = async (todo) => {
 const getCountdownText = (todo) => {
   // 如果待办事项已完成，直接显示"已完成"
   if (todo.status) {
-    return '已完成'
+    return t('todoList.completed')
   }
   
-  if (!todo.dueTime) return '无截止时间'
+  if (!todo.dueTime) return t('todoList.noDueTime')
   
   const now = new Date()
   const dueDate = new Date(todo.dueTime)
@@ -545,13 +556,13 @@ const getCountdownText = (todo) => {
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
   
   if (diffTime < 0) {
-    return `已过期 ${Math.abs(diffDays)} 天`
+    return t('todoList.daysOverdue', [Math.abs(diffDays)])
   } else if (diffDays === 0) {
-    return '今天到期'
+    return t('todoList.dueToday')
   } else if (diffDays === 1) {
-    return '明天到期'
+    return t('todoList.dueTomorrow')
   } else {
-    return `${diffDays} 天后到期`
+    return t('todoList.daysUntilDue', [diffDays])
   }
 }
 
@@ -614,11 +625,11 @@ const goToDetail = (taskId) => {
 // 确认删除
 const confirmDelete = (todo) => {
   ElMessageBox.confirm(
-    `确定要删除待办事项 "${todo.taskName}" 吗？此操作无法撤销。`,
-    '删除确认',
+    t('todoList.confirmDelete', [todo.taskName]),
+    t('todoList.deleteConfirmation'),
     {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+      confirmButtonText: t('todoList.confirm'),
+      cancelButtonText: t('todoList.cancel'),
       type: 'warning',
     }
   ).then(() => {
@@ -631,16 +642,16 @@ const confirmDelete = (todo) => {
 // 确认批量删除
 const confirmBatchDelete = () => {
   if (selectedTodoIds.value.length === 0) {
-    ElMessage.warning('请先选择要删除的待办事项')
+    ElMessage.warning(t('todoList.selectTodosFirst'))
     return
   }
 
   ElMessageBox.confirm(
-    `确定要删除选中的 ${selectedTodoIds.value.length} 个待办事项吗？此操作无法撤销。`,
-    '批量删除确认',
+    t('todoList.confirmBatchDelete', [selectedTodoIds.value.length]),
+    t('todoList.batchDeleteConfirmation'),
     {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+      confirmButtonText: t('todoList.confirm'),
+      cancelButtonText: t('todoList.cancel'),
       type: 'warning',
     }
   ).then(() => {
@@ -656,7 +667,7 @@ const deleteTodo = async (todo) => {
     const response = await request.delete(`/task/${todo.taskId}`)
     
     if (response.code === 1) {
-      ElMessage.success('删除成功')
+      ElMessage.success(t('todoList.deleteSuccess'))
       // 从列表中移除已删除的待办项
       const index = todos.value.findIndex(item => item.taskId === todo.taskId)
       if (index > -1) {
@@ -665,17 +676,17 @@ const deleteTodo = async (todo) => {
       // 更新总数
       total.value -= 1
     } else {
-      ElMessage.error(response.msg || '删除失败')
+      ElMessage.error(response.msg || t('todoList.deleteFailed'))
     }
   } catch (error) {
-    ElMessage.error('删除失败')
+    ElMessage.error(t('todoList.deleteFailed'))
   }
 }
 
 // 批量删除待办项
 const batchDeleteTodos = async () => {
   if (selectedTodoIds.value.length === 0) {
-    ElMessage.warning('请先选择要删除的待办事项')
+    ElMessage.warning(t('todoList.selectTodosFirst'))
     return
   }
 
@@ -685,7 +696,7 @@ const batchDeleteTodos = async () => {
     })
 
     if (response.code === 1) {
-      ElMessage.success('批量删除成功')
+      ElMessage.success(t('todoList.batchDeleteSuccess'))
       // 清空选中项
       selectedTodoIds.value = []
       // 退出批量模式
@@ -695,10 +706,10 @@ const batchDeleteTodos = async () => {
       // 重新获取数据
       fetchTodos(defaultFilterParams.value)
     } else {
-      ElMessage.error(response.msg || '批量删除失败')
+      ElMessage.error(response.msg || t('todoList.batchDeleteFailed'))
     }
   } catch (error) {
-    ElMessage.error('批量删除失败')
+    ElMessage.error(t('todoList.batchDeleteFailed'))
   }
 }
 
@@ -722,15 +733,15 @@ const toggleFavourite = async (todo) => {
       
       // 根据操作类型显示不同的提示信息
       if (newFavouriteStatus) {
-        ElMessage.success('已添加到收藏');
+        ElMessage.success(t('todoList.addedToFavorites'));
       } else {
-        ElMessage.success('已取消收藏');
+        ElMessage.success(t('todoList.removedFromFavorites'));
       }
     } else {
-      ElMessage.error(response.msg || '操作失败');
+      ElMessage.error(response.msg || t('todoList.favoriteOperationFailed'));
     }
   } catch (error) {
-    ElMessage.error('操作失败: ' + error.message);
+    ElMessage.error(t('todoList.favoriteOperationFailed') + ': ' + error.message);
   }
 };
 
@@ -761,15 +772,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* 缩短过渡动画时间 */
-.el-zoom-in-top-enter-active {
-  transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1) !important;
-}
-
-.el-zoom-in-top-leave-active {
-  transition: all 0.15s cubic-bezier(0.755, 0.05, 0.855, 0.06) !important;
-}
-
 .todo-list-container {
   width: 100%;
 }

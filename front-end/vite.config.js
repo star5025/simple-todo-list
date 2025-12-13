@@ -17,6 +17,7 @@ export default defineConfig({
   },
   server: {
     host: '0.0.0.0',
+    port: 5173,
     proxy: {
       // 根据环境变量决定代理目标，如果没有设置则默认使用 localhost（适合本地开发）
       '/api': {

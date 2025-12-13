@@ -4,33 +4,47 @@
       <template #header>
         <div class="card-header">
           <el-text type="primary">
-            Simple Todo List
+            {{ $t('register.title') }}
           </el-text>
         </div>
       </template>
+      <div class="language-switch">
+        <el-select 
+          v-model="currentLocale" 
+          @change="changeLanguage"
+          size="small"
+        >
+          <el-option 
+            v-for="locale in locales" 
+            :key="locale.value" 
+            :label="locale.label" 
+            :value="locale.value"
+          />
+        </el-select>
+      </div>
       <el-form class="register-form" label-position="left" :label-width="80" @keyup.enter="handleRegister">
-        <el-form-item label="用户名">
+        <el-form-item :label="$t('register.username')">
           <el-input 
             v-model="registerForm.userName"
-            placeholder="请输入用户名"
+            :placeholder="$t('register.username')"
             clearable
             class="register-input"
           />
         </el-form-item>
-        <el-form-item label="密码">
+        <el-form-item :label="$t('register.password')">
           <el-input 
             v-model="registerForm.userPassword"
             type="password"
-            placeholder="请输入密码"
+            :placeholder="$t('register.password')"
             show-password
             class="register-input"
           />
         </el-form-item>
-        <el-form-item label="确认密码">
+        <el-form-item :label="$t('register.confirmPassword')">
           <el-input 
             v-model="registerForm.confirmPassword"
             type="password"
-            placeholder="请再次输入密码"
+            :placeholder="$t('register.confirmPassword')"
             show-password
             class="register-input"
           />
@@ -41,18 +55,18 @@
             class="register-button"
             @click="handleRegister"
           >
-            注册
+            {{ $t('register.registerButton') }}
           </el-button>
         </el-form-item>
       </el-form>
       <div class="login-link">
-        <el-text>已有账号？</el-text>
+        <el-text>{{ $t('register.hasAccount') }}</el-text>
         <el-button 
           type="primary" 
           link
           @click="goToLogin"
         >
-          立即登录
+          {{ $t('register.loginNow') }}
         </el-button>
       </div>
     </el-card>
@@ -64,6 +78,9 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import request from '@/utils/request'
 import { ElMessage } from 'element-plus'
+import { useI18n } from 'vue-i18n'
+
+const { locale } = useI18n()
 
 const registerForm = ref({
   userName: '',
@@ -72,6 +89,18 @@ const registerForm = ref({
 })
 
 const router = useRouter()
+
+// 语言切换相关
+const currentLocale = ref(localStorage.getItem('locale') || 'zh-CN')
+const locales = ref([
+  { label: '中文', value: 'zh-CN' },
+  { label: 'English', value: 'en-US' }
+])
+
+const changeLanguage = (newLocale) => {
+  locale.value = newLocale
+  localStorage.setItem('locale', newLocale)
+}
 
 const handleRegister = async () => {
   // 表单验证
@@ -131,6 +160,7 @@ const goToLogin = () => {
   border-radius: 8px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease-in-out;
+  position: relative;
 }
 
 .register-card:hover {
@@ -142,6 +172,12 @@ const goToLogin = () => {
   text-align: center;
   font-size: 18px;
   font-weight: bold;
+}
+
+.language-switch {
+  position: absolute;
+  top: 15px;
+  right: 15px;
 }
 
 .register-form {

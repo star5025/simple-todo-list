@@ -8,7 +8,7 @@
           @click="handleAddTodo"
         >
           <el-icon><Plus /></el-icon>
-          新增待办
+          {{ t('sidebar.addTodo') }}
         </button>
       </div>
       
@@ -19,7 +19,7 @@
           @click="handleUserInfo"
         >
           <el-icon><User /></el-icon>
-          个人信息
+          {{ t('sidebar.userInfo') }}
         </button>
       </div>
       
@@ -28,7 +28,7 @@
         <template #header>
           <div class="favourite-header">
             <el-icon><Star /></el-icon>
-            <span>我的收藏</span>
+            <span>{{ t('sidebar.favourites') }}</span>
           </div>
         </template>
         
@@ -38,7 +38,7 @@
           </div>
           
           <div v-else-if="favouriteTodos.length === 0" class="empty-container">
-            <el-text size="small" type="info">暂无收藏的待办</el-text>
+            <el-text size="small" type="info">{{ t('sidebar.noFavourites') }}</el-text>
           </div>
           
           <div v-else class="favourite-list">
@@ -62,14 +62,14 @@
         <template #header>
           <div class="filter-header">
             <el-icon><Filter /></el-icon>
-            <span>筛选待办</span>
+            <span>{{ t('sidebar.filters') }}</span>
           </div>
         </template>
         
         <div class="filter-content">
           <!-- 时间排序筛选 -->
           <div class="filter-group">
-            <el-text class="filter-group-label" size="small">时间排序</el-text>
+            <el-text class="filter-group-label" size="small">{{ t('sidebar.sortBy') }}</el-text>
             <div class="filter-buttons">
               <button 
                 :class="[
@@ -79,7 +79,7 @@
                 ]"
                 @click="setTimeFilter('dueTime')"
               >
-                截止时间
+                {{ t('sidebar.dueTime') }}
                 <el-icon v-if="timeFilter.field === 'dueTime'">
                   <ArrowUp v-if="timeFilter.order === 'asc' && timeFilter.field === 'dueTime'" />
                   <ArrowDown v-else-if="timeFilter.order === 'desc' && timeFilter.field === 'dueTime'" />
@@ -94,7 +94,7 @@
                 ]"
                 @click="setTimeFilter('createdTime')"
               >
-                创建时间
+                {{ t('sidebar.createdTime') }}
                 <el-icon v-if="timeFilter.field === 'createdTime'">
                   <ArrowUp v-if="timeFilter.order === 'asc' && timeFilter.field === 'createdTime'" />
                   <ArrowDown v-else-if="timeFilter.order === 'desc' && timeFilter.field === 'createdTime'" />
@@ -109,7 +109,7 @@
                 ]"
                 @click="setTimeFilter('startTime')"
               >
-                开始时间
+                {{ t('sidebar.startTime') }}
                 <el-icon v-if="timeFilter.field === 'startTime'">
                   <ArrowUp v-if="timeFilter.order === 'asc' && timeFilter.field === 'startTime'" />
                   <ArrowDown v-else-if="timeFilter.order === 'desc' && timeFilter.field === 'startTime'" />
@@ -120,7 +120,7 @@
           
           <!-- 完成状态筛选 -->
           <div class="filter-group">
-            <el-text class="filter-group-label" size="small">完成状态</el-text>
+            <el-text class="filter-group-label" size="small">{{ t('sidebar.status') }}</el-text>
             <div class="filter-buttons">
               <button 
                 :class="[
@@ -130,7 +130,7 @@
                 ]"
                 @click="setStatusFilter(null)"
               >
-                全部
+                {{ t('sidebar.all') }}
               </button>
               
               <button 
@@ -141,7 +141,7 @@
                 ]"
                 @click="setStatusFilter(false)"
               >
-                未完成
+                {{ t('sidebar.pending') }}
               </button>
               
               <button 
@@ -152,7 +152,7 @@
                 ]"
                 @click="setStatusFilter(true)"
               >
-                已完成
+                {{ t('sidebar.completed') }}
               </button>
             </div>
           </div>
@@ -175,8 +175,10 @@ import {
   Star
 } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 import request from '@/utils/request'
 
+const { t } = useI18n()
 const router = useRouter()
 
 // 注入更新筛选条件的方法
@@ -335,7 +337,7 @@ const handleFavouriteChange = (event) => {
 
 // 组件挂载时应用一次筛选条件并获取收藏待办
 onMounted(() => {
-  applyFilters()
+  // 移除了自动应用筛选条件的代码，改为只获取收藏待办
   fetchFavouriteTodos()
   
   // 监听收藏状态变化事件

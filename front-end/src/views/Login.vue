@@ -4,31 +4,45 @@
       <template #header>
         <div class="card-header">
           <el-text type="primary">
-            Simple Todo List
+            {{ $t('login.title') }}
           </el-text>
         </div>
       </template>
+      <div class="language-switch">
+        <el-select 
+          v-model="currentLocale" 
+          @change="changeLanguage"
+          size="small"
+        >
+          <el-option 
+            v-for="locale in locales" 
+            :key="locale.value" 
+            :label="locale.label" 
+            :value="locale.value"
+          />
+        </el-select>
+      </div>
       <el-form class="login-form" label-position="left" :label-width="80" @keyup.enter="handleLogin">
-        <el-form-item label="用户名">
-          <el-input v-model="loginForm.userName" placeholder="请输入用户名" clearable class="login-input" />
+        <el-form-item :label="$t('login.username')">
+          <el-input v-model="loginForm.userName" :placeholder="$t('login.username')" clearable class="login-input" />
         </el-form-item>
-        <el-form-item label="密码">
-          <el-input v-model="loginForm.userPassword" type="password" placeholder="请输入密码" show-password
+        <el-form-item :label="$t('login.password')">
+          <el-input v-model="loginForm.userPassword" type="password" :placeholder="$t('login.password')" show-password
             class="login-input" />
         </el-form-item>
         <el-form-item>
-          <el-checkbox v-model="rememberMe" @change="handleRememberMeChange">记住我</el-checkbox>
+          <el-checkbox v-model="rememberMe" @change="handleRememberMeChange">{{ $t('login.rememberMe') }}</el-checkbox>
         </el-form-item>
         <el-form-item class="button-form-item">
           <el-button type="primary" class="login-button" @click="handleLogin">
-            登录
+            {{ $t('login.loginButton') }}
           </el-button>
         </el-form-item>
       </el-form>
       <div class="register-link">
-        <el-text>还没有账号？</el-text>
+        <el-text>{{ $t('login.noAccount') }}</el-text>
         <el-button type="primary" link @click="goToRegister">
-          立即注册
+          {{ $t('login.registerNow') }}
         </el-button>
       </div>
     </el-card>
@@ -41,6 +55,9 @@ import { useRouter } from 'vue-router'
 import request from '@/utils/request'
 import { ElMessage } from 'element-plus'
 import { clearUserInfoCache } from '@/utils/user'
+import { useI18n } from 'vue-i18n'
+
+const { locale } = useI18n()
 
 const loginForm = ref({
   userName: '',
@@ -50,6 +67,18 @@ const loginForm = ref({
 const rememberMe = ref(false)
 
 const router = useRouter()
+
+// 语言切换相关
+const currentLocale = ref(localStorage.getItem('locale') || 'zh-CN')
+const locales = ref([
+  { label: '中文', value: 'zh-CN' },
+  { label: 'English', value: 'en-US' }
+])
+
+const changeLanguage = (newLocale) => {
+  locale.value = newLocale
+  localStorage.setItem('locale', newLocale)
+}
 
 // 页面加载时检查是否有记住的登录信息
 onMounted(() => {
@@ -83,7 +112,17 @@ async function login() {
   localStorage.removeItem('userName')
   
   try {
-    const res = await request.post('/user/login', loginForm.value)
+    // 确保发送的数据格式正确
+    const loginData = {
+      userName: loginForm.value.userName,
+      userPassword: loginForm.value.userPassword
+    };
+    
+    console.log('发送登录请求:', loginData);
+    
+    const res = await request.post('/user/login', loginData)
+    console.log('登录响应:', res);
+    
     // 注意：现在业务逻辑错误不会进入catch块，而是正常返回
     if (res.code === 1) {
       // 如果用户选择了"记住我"，则保存凭据
@@ -166,6 +205,7 @@ const goToRegister = () => {
   border-radius: 8px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease-in-out;
+  position: relative;
 }
 
 .login-card:hover {
@@ -177,6 +217,12 @@ const goToRegister = () => {
   text-align: center;
   font-size: 18px;
   font-weight: bold;
+}
+
+.language-switch {
+  position: absolute;
+  top: 15px;
+  right: 15px;
 }
 
 .login-form {

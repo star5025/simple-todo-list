@@ -1,7 +1,7 @@
 <template>
-  <transition name="el-fade-in-linear" mode="out-in">
-    <div class="todo-detail-container" v-if="!loading && todo">
-      <el-card class="todo-detail-card">
+  <div class="todo-detail-container">
+    <transition name="el-fade-in-linear" mode="out-in">
+      <el-card class="todo-detail-card" v-if="!loading && todo">
         <template #header>
           <div class="card-header">
             <el-button @click="goBack" type="primary" link>
@@ -112,10 +112,8 @@
           </div>
         </div>
       </el-card>
-    </div>
-    
-    <div class="todo-detail-container" v-else-if="loading">
-      <el-card class="todo-detail-card">
+      
+      <el-card class="todo-detail-card" v-else-if="loading">
         <template #header>
           <div class="card-header">
             <el-button @click="goBack" type="primary" link>
@@ -140,10 +138,8 @@
           </el-skeleton>
         </div>
       </el-card>
-    </div>
-    
-    <div class="todo-detail-container" v-else>
-      <el-card class="todo-detail-card">
+      
+      <el-card class="todo-detail-card" v-else>
         <template #header>
           <div class="card-header">
             <el-button @click="goBack" type="primary" link>
@@ -158,8 +154,8 @@
           <el-empty description="未找到待办事项" />
         </div>
       </el-card>
-    </div>
-  </transition>
+    </transition>
+  </div>
 </template>
 
 <script setup>

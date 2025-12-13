@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.star5025.backend.interceptor.JwtTokenInterceptor;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
@@ -23,6 +24,19 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(jwtTokenInterceptor)
                 .addPathPatterns("/api/**") // 需要拦截的路径（如所有/api下的接口）
                 .excludePathPatterns("/api/user/login", "/api/user/register","/api/hello"); // 排除登录/注册接口
+    }
+
+    /**
+     * 配置跨域资源共享（CORS）
+     */
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**") // 允许所有路径
+                .allowedOriginPatterns("*") // 允许所有域名
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 允许的请求方法
+                .allowedHeaders("*") // 允许所有请求头
+                .allowCredentials(true) // 允许携带凭证
+                .maxAge(3600); // 预检请求的有效期（秒）
     }
 
     /**

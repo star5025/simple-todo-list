@@ -1,76 +1,88 @@
 <template>
-  <transition name="el-zoom-in-top" appear>
-    <div class="user-info-container">
+  <div class="user-info-container">
+    <div v-if="!loading">
       <el-card class="user-info-card">
         <template #header>
           <div class="card-header">
-            <span>个人信息</span>
+            <span>{{ t('userInfo.title') }}</span>
           </div>
         </template>
         
-        <div class="user-info-content" v-loading="loading">
+        <div class="user-info-content">
           <div v-if="userInfo" class="user-info-details">
             <div class="info-item">
-              <span class="info-label">用户名:</span>
+              <span class="info-label">{{ t('userInfo.username') }}:</span>
               <span class="info-value">{{ userInfo.userName }}</span>
             </div>
             <div class="info-item">
-              <span class="info-label">注册时间:</span>
+              <span class="info-label">{{ t('userInfo.registrationDate') }}:</span>
               <span class="info-value">{{ formatCreateTime(userInfo.createTime) }}</span>
             </div>
             <div class="info-item">
-              <span class="info-label">创建待办:</span>
-              <span class="info-value">{{ userInfo.taskCount || 0 }} 个</span>
+              <span class="info-label">{{ t('userInfo.taskCount') }}:</span>
+              <span class="info-value">{{ userInfo.taskCount || 0 }} {{ t('addTodo.unit') || '个' }}</span>
             </div>
             
             <!-- 底部操作按钮 -->
             <div class="user-actions">
-              <el-button type="primary" @click="showUsernameDialog">修改用户名</el-button>
-              <el-button type="primary" @click="showPasswordDialog">修改密码</el-button>
+              <el-button type="primary" @click="showUsernameDialog">{{ t('userInfo.editUsername') }}</el-button>
+              <el-button type="primary" @click="showPasswordDialog">{{ t('userInfo.changePassword') }}</el-button>
             </div>
           </div>
           
-          <el-empty v-else description="无法加载用户信息" />
+          <el-empty v-else :description="t('userInfo.unableToLoadUserInfo')" />
         </div>
       </el-card>
     </div>
-  </transition>
+    
+    <div class="loading-container" v-if="loading">
+      <el-skeleton animated>
+        <template #template>
+          <el-skeleton-item variant="text" style="width: 30%; height: 30px; margin-bottom: 20px" />
+          <el-skeleton-item variant="text" style="width: 80%; height: 20px; margin-bottom: 15px" />
+          <el-skeleton-item variant="text" style="width: 60%; height: 20px; margin-bottom: 15px" />
+          <el-skeleton-item variant="text" style="width: 70%; height: 20px; margin-bottom: 20px" />
+          <el-skeleton-item variant="rect" style="width: 200px; height: 40px" />
+        </template>
+      </el-skeleton>
+    </div>
   
   <!-- 修改用户名对话框 -->
-  <el-dialog v-model="usernameDialogVisible" title="修改用户名" width="400px" @keydown.enter="handleUsernameEnter">
+  <el-dialog v-model="usernameDialogVisible" :title="t('userInfo.editUsernameTitle')" width="400px" @keydown.enter="handleUsernameEnter">
     <el-form :model="usernameForm" ref="usernameFormRef" @submit.prevent>
-      <el-form-item label="新用户名" :label-width="80">
+      <el-form-item :label="t('userInfo.newUsername')" :label-width="80">
         <el-input v-model="usernameForm.newUsername" autocomplete="off" ref="usernameInput" />
       </el-form-item>
     </el-form>
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="usernameDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="updateUsername">确认</el-button>
+        <el-button @click="usernameDialogVisible = false">{{ t('userInfo.cancel') }}</el-button>
+        <el-button type="primary" @click="updateUsername">{{ t('userInfo.confirm') }}</el-button>
       </span>
     </template>
   </el-dialog>
   
   <!-- 修改密码对话框 -->
-  <el-dialog v-model="passwordDialogVisible" title="修改密码" width="400px" @keydown.enter="handlePasswordEnter">
+  <el-dialog v-model="passwordDialogVisible" :title="t('userInfo.changePasswordTitle')" width="400px" @keydown.enter="handlePasswordEnter">
     <el-form :model="passwordForm" ref="passwordFormRef" @submit.prevent>
-      <el-form-item label="原密码" :label-width="80">
+      <el-form-item :label="t('userInfo.oldPassword')" :label-width="80">
         <el-input v-model="passwordForm.oldPassword" type="password" show-password autocomplete="off" ref="oldPasswordInput" />
       </el-form-item>
-      <el-form-item label="新密码" :label-width="80">
+      <el-form-item :label="t('userInfo.newPassword')" :label-width="80">
         <el-input v-model="passwordForm.newPassword" type="password" show-password autocomplete="off" />
       </el-form-item>
-      <el-form-item label="确认密码" :label-width="80">
+      <el-form-item :label="t('userInfo.confirmPassword')" :label-width="80">
         <el-input v-model="passwordForm.confirmPassword" type="password" show-password autocomplete="off" />
       </el-form-item>
     </el-form>
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="passwordDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="updatePassword">确认</el-button>
+        <el-button @click="passwordDialogVisible = false">{{ t('userInfo.cancel') }}</el-button>
+        <el-button type="primary" @click="updatePassword">{{ t('userInfo.confirm') }}</el-button>
       </span>
     </template>
   </el-dialog>
+</div>
 </template>
 
 <script setup>
@@ -78,7 +90,9 @@ import { ref, reactive, onMounted, onActivated, onUnmounted, nextTick } from 'vu
 import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/utils/request'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const router = useRouter()
 
 // 用户信息
@@ -203,22 +217,22 @@ const showPasswordDialog = () => {
 // 更新用户名
 const updateUsername = async () => {
   if (!usernameForm.newUsername) {
-    ElMessage.error('用户名不能为空')
+    ElMessage.error(t('userInfo.usernameRequired'))
     return
   }
   
   if (usernameForm.newUsername === userInfo.value.userName) {
-    ElMessage.info('新用户名不能与当前用户名相同')
+    ElMessage.info(t('userInfo.usernameUnchanged'))
     return
   }
   
   try {
     await ElMessageBox.confirm(
-      `确定要将用户名从 "${userInfo.value.userName}" 修改为 "${usernameForm.newUsername}" 吗？`,
-      '确认修改',
+      t('userInfo.confirmUsernameChange', [userInfo.value.userName, usernameForm.newUsername]),
+      t('userInfo.confirmModification'),
       {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+        confirmButtonText: t('userInfo.confirm'),
+        cancelButtonText: t('userInfo.cancel'),
         type: 'warning',
       }
     )
@@ -232,7 +246,7 @@ const updateUsername = async () => {
     const response = await request.put('/user', updateData)
     
     if (response.code === 1) {
-      ElMessage.success('用户名更新成功')
+      ElMessage.success(t('userInfo.usernameUpdated'))
       usernameDialogVisible.value = false
       // 更新本地存储中的用户名
       localStorage.setItem('userName', usernameForm.newUsername)
@@ -241,12 +255,12 @@ const updateUsername = async () => {
       // 重新获取用户信息
       fetchUserInfo()
     } else {
-      ElMessage.error(response.msg || '更新失败')
+      ElMessage.error(response.msg || t('userInfo.updateFailed'))
     }
   } catch (error) {
     // 用户取消操作或请求失败
     if (error !== 'cancel' && error !== 'close') {
-      ElMessage.error('更新失败')
+      ElMessage.error(t('userInfo.updateFailed'))
     }
   }
 }
@@ -254,27 +268,27 @@ const updateUsername = async () => {
 // 更新密码
 const updatePassword = async () => {
   if (!passwordForm.oldPassword || !passwordForm.newPassword) {
-    ElMessage.error('密码不能为空')
+    ElMessage.error(t('userInfo.passwordRequired'))
     return
   }
   
   if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-    ElMessage.error('两次输入的新密码不一致')
+    ElMessage.error(t('userInfo.passwordMismatch'))
     return
   }
   
   if (passwordForm.oldPassword === passwordForm.newPassword) {
-    ElMessage.info('新密码不能与原密码相同')
+    ElMessage.info(t('userInfo.passwordUnchanged'))
     return
   }
   
   try {
     await ElMessageBox.confirm(
-      '确定要修改密码吗？',
-      '确认修改',
+      t('userInfo.confirmPasswordChange'),
+      t('userInfo.confirmModification'),
       {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+        confirmButtonText: t('userInfo.confirm'),
+        cancelButtonText: t('userInfo.cancel'),
         type: 'warning',
       }
     )
@@ -289,15 +303,15 @@ const updatePassword = async () => {
     const response = await request.put('/user', updateData)
     
     if (response.code === 1) {
-      ElMessage.success('密码更新成功')
+      ElMessage.success(t('userInfo.passwordUpdated'))
       passwordDialogVisible.value = false
     } else {
-      ElMessage.error(response.msg || '更新失败')
+      ElMessage.error(response.msg || t('userInfo.updateFailed'))
     }
   } catch (error) {
     // 用户取消操作或请求失败
     if (error !== 'cancel' && error !== 'close') {
-      ElMessage.error('更新失败')
+      ElMessage.error(t('userInfo.updateFailed'))
     }
   }
 }
@@ -315,15 +329,6 @@ onActivated(() => {
 </script>
 
 <style scoped>
-/* 缩短过渡动画时间 */
-.el-zoom-in-top-enter-active {
-  transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1) !important;
-}
-
-.el-zoom-in-top-leave-active {
-  transition: all 0.15s cubic-bezier(0.755, 0.05, 0.855, 0.06) !important;
-}
-
 .user-info-container {
   width: 100%;
 }
