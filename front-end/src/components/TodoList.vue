@@ -520,7 +520,7 @@ const updateTodoStatus = async (todo) => {
       }
     );
     
-    // 用户确认后执行状态更新
+    // 用户确认后执行状态更新，只发送状态字段
     const response = await request.patch(`/task/${todo.taskId}`, {
       status: todo.status
     })
@@ -718,6 +718,7 @@ const toggleFavourite = async (todo) => {
   try {
     const newFavouriteStatus = !todo.favourite;
     
+    // 只发送收藏状态字段
     const response = await request.patch(`/task/${todo.taskId}`, {
       favourite: newFavouriteStatus
     });

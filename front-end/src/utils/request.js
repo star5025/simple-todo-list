@@ -14,8 +14,10 @@ service.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token')
         if (token) {
-            // 根据测试结果，后端期望的是token头部而不是Authorization
-            config.headers.token = token
+            // 确保token被正确添加到请求头中
+            config.headers['token'] = token
+        } else {
+            console.warn('No token found in localStorage')
         }
         return config
     },
@@ -46,13 +48,13 @@ service.interceptors.response.use(
             return res
         }
     },
-    // 第二部分：HTTP 非 200 响应（处理 HTTP 状态码 401/404/500 等）
+    // 第二部分：HTTP 非 200 响应（处理 HTTP 状态码 401/403/404/500 等）
     (error) => {
         let errMsg = '请求失败'
         if (error.message.includes('timeout')) {
             errMsg = '请求超时，请稍后重试'
         } else if (error.response) {
-            // 关键修改：新增 HTTP 401 状态码处理
+            // 关键修改：新增 HTTP 状态码处理
             switch (error.response.status) {
                 case 401: // 处理 HTTP 401（后端直接返回 401 状态码）
                     errMsg = '登录已过期，请重新登录'
@@ -60,6 +62,10 @@ service.interceptors.response.use(
                     localStorage.removeItem('userId')
                     localStorage.removeItem('userName')
                     if (router) router.replace('/login') // 跳转登录页
+                    break
+                case 403: // 处理 HTTP 403 状态码
+                    errMsg = '权限不足，无法执行该操作'
+                    // 可以考虑重新登录或者提示用户权限问题
                     break
                 case 404:
                     errMsg = '请求的接口不存在'

@@ -6,9 +6,9 @@
           <div class="card-header">
             <el-button @click="goBack" type="primary" link>
               <el-icon><ArrowLeft /></el-icon>
-              返回
+              {{ t('todoDetail.back') }}
             </el-button>
-            <div class="header-title">{{ isEditing ? '编辑待办' : '待办详情' }}</div>
+            <div class="header-title">{{ isEditing ? t('todoDetail.editTodo') : t('todoDetail.todoDetails') }}</div>
             <div class="header-actions">
               <el-button 
                 v-if="!isEditing" 
@@ -16,7 +16,7 @@
                 type="primary" 
                 link
               >
-                编辑
+                {{ t('todoDetail.edit') }}
               </el-button>
               <el-button 
                 v-else 
@@ -24,7 +24,7 @@
                 type="primary" 
                 link
               >
-                保存
+                {{ t('todoDetail.save') }}
               </el-button>
             </div>
           </div>
@@ -34,7 +34,7 @@
           <div class="todo-basic-info">
             <div class="todo-status">
               <el-tag :type="todo.status ? 'success' : 'info'">
-                {{ todo.status ? '已完成' : '未完成' }}
+                {{ todo.status ? t('todoDetail.completed') : t('todoDetail.incomplete') }}
               </el-tag>
             </div>
             
@@ -43,18 +43,18 @@
               v-else
               v-model="editForm.taskName" 
               class="todo-title-input"
-              placeholder="请输入待办事项名称"
+              :placeholder="t('todoDetail.enterTaskName')"
             />
             
             <div v-if="todo.description || isEditing" class="todo-description">
-              <h3>描述</h3>
+              <h3>{{ t('todoDetail.description') }}</h3>
               <p v-if="!isEditing">{{ todo.description }}</p>
               <el-input 
                 v-else
                 v-model="editForm.description" 
                 type="textarea" 
                 :rows="3"
-                placeholder="请输入待办事项描述"
+                :placeholder="t('todoDetail.enterDescription')"
               />
             </div>
           </div>
@@ -63,18 +63,18 @@
           
           <div class="todo-time-info">
             <div class="time-item" v-if="todo.createdTime">
-              <div class="time-label">创建时间</div>
+              <div class="time-label">{{ t('todoDetail.createdTime') }}</div>
               <div class="time-value">{{ formatTime(todo.createdTime) }}</div>
             </div>
             
             <div class="time-item">
-              <div class="time-label">开始时间</div>
-              <div v-if="!isEditing" class="time-value">{{ todo.startTime ? formatTime(todo.startTime) : '未设置' }}</div>
+              <div class="time-label">{{ t('todoDetail.startTime') }}</div>
+              <div v-if="!isEditing" class="time-value">{{ todo.startTime ? formatTime(todo.startTime) : t('todoDetail.notSet') }}</div>
               <el-date-picker 
                 v-else
                 v-model="editForm.startTime"
                 type="datetime"
-                placeholder="请选择开始时间"
+                :placeholder="t('todoDetail.selectStartTime')"
                 format="YYYY-MM-DD HH:mm"
                 value-format="YYYY-MM-DD HH:mm"
                 style="margin-left: 20px; flex: 1;"
@@ -82,14 +82,14 @@
             </div>
             
             <div class="time-item">
-              <div class="time-label">截止时间</div>
-              <div v-if="!isEditing" class="time-value">{{ todo.dueTime ? formatTime(todo.dueTime) : '未设置' }}</div>
+              <div class="time-label">{{ t('todoDetail.dueTime') }}</div>
+              <div v-if="!isEditing" class="time-value">{{ todo.dueTime ? formatTime(todo.dueTime) : t('todoDetail.notSet') }}</div>
               <div v-if="!isEditing && todo.dueTime" class="time-remaining">{{ getCountdownText(todo) }}</div>
               <el-date-picker 
                 v-else
                 v-model="editForm.dueTime"
                 type="datetime"
-                placeholder="请选择截止时间"
+                :placeholder="t('todoDetail.selectDueTime')"
                 format="YYYY-MM-DD HH:mm"
                 value-format="YYYY-MM-DD HH:mm"
                 style="margin-left: 20px; flex: 1;"
@@ -97,13 +97,13 @@
             </div>
             
             <div class="time-item">
-              <div class="time-label">提醒时间</div>
-              <div v-if="!isEditing" class="time-value">{{ todo.remindTime ? formatTime(todo.remindTime) : '未设置' }}</div>
+              <div class="time-label">{{ t('todoDetail.remindTime') }}</div>
+              <div v-if="!isEditing" class="time-value">{{ todo.remindTime ? formatTime(todo.remindTime) : t('todoDetail.notSet') }}</div>
               <el-date-picker 
                 v-else
                 v-model="editForm.remindTime"
                 type="datetime"
-                placeholder="请选择提醒时间"
+                :placeholder="t('todoDetail.selectRemindTime')"
                 format="YYYY-MM-DD HH:mm"
                 value-format="YYYY-MM-DD HH:mm"
                 style="margin-left: 20px; flex: 1;"
@@ -118,9 +118,9 @@
           <div class="card-header">
             <el-button @click="goBack" type="primary" link>
               <el-icon><ArrowLeft /></el-icon>
-              返回
+              {{ t('todoDetail.back') }}
             </el-button>
-            <div class="header-title">加载中...</div>
+            <div class="header-title">{{ t('todoDetail.loading') }}</div>
           </div>
         </template>
         
@@ -144,14 +144,14 @@
           <div class="card-header">
             <el-button @click="goBack" type="primary" link>
               <el-icon><ArrowLeft /></el-icon>
-              返回
+              {{ t('todoDetail.back') }}
             </el-button>
-            <div class="header-title">待办详情</div>
+            <div class="header-title">{{ t('todoDetail.todoDetails') }}</div>
           </div>
         </template>
         
         <div class="empty-container">
-          <el-empty description="未找到待办事项" />
+          <el-empty :description="t('todoDetail.notFound')" />
         </div>
       </el-card>
     </transition>
@@ -164,9 +164,11 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import request from '@/utils/request'
 import { ArrowLeft } from '@element-plus/icons-vue'
+import { useI18n } from 'vue-i18n'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 
 const todo = ref(null)
 const loading = ref(false)
@@ -186,7 +188,7 @@ const editForm = reactive({
 const fetchTodoDetail = async () => {
   const taskId = route.params.id
   if (!taskId) {
-    ElMessage.error('参数错误')
+    ElMessage.error(t('todoDetail.invalidParams'))
     return
   }
   
@@ -198,10 +200,10 @@ const fetchTodoDetail = async () => {
       // 初始化编辑表单
       initEditForm()
     } else {
-      ElMessage.error(response.msg || '获取待办详情失败')
+      ElMessage.error(response.msg || t('todoDetail.fetchFailed'))
     }
   } catch (error) {
-    ElMessage.error('获取待办详情失败')
+    ElMessage.error(t('todoDetail.fetchFailed'))
   } finally {
     loading.value = false
   }
@@ -235,13 +237,13 @@ const getCountdownText = (todo) => {
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
   
   if (diffTime < 0) {
-    return `已过期 ${Math.abs(diffDays)} 天`
+    return t('todoDetail.daysOverdue', [Math.abs(diffDays)])
   } else if (diffDays === 0) {
-    return '今天到期'
+    return t('todoDetail.dueToday')
   } else if (diffDays === 1) {
-    return '明天到期'
+    return t('todoDetail.dueTomorrow')
   } else {
-    return `${diffDays} 天后到期`
+    return t('todoDetail.daysUntilDue', [diffDays])
   }
 }
 
@@ -260,18 +262,18 @@ const startEdit = () => {
 const saveEdit = async () => {
   const taskId = route.params.id
   if (!taskId) {
-    ElMessage.error('参数错误')
+    ElMessage.error(t('todoDetail.invalidParams'))
     return
   }
   
   // 时间校验逻辑
   if (editForm.startTime && editForm.dueTime && new Date(editForm.startTime) > new Date(editForm.dueTime)) {
-    ElMessage.error('开始时间不能晚于截止时间')
+    ElMessage.error(t('todoDetail.startTimeError'))
     return
   }
   
   if (editForm.remindTime && editForm.dueTime && new Date(editForm.remindTime) > new Date(editForm.dueTime)) {
-    ElMessage.error('提醒时间不能晚于截止时间')
+    ElMessage.error(t('todoDetail.remindTimeError'))
     return
   }
   
@@ -303,18 +305,19 @@ const saveEdit = async () => {
       requestData.remindTime = editForm.remindTime ? new Date(editForm.remindTime).toISOString() : null
     }
     
+    // 只发送非空字段
     const response = await request.patch(`/task/${taskId}`, requestData)
     
     if (response.code === 1) {
-      ElMessage.success('更新成功')
+      ElMessage.success(t('todoDetail.updateSuccess'))
       isEditing.value = false
       // 重新获取待办详情
       fetchTodoDetail()
     } else {
-      ElMessage.error(response.msg || '更新失败')
+      ElMessage.error(response.msg || t('todoDetail.updateFailed'))
     }
   } catch (error) {
-    ElMessage.error('更新失败')
+    ElMessage.error(t('todoDetail.updateFailed'))
   }
 }
 
