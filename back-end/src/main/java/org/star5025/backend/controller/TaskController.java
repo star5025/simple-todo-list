@@ -13,7 +13,6 @@ import org.star5025.backend.entity.Task;
 import org.star5025.backend.result.PageResult;
 import org.star5025.backend.result.Result;
 import org.star5025.backend.service.TaskService;
-import org.star5025.backend.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,9 +25,6 @@ public class TaskController {
 
     @Autowired
     private TaskService taskService;
-    
-    @Autowired
-    private UserService userService;
 
     /**
      * 新增任务
@@ -83,10 +79,19 @@ public class TaskController {
     @PatchMapping("/{taskId}")
     public Result updateTask(@PathVariable Long taskId, @RequestBody TaskPatchDTO taskPatchDTO) {
         log.info("更新任务Id为{}的任务", taskId);
-
-        taskService.updateTask(taskId, taskPatchDTO);
-
-        return Result.success();
+        
+        try {
+            taskService.updateTask(taskId, taskPatchDTO);
+            return Result.success();
+        } catch (RuntimeException e) {
+            log.error("更新任务失败: ", e);
+            // 权限错误返回403，其他错误返回500
+            if (e.getMessage().contains("authorized")) {
+                return Result.error("权限不足，无法执行该操作", 403);
+            } else {
+                return Result.error("更新任务失败: " + e.getMessage(), 500);
+            }
+        }
     }
 
 

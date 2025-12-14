@@ -7,7 +7,7 @@ import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.star5025.backend.context.BaseContext;
 import org.star5025.backend.dto.TaskDTO;
 import org.star5025.backend.dto.TaskPageQueryDTO;
 import org.star5025.backend.dto.TaskPatchDTO;
@@ -16,14 +16,11 @@ import org.star5025.backend.mapper.TaskMapper;
 import org.star5025.backend.result.PageResult;
 import org.star5025.backend.service.TaskService;
 import org.star5025.backend.service.UserService;
-import org.star5025.backend.vo.TaskVO;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -112,12 +109,23 @@ public class TaskServiceImpl implements TaskService {
      */
     @Override
     public void updateTask(Long taskId, TaskPatchDTO taskPatchDTO) {
-        Task newTask = taskMapper.getTaskById(taskId);
+        Task existingTask = taskMapper.getTaskById(taskId);
+        
+        // 检查任务是否存在
+        if (existingTask == null) {
+            throw new RuntimeException("Task not found with id: " + taskId);
+        }
+
+        // 检查当前用户是否有权限更新这个任务
+        Long currentUserId = BaseContext.getCurrentId();
+        if (existingTask.getUserId() == null || !existingTask.getUserId().equals(currentUserId)) {
+            throw new RuntimeException("User not authorized to update task with id: " + taskId);
+        }
 
         // 复制非null属性，忽略null属性
-        BeanUtils.copyProperties(taskPatchDTO, newTask, getNullPropertyNames(taskPatchDTO));
+        BeanUtils.copyProperties(taskPatchDTO, existingTask, getNullPropertyNames(taskPatchDTO));
 
-        taskMapper.updateTask(newTask);
+        taskMapper.updateTask(existingTask);
     }
 
     /**

@@ -22,12 +22,12 @@ services:
     build: ./back-end
     container_name: todo-backend
     environment:
-      STDL_DATASOURCE_DRIVER_CLASS_NAME: "com.mysql.cj.jdbc.Driver"
-      STDL_DATASOURCE_HOST: "mysql"
-      STDL_DATASOURCE_PORT: "3306"
-      STDL_DATASOURCE_DATABASE: "simple_todo_list"
-      STDL_DATASOURCE_USERNAME: "root"
-      STDL_DATASOURCE_PASSWORD: "12345678"
+      stdl.datasource.driver-class-name: "com.mysql.cj.jdbc.Driver"
+      stdl.datasource.host: "mysql"
+      stdl.datasource.port: "3306"
+      stdl.datasource.database: "simple_todo_list"
+      stdl.datasource.username: "root"
+      stdl.datasource.password: "12345678"
     ports:
       - "8088:8088"
     depends_on:

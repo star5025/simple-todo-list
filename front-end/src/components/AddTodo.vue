@@ -295,7 +295,7 @@ const handleSubmit = async () => {
         }
       } catch (error) {
         console.error(t('addTodo.networkError'), error)
-        ElMessage.error(t('addTodo.networkError'))
+        ElMessage.error(t('userInfo.networkError') || t('addTodo.networkError'))
       } finally {
         submitting.value = false
       }

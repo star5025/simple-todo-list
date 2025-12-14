@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @Component
 @Slf4j
-public class JwtTokenInterceptor implements HandlerInterceptor { // 类名可根据你的场景修改（比如去掉Admin）
+public class JwtTokenInterceptor implements HandlerInterceptor {
 
     @Autowired
     private JwtProperties jwtProperties;
@@ -29,28 +29,39 @@ public class JwtTokenInterceptor implements HandlerInterceptor { // 类名可根
             return true; // 非动态方法，直接放行
         }
 
-        // 1、从请求头中获取令牌（不处理Bearer前缀，直接取原始值）
-        // 注意：这里的getAdminTokenName()需与你的JwtProperties字段匹配，如果你只有一种Token，可改为getTokenName()
+        // 对于OPTIONS预检请求直接放行
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            return true;
+        }
+
+        // 1、从请求头中获取令牌
         String token = request.getHeader(jwtProperties.getTokenName());
 
         // 2、校验令牌
         try {
+            // 检查token是否存在
+            if (token == null || token.isEmpty()) {
+                log.warn("请求缺少token: {}", request.getRequestURI());
+                response.setStatus(401);
+                return false;
+            }
+            
             log.info("jwt校验:{}", token);
             // 解析Token（使用你的密钥）
             Claims claims = JwtUtil.parseJWT(jwtProperties.getSecretKey(), token);
 
-            // 3、从claims中提取你的业务键名（使用userId作为键名）
-
-            Long userId = Long.valueOf(claims.get("userId").toString()); // 这里的"userId"是你的实际键名
+            // 3、从claims中提取用户ID
+            Long userId = Long.valueOf(claims.get("userId").toString());
             log.info("当前用户id：{}", userId);
 
-            // 4、将用户ID存入上下文（BaseContext需适配你的类型，比如如果是String则改类型）
+            // 4、将用户ID存入上下文
             BaseContext.setCurrentId(userId);
 
             // 校验通过，放行
             return true;
         } catch (Exception ex) {
             // 校验失败，响应401
+            log.error("Token校验失败: ", ex);
             response.setStatus(401);
             return false;
         }

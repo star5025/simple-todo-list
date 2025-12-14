@@ -32,9 +32,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**") // 允许所有路径
-                .allowedOriginPatterns("*") // 允许所有域名
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 允许的请求方法
-                .allowedHeaders("*") // 允许所有请求头
+                .allowedOriginPatterns("http://localhost:*", "http://127.0.0.1:*", "http://frontend:5173") // 允许本地开发环境和Docker前端
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS") // 允许的请求方法，添加PATCH
+                .allowedHeaders("*") // 允许所有请求头，包括token
+                .exposedHeaders("*") // 暴露所有响应头
                 .allowCredentials(true) // 允许携带凭证
                 .maxAge(3600); // 预检请求的有效期（秒）
     }

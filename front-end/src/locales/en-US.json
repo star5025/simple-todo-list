@@ -71,6 +71,7 @@
     "username": "Username",
     "registrationDate": "Registration Date",
     "taskCount": "Tasks Created",
+    "items": "items",
     "editUsername": "Edit Username",
     "changePassword": "Change Password",
     "unableToLoadUserInfo": "Unable to load user information",
@@ -92,7 +93,9 @@
     "passwordMismatch": "The two entered passwords do not match",
     "passwordUnchanged": "New password cannot be the same as old password",
     "confirmPasswordChange": "Are you sure you want to change password?",
-    "passwordUpdated": "Password updated successfully"
+    "passwordUpdated": "Password updated successfully",
+    "networkError": "Network connection failed, please check your network",
+    "operationFailed": "Operation failed"
   },
   "todoList": {
     "showDate": "Show Date",
@@ -125,11 +128,14 @@
     "cannotUncomplete": "Completed todos cannot be marked as incomplete",
     "confirmComplete": "Are you sure you want to complete the todo \"{0}\"?",
     "completeConfirmation": "Complete Confirmation",
+    "markAsComplete": "Mark as Complete",
     "taskCompleted": "Todo completed",
     "statusUpdateFailed": "Failed to update status",
     "addedToFavorites": "Added to favorites",
     "removedFromFavorites": "Removed from favorites",
-    "favoriteOperationFailed": "Operation failed"
+    "favoriteOperationFailed": "Operation failed",
+    "batchDelete": "Batch Delete",
+    "delete": "Delete"
   },
   "todoDetail": {
     "back": "Back",

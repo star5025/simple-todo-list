@@ -203,7 +203,7 @@ const fetchTodoDetail = async () => {
       ElMessage.error(response.msg || t('todoDetail.fetchFailed'))
     }
   } catch (error) {
-    ElMessage.error(t('todoDetail.fetchFailed'))
+    ElMessage.error(t('userInfo.operationFailed') || t('todoDetail.fetchFailed'))
   } finally {
     loading.value = false
   }
@@ -278,34 +278,18 @@ const saveEdit = async () => {
   }
   
   try {
-    // 构造请求数据，只包含有值的字段
-    const requestData = {}
+    // 构造完整的请求数据对象，而不是只发送变化的字段
+    const requestData = {
+      taskId: taskId,
+      taskName: editForm.taskName,
+      description: editForm.description,
+      status: editForm.status,
+      startTime: editForm.startTime ? new Date(editForm.startTime).toISOString() : null,
+      dueTime: editForm.dueTime ? new Date(editForm.dueTime).toISOString() : null,
+      remindTime: editForm.remindTime ? new Date(editForm.remindTime).toISOString() : null
+    };
     
-    if (editForm.taskName !== todo.value.taskName) {
-      requestData.taskName = editForm.taskName
-    }
-    
-    if (editForm.description !== (todo.value.description || '')) {
-      requestData.description = editForm.description
-    }
-    
-    if (editForm.status !== todo.value.status) {
-      requestData.status = editForm.status
-    }
-    
-    if (editForm.startTime !== (todo.value.startTime || '')) {
-      requestData.startTime = editForm.startTime ? new Date(editForm.startTime).toISOString() : null
-    }
-    
-    if (editForm.dueTime !== (todo.value.dueTime || '')) {
-      requestData.dueTime = editForm.dueTime ? new Date(editForm.dueTime).toISOString() : null
-    }
-    
-    if (editForm.remindTime !== (todo.value.remindTime || '')) {
-      requestData.remindTime = editForm.remindTime ? new Date(editForm.remindTime).toISOString() : null
-    }
-    
-    // 只发送非空字段
+    // 发送完整数据对象
     const response = await request.patch(`/task/${taskId}`, requestData)
     
     if (response.code === 1) {
@@ -317,7 +301,7 @@ const saveEdit = async () => {
       ElMessage.error(response.msg || t('todoDetail.updateFailed'))
     }
   } catch (error) {
-    ElMessage.error(t('todoDetail.updateFailed'))
+    ElMessage.error(t('userInfo.operationFailed') || t('todoDetail.updateFailed'))
   }
 }
 

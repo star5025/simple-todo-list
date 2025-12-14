@@ -62,8 +62,8 @@
               <div class="todo-info">
                 <el-checkbox 
                   v-if="!batchMode"
-                  v-model="todo.status" 
-                  @change="updateTodoStatus(todo)"
+                  :model-value="todo.status" 
+                  @change="(val) => updateTodoStatus(todo, val)"
                   @click.stop
                   class="todo-checkbox"
                 />
@@ -114,8 +114,8 @@
             <div class="todo-info">
               <el-checkbox 
                 v-if="!batchMode"
-                v-model="todo.status" 
-                @change="updateTodoStatus(todo)"
+                :model-value="todo.status" 
+                @change="(val) => updateTodoStatus(todo, val)"
                 @click.stop
                 class="todo-checkbox"
               />
@@ -491,20 +491,18 @@ const fetchTodos = async (filters = {}) => {
     }
   } catch (error) {
     console.error('获取待办列表失败:', error)
-    ElMessage.error(t('todoList.fetchFailed') + ': ' + error.message)
+    ElMessage.error(t('userInfo.operationFailed') || (t('todoList.fetchFailed') + ': ' + error.message))
   } finally {
     loading.value = false
   }
 }
 
 // 更新待办状态
-const updateTodoStatus = async (todo) => {
+const updateTodoStatus = async (todo, newStatus) => {
   // 如果待办事项已经完成，则不允许再标记为未完成
-  if (!todo.status) {
-    // 从已完成标记为未完成的情况，直接拒绝
+  if (todo.status === true) {
+    // 已完成的待办事项不能再改为未完成
     ElMessage.warning(t('todoList.cannotUncomplete'))
-    // 恢复状态
-    todo.status = true
     return
   }
   
@@ -514,7 +512,7 @@ const updateTodoStatus = async (todo) => {
       t('todoList.confirmComplete', [todo.taskName]),
       t('todoList.completeConfirmation'),
       {
-        confirmButtonText: t('todoList.confirm'),
+        confirmButtonText: t('todoList.markAsComplete'),
         cancelButtonText: t('todoList.cancel'),
         type: 'warning',
       }
@@ -522,14 +520,15 @@ const updateTodoStatus = async (todo) => {
     
     // 用户确认后执行状态更新，只发送状态字段
     const response = await request.patch(`/task/${todo.taskId}`, {
-      status: todo.status
+      status: newStatus
     })
     
     if (response.code === 1) {
+      // 更新本地状态
+      todo.status = newStatus
       ElMessage.success(t('todoList.taskCompleted'))
     } else {
       // 恢复状态
-      todo.status = false
       ElMessage.error(response.msg || t('todoList.statusUpdateFailed'))
     }
   } catch (error) {
@@ -537,7 +536,6 @@ const updateTodoStatus = async (todo) => {
     if (error !== 'cancel' && error !== 'close') {
       ElMessage.error(t('todoList.statusUpdateFailed'))
     }
-    todo.status = false
   }
 }
 
@@ -628,7 +626,7 @@ const confirmDelete = (todo) => {
     t('todoList.confirmDelete', [todo.taskName]),
     t('todoList.deleteConfirmation'),
     {
-      confirmButtonText: t('todoList.confirm'),
+      confirmButtonText: t('todoList.delete'),
       cancelButtonText: t('todoList.cancel'),
       type: 'warning',
     }
@@ -650,7 +648,7 @@ const confirmBatchDelete = () => {
     t('todoList.confirmBatchDelete', [selectedTodoIds.value.length]),
     t('todoList.batchDeleteConfirmation'),
     {
-      confirmButtonText: t('todoList.confirm'),
+      confirmButtonText: t('todoList.batchDelete'),
       cancelButtonText: t('todoList.cancel'),
       type: 'warning',
     }
@@ -718,9 +716,16 @@ const toggleFavourite = async (todo) => {
   try {
     const newFavouriteStatus = !todo.favourite;
     
-    // 只发送收藏状态字段
+    // 发送完整数据对象而不是仅发送变化的字段
     const response = await request.patch(`/task/${todo.taskId}`, {
-      favourite: newFavouriteStatus
+      taskId: todo.taskId,
+      taskName: todo.taskName,
+      description: todo.description || null,
+      status: todo.status,
+      startTime: todo.startTime || null,
+      dueTime: todo.dueTime || null,
+      remindTime: todo.remindTime || null,
+      favourite: newFavouriteStatus // 更新收藏状态
     });
     
     if (response.code === 1) {

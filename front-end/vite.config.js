@@ -21,7 +21,7 @@ export default defineConfig({
     proxy: {
       // 根据环境变量决定代理目标，如果没有设置则默认使用 localhost（适合本地开发）
       '/api': {
-        target: process.env.VITE_BACKEND_URL || 'http://localhost:8089',
+        target: process.env.VITE_BACKEND_URL || 'http://localhost:8088',
         changeOrigin: true,
         rewrite: path => path.replace(/^\/api/, '/api'),
       }

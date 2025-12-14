@@ -20,7 +20,7 @@
             </div>
             <div class="info-item">
               <span class="info-label">{{ t('userInfo.taskCount') }}:</span>
-              <span class="info-value">{{ userInfo.taskCount || 0 }} {{ t('addTodo.unit') || '个' }}</span>
+              <span class="info-value">{{ userInfo.taskCount || 0 }} {{ t('userInfo.items') || '个' }}</span>
             </div>
             
             <!-- 底部操作按钮 -->

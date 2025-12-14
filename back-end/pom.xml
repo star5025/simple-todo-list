@@ -53,7 +53,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.24</version> <!-- 版本号可根据最新稳定版调整 -->
+            <version>1.18.30</version> <!-- 升级到与JDK 17更好兼容的版本 -->
             <optional>true</optional>
         </dependency>
 
